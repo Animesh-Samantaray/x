@@ -18,9 +18,20 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
       minlength: 6,
       select: false,
+    },
+
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
     },
 
     role: {
@@ -47,6 +58,13 @@ const userSchema = new mongoose.Schema(
     interests: {
       type: [String],
       default: [],
+    },
+    passwordResetOTP:{
+      type:String,
+      default:''
+    },
+    passwordResetOTPExpire:{
+      type:Date
     },
 
     isVerified: {
