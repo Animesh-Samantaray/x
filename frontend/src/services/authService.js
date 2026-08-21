@@ -29,9 +29,31 @@ export const logout = async () => {
   return response.data;
 };
 
+export const sendResetPasswordOtp = async (email) => {
+  const response = await API.post("/auth/send-reset-password-otp", { email });
+  return response.data;
+};
+
+export const verifyResetPasswordOtp = async (email, otp) => {
+  const response = await API.post("/auth/verify-reset-password-otp", { email, otp });
+  return response.data;
+};
+
+export const changePassword = async (email, inputOtp, newPassword) => {
+  const response = await API.post("/auth/change-password", {
+    email,
+    inputOtp,
+    newPassword,
+  });
+  return response.data;
+};
+
 export default {
   register,
   login,
   getMe,
   logout,
+  sendResetPasswordOtp,
+  verifyResetPasswordOtp,
+  changePassword,
 };

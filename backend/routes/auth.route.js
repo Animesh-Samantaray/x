@@ -6,7 +6,10 @@ import {
   login,
   getMe,
   logout,
-  googleCallback
+  googleCallback,
+  sendPasswordOTP,
+  updatePassword,
+  verifyResetPasswordOTP
 } from "../controllers/auth.controller.js";
 
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -21,7 +24,20 @@ router.post("/logout", logout);
 
 router.get("/me", authMiddleware, getMe);
 
+router.post(
+  "/send-reset-password-otp",
+  sendPasswordOTP
+);
 
+router.post(
+  "/verify-reset-password-otp",
+  verifyResetPasswordOTP
+);
+
+router.post(
+  "/change-password",
+  updatePassword
+);
 
 
 router.get(

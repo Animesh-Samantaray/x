@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import generateToken from "../helper/generateToken.js";
 import { comparePassword, hashPassword } from "../helper/hashPassword.js";
-
+import resetPasswordTemplate from "../utils/resetPasswordOtpTemplete.js";
+import { sendMail } from "../utils/sendMail.js";
 
 
 const cookieOptions = {
@@ -221,5 +222,239 @@ export const googleCallback = async (req, res) => {
     return res.redirect(
       `${process.env.CLIENT_URL}/login?error=google_auth_failed`
     );
+  }
+};
+
+
+export const getAllUsers = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin only.",
+      });
+    }
+
+    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: users.length,
+      users,
+    });
+  } catch (error) {
+    console.error("Get All Users Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+
+
+
+export const sendPasswordOTP = async (req, res) => {
+  try {
+    let { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required.",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    
+    const otp = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    user.passwordResetOTP = otp;
+
+    user.passwordResetOTPExpire = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
+
+    await user.save();
+
+    await sendMail(
+      email,
+      "Password Reset OTP",
+      resetPasswordTemplate(otp)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset OTP sent successfully.",
+    });
+
+  } catch (error) {
+    console.error("Send Reset OTP Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+
+
+export const updatePassword = async (req, res) => {
+  try {
+    let { email, inputOtp, newPassword } = req.body;
+
+    if (!email || !inputOtp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP and new password are required.",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters.",
+      });
+    }
+
+    const user = await User.findOne({ email })
+      .select("+passwordResetOTP +passwordResetOTPExpire");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (
+      !user.passwordResetOTP ||
+      !user.passwordResetOTPExpire
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please request a password reset OTP first.",
+      });
+    }
+
+    if (
+      Date.now() > user.passwordResetOTPExpire.getTime()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
+    if (user.passwordResetOTP !== inputOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP.",
+      });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    user.password = hashedPassword;
+
+    user.passwordResetOTP = undefined;
+    user.passwordResetOTPExpire = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully.",
+    });
+
+  } catch (error) {
+    console.error("Update Password Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+export const verifyResetPasswordOTP = async (req, res) => {
+  try {
+    let { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required.",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email })
+      .select("+passwordResetOTP +passwordResetOTPExpire");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (
+      !user.passwordResetOTP ||
+      !user.passwordResetOTPExpire
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please request a password reset OTP first.",
+      });
+    }
+
+    if (
+      Date.now() > user.passwordResetOTPExpire.getTime()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
+    if (user.passwordResetOTP !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified",
+    });
+
+  } catch (error) {
+    console.error("Verify OTP Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
