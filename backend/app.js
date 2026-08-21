@@ -1,14 +1,16 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import passport from "./configs/passport.js";
 
 import authRoutes from "./routes/auth.route.js";
 
 const app = express();
+app.use(passport.initialize());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin:[ process.env.CLIENT_URL,"http://localhost:5173"],
     credentials: true,
   })
 );

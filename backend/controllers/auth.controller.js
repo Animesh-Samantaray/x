@@ -15,12 +15,49 @@ const cookieOptions = {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role, adminAccessToken } = req.body;
 
-    if (!name || !email || !password) {
+    if (!email || !password || !role || (role !== "admin" && !name)) {
       return res.status(400).json({
         success: false,
-        message: "Name, email and password are required",
+        message: "Required fields are missing",
+      });
+    }
+
+    if (!["learner", "creator", "expert", "admin"].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role selected",
+      });
+    }
+
+    if (role === "admin") {
+      if (!adminAccessToken) {
+        return res.status(400).json({
+          success: false,
+          message: "Admin Access Token is required to register as Admin",
+        });
+      }
+      if (adminAccessToken !== process.env.ADMIN_ACCESS_TOKEN) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid admin access token",
+        });
+      }
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
       });
     }
 
@@ -33,13 +70,15 @@ export const register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await  hashPassword(password);
+    const hashedPassword = await hashPassword(password);
 
     const user = await User.create({
-      name,
+      name: role === "admin" ? (name || "System Admin") : name,
       email,
       password: hashedPassword,
-      role: "learner",
+      role,
+      authProvider: "local",
+      isVerified: role === "admin" ? true : false,
     });
 
     const token = await generateToken(user._id);
@@ -100,7 +139,7 @@ export const login = async (req, res) => {
       });
     }
 
-    const token = await generateToken(user._id,"learner");
+    const token = await generateToken(user._id);
 
     res.cookie("token", token, cookieOptions);
 
@@ -160,5 +199,27 @@ export const logout = async (req, res) => {
       success: false,
       message: "Logout failed",
     });
+  }
+};
+
+
+export const googleCallback = async (req, res) => {
+  try {
+    const user = req.user;
+
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, cookieOptions);
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/`
+    );
+
+  } catch (error) {
+    console.error("Google Callback Error:", error);
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/login?error=google_auth_failed`
+    );
   }
 };
