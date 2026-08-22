@@ -10,13 +10,13 @@ const Button = ({
   loading = false,
   ...props
 }) => {
-  const baseStyles = "relative inline-flex items-center justify-center font-medium rounded-xl px-5 py-2.5 transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-accent-indigo disabled:opacity-50 disabled:pointer-events-none text-sm cursor-pointer select-none active:scale-[0.98]";
+  const baseStyles = "relative inline-flex items-center justify-center font-medium rounded-xl px-5 py-2.5 transition-all duration-300 ease-out focus:outline-none focus:ring-1 focus:ring-accent-indigo disabled:opacity-50 disabled:pointer-events-none text-sm cursor-pointer select-none active:scale-[0.98]";
   
   const variants = {
-    primary: "bg-gradient-accent text-white hover:bg-gradient-hover shadow-[0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.15)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_0_30px_rgba(99,102,241,0.3)] border border-accent-indigo/30",
-    secondary: "bg-slate-900/60 text-slate-200 border border-glass-border hover:border-slate-600 hover:text-white hover:bg-slate-900/80 shadow-[0_1px_2px_rgba(0,0,0,0.3)]",
+    primary: "bg-gradient-accent text-white hover:bg-gradient-hover shadow-[0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.15)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_30px_rgba(99,102,241,0.35)] hover:translate-y-[-2px] border border-accent-indigo/30",
+    secondary: "bg-slate-900/60 text-slate-200 border border-glass-border hover:border-slate-500 hover:text-white hover:bg-slate-900/80 hover:translate-y-[-2px] shadow-[0_1px_2px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.4)]",
     text: "text-slate-400 hover:text-white bg-transparent",
-    danger: "bg-rose-950/20 text-rose-300 border border-rose-500/20 hover:bg-rose-950/40 hover:border-rose-500/40 hover:text-white",
+    danger: "bg-rose-950/20 text-rose-300 border border-rose-500/20 hover:bg-rose-950/40 hover:border-rose-500/40 hover:text-white hover:translate-y-[-2px] hover:shadow-[0_4px_12px_rgba(244,63,94,0.1)]",
   };
 
   return (
