@@ -129,7 +129,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-[#02040a] flex grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative select-none">
+    <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative select-none">
       
       {/* Background visual details */}
       <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>

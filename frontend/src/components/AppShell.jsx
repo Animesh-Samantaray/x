@@ -100,7 +100,7 @@ const AppShell = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#02040a] text-slate-100 flex flex-col font-sans select-none relative pt-16">
+    <div className="min-h-screen bg-transparent text-slate-100 flex flex-col font-sans select-none relative pt-16">
       
       {/* Background overlay */}
       <div className="absolute inset-0 dot-grid opacity-35 pointer-events-none z-0"></div>

@@ -174,7 +174,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="relative bg-[#02040a] pb-24 overflow-hidden pt-12">
+    <div className="relative bg-transparent pb-24 overflow-hidden pt-12">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] transition-all duration-300 animate-fade-in">

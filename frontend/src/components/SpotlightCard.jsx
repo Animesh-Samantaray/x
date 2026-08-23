@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 
 const SpotlightCard = ({
   children,
@@ -8,35 +8,27 @@ const SpotlightCard = ({
   ...props
 }) => {
   const divRef = useRef(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const [isFocused, setIsFocused] = useState(false);
 
   const handleMouseMove = (e) => {
     if (!divRef.current) return;
     const rect = divRef.current.getBoundingClientRect();
-    setCoords({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    divRef.current.style.setProperty("--mouse-x", `${x}px`);
+    divRef.current.style.setProperty("--mouse-y", `${y}px`);
   };
-
-  const handleMouseEnter = () => setIsFocused(true);
-  const handleMouseLeave = () => setIsFocused(false);
 
   return (
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`relative overflow-hidden rounded-2xl border border-glass-border bg-[#030712]/50 backdrop-blur-md transition-all duration-300 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-glass-border bg-[#030712]/50 backdrop-blur-md transition-all duration-300 group ${className}`}
       {...props}
     >
       <div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300"
+        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{
-          opacity: isFocused ? 1 : 0,
-          background: `radial-gradient(${glowSize}px circle at ${coords.x}px ${coords.y}px, ${glowColor}, transparent 80%)`,
+          background: `radial-gradient(${glowSize}px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), ${glowColor}, transparent 80%)`,
         }}
       />
       <div className="relative z-10">{children}</div>
