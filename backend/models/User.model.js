@@ -42,29 +42,18 @@ const userSchema = new mongoose.Schema(
 
     profilePicture: {
       type: String,
-      default: "",
+      default: "https://img.magnific.com/premium-vector/avatar-profile-icon_188544-4755.jpg?semt=ais_hybrid&w=740&q=80",
     },
 
-    bio: {
+    passwordResetOTP: {
       type: String,
       default: "",
+      select: false,
     },
 
-    skills: {
-      type: [String],
-      default: [],
-    },
-
-    interests: {
-      type: [String],
-      default: [],
-    },
-    passwordResetOTP:{
-      type:String,
-      default:''
-    },
-    passwordResetOTPExpire:{
-      type:Date
+    passwordResetOTPExpire: {
+      type: Date,
+      select: false,
     },
 
     isVerified: {

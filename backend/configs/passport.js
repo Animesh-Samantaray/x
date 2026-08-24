@@ -2,6 +2,9 @@ import "dotenv/config";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth20";
 import User from "../models/User.model.js";
+import LearnerProfile from "../models/LearnerProfile.model.js";
+import CreatorProfile from "../models/CreatorProfile.model.js";
+import ExpertProfile from "../models/ExpertProfile.model.js";
 
 passport.use(
   new GoogleStrategy(
@@ -94,6 +97,23 @@ passport.use(
           authProvider: "google",
           isVerified: true,
         });
+        if (role === "learner") {
+          await LearnerProfile.create({
+            user: user._id,
+          });
+        }
+
+        if (role === "creator") {
+          await CreatorProfile.create({
+            user: user._id,
+          });
+        }
+
+        if (role === "expert") {
+          await ExpertProfile.create({
+            user: user._id,
+          });
+        }
 
         return done(null, user);
 
