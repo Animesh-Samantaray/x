@@ -10,7 +10,7 @@ const MainLayout = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+      <div className="min-h-screen bg-bg-deep flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-blue"></div>
       </div>
     );
@@ -21,7 +21,7 @@ const MainLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] flex flex-col relative">
+    <div className="min-h-screen bg-bg-deep flex flex-col relative transition-colors duration-200">
       {/* Background ambient glows */}
       <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-accent-blue/5 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[20%] right-[-10%] h-[600px] w-[600px] rounded-full bg-accent-purple/5 blur-[150px] pointer-events-none"></div>

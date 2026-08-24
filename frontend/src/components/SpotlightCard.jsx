@@ -1,34 +1,22 @@
-import React, { useRef } from "react";
+import React from "react";
 
 const SpotlightCard = ({
   children,
   className = "",
-  glowColor = "rgba(59, 130, 246, 0.15)",
-  glowSize = 350,
+  glowColor = "rgba(59, 130, 246, 0.08)",
+  glowSize,
   ...props
 }) => {
-  const divRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (!divRef.current) return;
-    const rect = divRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    divRef.current.style.setProperty("--mouse-x", `${x}px`);
-    divRef.current.style.setProperty("--mouse-y", `${y}px`);
-  };
-
   return (
     <div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden rounded-2xl border border-glass-border bg-[#030712]/50 backdrop-blur-md transition-all duration-300 group ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-glass-border bg-glass-card hover:border-glass-border-hover hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_25px_rgba(59,130,246,0.04)] transition-all duration-200 group ${className}`}
       {...props}
     >
+      {/* Premium GPU-accelerated static radial glow overlay on hover */}
       <div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(${glowSize}px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), ${glowColor}, transparent 80%)`,
+          background: `radial-gradient(350px circle at 50% 50%, ${glowColor}, transparent 80%)`,
         }}
       />
       <div className="relative z-10">{children}</div>
