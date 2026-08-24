@@ -5,7 +5,10 @@ import generateToken from "../helper/generateToken.js";
 import { comparePassword, hashPassword } from "../helper/hashPassword.js";
 import resetPasswordTemplate from "../utils/resetPasswordOtpTemplete.js";
 import { sendMail } from "../utils/sendMail.js";
-
+import LearnerProfile from "../models/LearnerProfile.model.js";
+import CreatorProfile from "../models/CreatorProfile.model.js";
+import ExpertProfile from "../models/ExpertProfile.model.js";
+import AdminProfile from "../models/AdminProfile.model.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -81,6 +84,29 @@ export const register = async (req, res) => {
       authProvider: "local",
       isVerified: role === "admin" ? true : false,
     });
+    if (role === "learner") {
+      await LearnerProfile.create({
+        user: user._id,
+      });
+    }
+
+    if (role === "creator") {
+      await CreatorProfile.create({
+        user: user._id,
+      });
+    }
+
+    if (role === "expert") {
+      await ExpertProfile.create({
+        user: user._id,
+      });
+    }
+
+    if (role === "admin") {
+      await AdminProfile.create({
+        user: user._id,
+      });
+    }
 
     const token = await generateToken(user._id);
 
@@ -277,7 +303,7 @@ export const sendPasswordOTP = async (req, res) => {
       });
     }
 
-    
+
     const otp = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
