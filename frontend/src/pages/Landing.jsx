@@ -157,7 +157,7 @@ const Landing = () => {
       sessions: "148 sessions",
       rating: "5.0",
       availability: "Available Tomorrow",
-      glowColor: "rgba(249, 115, 22, 0.15)", // Orange Expert Glow
+      glowColor: "rgba(249, 115, 22, 0.12)",
       sticker: "TOP EXPERT"
     },
     {
@@ -168,7 +168,7 @@ const Landing = () => {
       sessions: "92 sessions",
       rating: "4.9",
       availability: "Available Tuesday",
-      glowColor: "rgba(168, 85, 247, 0.15)", // Purple Creativity Glow
+      glowColor: "rgba(168, 85, 247, 0.12)",
       sticker: "AI VISUALLY AUDITED"
     }
   ];
@@ -177,9 +177,9 @@ const Landing = () => {
     <div className="relative bg-transparent pb-24 overflow-hidden pt-12">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] transition-all duration-300 animate-fade-in">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] transition-all duration-300">
           <Info className="text-accent-blue shrink-0 animate-pulse" size={18} />
-          <p className="text-xs font-semibold text-slate-200">{toastMessage}</p>
+          <p className="text-xs font-semibold text-text-title">{toastMessage}</p>
         </div>
       )}
 
@@ -187,10 +187,10 @@ const Landing = () => {
       <div className="absolute inset-0 dot-grid opacity-50 pointer-events-none z-0"></div>
 
       {/* Multiple semantic ambient light glows */}
-      <div className="glow-orb w-[600px] h-[600px] bg-accent-blue/10 top-[-100px] left-[-150px] animate-glow"></div>
-      <div className="glow-orb w-[550px] h-[550px] bg-accent-purple/5 top-[20%] right-[-100px] animate-glow" style={{ animationDelay: "-3s" }}></div>
-      <div className="glow-orb w-[650px] h-[650px] bg-accent-orange/5 bottom-[35%] left-[-150px] animate-glow" style={{ animationDelay: "-5s" }}></div>
-      <div className="glow-orb w-[600px] h-[600px] bg-accent-pink/5 bottom-[10%] right-[-100px] animate-glow" style={{ animationDelay: "-2s" }}></div>
+      <div className="glow-orb w-[600px] h-[600px] bg-accent-blue/10 top-[-100px] left-[-150px]"></div>
+      <div className="glow-orb w-[550px] h-[550px] bg-accent-purple/5 top-[20%] right-[-100px]"></div>
+      <div className="glow-orb w-[650px] h-[650px] bg-accent-orange/5 bottom-[35%] left-[-150px]"></div>
+      <div className="glow-orb w-[600px] h-[600px] bg-accent-pink/5 bottom-[10%] right-[-100px]"></div>
 
       {/* HERO SECTION */}
       <section className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-28 pb-20 z-10">
@@ -209,7 +209,7 @@ const Landing = () => {
               it's <span className="text-gradient-cyan">shared.</span>
             </h1>
             
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed font-medium">
+            <p className="text-sm sm:text-base text-text-main leading-relaxed font-medium">
               Discover verified resources, learn from creators, schedule video mentorship sessions, and connect with peer groups.
             </p>
 
@@ -236,19 +236,19 @@ const Landing = () => {
                 <Button
                   variant="primary"
                   onClick={() => handlePlaceholderClick("Marketplace")}
-                  className="group gap-2 text-xs font-bold py-3 px-6 rounded-xl shimmer-btn"
+                  className="group gap-2 text-xs font-bold py-3 px-6 rounded-xl"
                 >
                   Explore Dashboard <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
                 </Button>
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="primary" className="group gap-2 text-xs font-bold py-3.5 px-6 rounded-xl shadow-lg shimmer-btn">
+                    <Button variant="primary" className="group gap-2 text-xs font-bold py-3.5 px-6 rounded-xl shadow-lg">
                       Explore Knowledge <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
                     </Button>
                   </Link>
                   <Link to="/signup">
-                    <Button variant="secondary" className="text-xs font-bold py-3.5 px-6 rounded-xl border border-glass-border bg-slate-950/20 hover:bg-[#071120]/40">
+                    <Button variant="secondary" className="text-xs font-bold py-3.5 px-6 rounded-xl border border-glass-border">
                       Become a Creator
                     </Button>
                   </Link>
@@ -287,8 +287,8 @@ const Landing = () => {
                   <Cpu size={16} />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-xs font-bold text-white">Artificial Intelligence</h3>
-                  <p className="text-[9px] text-slate-500 mt-0.5">1,240 resources</p>
+                  <h3 className="text-xs font-bold text-text-title">Artificial Intelligence</h3>
+                  <p className="text-[9px] text-text-muted mt-0.5">1,240 resources</p>
                 </div>
               </div>
             </div>
@@ -300,8 +300,8 @@ const Landing = () => {
                   <Terminal size={16} />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-xs font-bold text-white">Web Development</h3>
-                  <p className="text-[9px] text-slate-500 mt-0.5">892 resources</p>
+                  <h3 className="text-xs font-bold text-text-title">Web Development</h3>
+                  <p className="text-[9px] text-text-muted mt-0.5">892 resources</p>
                 </div>
               </div>
             </div>
@@ -316,39 +316,39 @@ const Landing = () => {
                   <Layers size={16} />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-xs font-bold text-white">System Design</h3>
-                  <p className="text-[9px] text-slate-500 mt-0.5">428 resources</p>
+                  <h3 className="text-xs font-bold text-text-title">System Design</h3>
+                  <p className="text-[9px] text-text-muted mt-0.5">428 resources</p>
                 </div>
               </div>
             </div>
 
             {/* Floating Resource Preview (Glass) - Cyan themed */}
             <div className="absolute top-[30px] right-[20px] animate-float-card-2 z-20 pointer-events-none select-none">
-              <div className="flex flex-col gap-2 p-3.5 rounded-2xl glass-surface border border-accent-cyan/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-w-[170px] backdrop-blur-md">
+              <div className="flex flex-col gap-2 p-3.5 rounded-2xl glass-surface border border-accent-cyan/20 shadow-[0_8px_30px_rgba(80,70,120,0.06)] max-w-[170px] backdrop-blur-md">
                 <div className="flex items-center justify-between">
                   <span className="text-[8px] font-extrabold uppercase text-accent-cyan tracking-wider">Course Player</span>
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 </div>
-                <h4 className="text-[10px] font-bold text-white leading-tight">TypeScript Generics Masterclass</h4>
-                <div className="w-full bg-slate-950/80 rounded-full h-1 mt-1 overflow-hidden">
+                <h4 className="text-[10px] font-bold text-text-title leading-tight">TypeScript Generics Masterclass</h4>
+                <div className="w-full bg-glass-border rounded-full h-1 mt-1 overflow-hidden">
                   <div className="bg-accent-cyan h-full w-[72%] rounded-full"></div>
                 </div>
-                <div className="flex items-center justify-between text-[8px] text-slate-500 mt-0.5">
+                <div className="flex items-center justify-between text-[8px] text-text-muted mt-0.5">
                   <span>Progress 72%</span>
-                  <span className="font-bold text-white">1,240 learners</span>
+                  <span className="font-bold text-text-title">1,240 learners</span>
                 </div>
               </div>
             </div>
 
             {/* Floating Statistics Preview - Purple themed */}
             <div className="absolute bottom-[30px] right-[40px] animate-float-card-3 z-20 pointer-events-none select-none">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#03050c]/90 border border-accent-purple/20 shadow-xl max-w-[160px]">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-bg-dark border border-accent-purple/20 shadow-xl max-w-[160px]">
                 <div className="h-7 w-7 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-accent-purple">
                   <TrendingUp size={14} />
                 </div>
                 <div className="text-left">
-                  <h4 className="text-[10px] font-extrabold text-white">$4,850.00</h4>
-                  <p className="text-[8px] text-slate-500 uppercase tracking-wider font-semibold">Total Revenue</p>
+                  <h4 className="text-[10px] font-extrabold text-text-title">$4,850.00</h4>
+                  <p className="text-[8px] text-text-muted uppercase tracking-wider font-semibold">Total Revenue</p>
                 </div>
               </div>
             </div>
@@ -360,15 +360,15 @@ const Landing = () => {
                   AT
                 </div>
                 <div className="text-left">
-                  <h4 className="text-[9px] font-bold text-white">Aria Thorne</h4>
+                  <h4 className="text-[9px] font-bold text-text-title">Aria Thorne</h4>
                   <p className="text-[7px] text-accent-orange font-bold uppercase tracking-wider">Available Tuesday</p>
                 </div>
               </div>
             </div>
 
             {/* Center Hub CKM */}
-            <div className="absolute h-16 w-16 rounded-2xl bg-gradient-accent p-[1.5px] shadow-[0_0_40px_rgba(59,130,246,0.35)] animate-pulse flex items-center justify-center z-10">
-              <div className="h-full w-full rounded-2xl bg-[#02040a] flex items-center justify-center text-white font-extrabold text-base tracking-wider">
+            <div className="absolute h-16 w-16 rounded-2xl bg-gradient-accent p-[1.5px] shadow-[0_0_40px_rgba(59,130,246,0.15)] animate-pulse flex items-center justify-center z-10">
+              <div className="h-full w-full rounded-2xl bg-bg-darker flex items-center justify-center text-text-title font-extrabold text-base tracking-wider">
                 CKM
               </div>
             </div>
@@ -393,53 +393,52 @@ const Landing = () => {
                 Find the knowledge <br />
                 you need.
               </h2>
-              <p className="text-sm text-slate-400 font-medium leading-relaxed">
+              <p className="text-sm text-text-main font-medium leading-relaxed">
                 Choose your field and browse curated files, scripts, and note packages matching your build stack.
               </p>
             </div>
             
             <div className="hidden lg:block border-l-2 border-accent-cyan/40 pl-4 space-y-1 py-1">
-              <h4 className="text-xs font-bold text-white uppercase">Dynamic Categories</h4>
-              <p className="text-[10px] text-slate-500">Updated metrics in real-time</p>
+              <h4 className="text-xs font-bold text-text-title uppercase">Dynamic Categories</h4>
+              <p className="text-[10px] text-text-muted">Updated metrics in real-time</p>
             </div>
           </div>
 
           {/* Grid Category Showcase with gradient spheres */}
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {categories.map((cat, idx) => {
-              // Custom category accent border colors on hover
               const hoverBorders = {
-                "01": "hover:border-accent-blue/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.12)]",
-                "02": "hover:border-accent-purple/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.12)]",
-                "03": "hover:border-accent-cyan/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.12)]",
-                "04": "hover:border-accent-orange/40 hover:shadow-[0_0_20px_rgba(249,115,22,0.12)]",
-                "05": "hover:border-accent-emerald/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.12)]",
-                "06": "hover:border-accent-magenta/40 hover:shadow-[0_0_20px_rgba(236,72,153,0.12)]"
+                "01": "hover:border-accent-blue/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.06)]",
+                "02": "hover:border-accent-purple/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)]",
+                "03": "hover:border-accent-cyan/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]",
+                "04": "hover:border-accent-orange/40 hover:shadow-[0_0_20px_rgba(249,115,22,0.06)]",
+                "05": "hover:border-accent-emerald/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.06)]",
+                "06": "hover:border-accent-magenta/40 hover:shadow-[0_0_20px_rgba(236,72,153,0.06)]"
               };
-              const hoverBorder = hoverBorders[cat.num] || "hover:border-slate-700";
+              const hoverBorder = hoverBorders[cat.num] || "hover:border-glass-border-hover";
               return (
                 <div
                   key={idx}
                   onMouseEnter={() => setActiveCategory(idx)}
                   className={`group relative rounded-2xl border p-5 transition-all duration-300 cursor-pointer overflow-hidden hover:translate-y-[-4px] hover:scale-[1.01] ${
                     activeCategory === idx
-                      ? "bg-[#071120]/60 border-accent-blue/30 shadow-2xl"
-                      : "bg-[#03050c]/80 border-glass-border"
+                      ? "bg-bg-dark/60 border-accent-blue/30 shadow-2xl"
+                      : "bg-glass-card/80 border-glass-border"
                   } ${hoverBorder}`}
                 >
                   {/* Asymmetric color glow sphere in background */}
                   <div className={`absolute top-[-20%] right-[-20%] h-24 w-24 rounded-full bg-gradient-to-br ${cat.color} blur-xl group-hover:scale-150 transition-all duration-500`} />
                   
                   <div className="flex items-center justify-between mb-4 relative z-10">
-                    <span className="text-[10px] font-extrabold text-slate-500 group-hover:text-white transition-colors">{cat.num}</span>
+                    <span className="text-[10px] font-extrabold text-text-muted group-hover:text-text-title transition-colors">{cat.num}</span>
                     <div className={`h-1.5 w-1.5 rounded-full ${cat.accent} transition-transform duration-300 group-hover:scale-[1.4]`} />
                   </div>
                   
-                  <h3 className="text-xs font-bold text-white mb-2 relative z-10 group-hover:text-blue-glow transition-all text-left">{cat.title}</h3>
+                  <h3 className="text-xs font-bold text-text-title mb-2 relative z-10 transition-all text-left">{cat.title}</h3>
                   
-                  <div className="space-y-1.5 mt-4 relative z-10 text-left text-[10px] text-slate-500">
-                    <div className="flex justify-between"><span>Files</span><span className="text-slate-300 font-bold group-hover:text-white transition-colors duration-200">{cat.count}</span></div>
-                    <div className="flex justify-between"><span>Creators</span><span className="text-slate-300 font-bold group-hover:text-white transition-colors duration-200">{cat.creators}</span></div>
+                  <div className="space-y-1.5 mt-4 relative z-10 text-left text-[10px] text-text-muted">
+                    <div className="flex justify-between"><span>Files</span><span className="text-text-main font-bold group-hover:text-text-title transition-colors duration-200">{cat.count}</span></div>
+                    <div className="flex justify-between"><span>Creators</span><span className="text-text-main font-bold group-hover:text-text-title transition-colors duration-200">{cat.creators}</span></div>
                   </div>
 
                   <div className="mt-5 flex items-center justify-end text-[10px] text-accent-cyan opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 font-extrabold relative z-10">
@@ -460,24 +459,24 @@ const Landing = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Left illustration panels */}
-          <div className="lg:col-span-7 bg-[#03050c] border border-glass-border/80 rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6">
+          <div className="lg:col-span-7 bg-bg-panel border border-glass-border rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6">
             <div className="absolute top-[-20px] left-[-20px] h-32 w-32 rounded-full bg-accent-cyan/5 blur-xl pointer-events-none"></div>
             
             {/* Semantic Ring indicator */}
-            <div className="flex flex-col items-center shrink-0 space-y-3 bg-[#02040a]/80 border border-glass-border p-5 rounded-2xl shadow-lg relative">
+            <div className="flex flex-col items-center shrink-0 space-y-3 bg-bg-darker/80 border border-glass-border p-5 rounded-2xl shadow-lg relative">
               <div className="absolute -top-3 -right-2 sticker sticker-cyan rotate-[4deg] scale-90">
                 <span>ACTIVE STREAK</span>
               </div>
-              <ProgressRing progress={72} size={85} strokeWidth={8} ringColor="stroke-accent-cyan" trackColor="stroke-slate-900" />
+              <ProgressRing progress={72} size={85} strokeWidth={8} ringColor="stroke-accent-cyan" trackColor="stroke-glass-border" />
               <div className="text-center">
-                <h4 className="text-xs font-bold text-white">72% Completed</h4>
-                <p className="text-[9px] text-slate-500 mt-0.5">TypeScript Generics</p>
+                <h4 className="text-xs font-bold text-text-title">72% Completed</h4>
+                <p className="text-[9px] text-text-muted mt-0.5">TypeScript Generics</p>
               </div>
             </div>
 
             {/* Simulated learning statistics logs */}
             <div className="flex-grow space-y-3.5 text-left w-full">
-              <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold border-b border-glass-border/40 pb-2">
+              <div className="flex items-center justify-between text-[10px] text-text-muted font-bold border-b border-glass-border/40 pb-2">
                 <span>study workspace metrics</span>
                 <span className="text-accent-cyan">+5h this week</span>
               </div>
@@ -487,15 +486,15 @@ const Landing = () => {
                   { text: "Section 3 - Server Actions & compilation metrics", time: "Completed yesterday", active: true },
                   { text: "Docker foundations basic routing logs", time: "Completed 3d ago", active: false }
                 ].map((l, i) => (
-                  <div key={i} className="flex gap-2.5 items-start text-xs p-2.5 bg-slate-950/40 border border-glass-border rounded-xl">
+                  <div key={i} className="flex gap-2.5 items-start text-xs p-2.5 bg-bg-darker/40 border border-glass-border rounded-xl">
                     {l.active ? (
                       <Check className="text-accent-cyan mt-0.5 shrink-0" size={12} />
                     ) : (
-                      <Check className="text-slate-600 mt-0.5 shrink-0" size={12} />
+                      <Check className="text-text-muted mt-0.5 shrink-0" size={12} />
                     )}
                     <div>
-                      <h4 className="font-bold text-white text-[11px] leading-tight">{l.text}</h4>
-                      <p className="text-[9px] text-slate-500 mt-0.5">{l.time}</p>
+                      <h4 className="font-bold text-text-title text-[11px] leading-tight">{l.text}</h4>
+                      <p className="text-[9px] text-text-muted mt-0.5">{l.time}</p>
                     </div>
                   </div>
                 ))}
@@ -509,7 +508,7 @@ const Landing = () => {
               <span>02 / MODERN LEARNING</span>
             </div>
             <h2 className="section-heading text-3xl">Targeted, step-by-step progress tracking.</h2>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+            <p className="text-sm text-text-main font-medium leading-relaxed">
               CKM isn't just about reading documentation. Log your progress, test configurations locally, and trace curriculum milestones inside your workspace shell.
             </p>
           </div>
@@ -528,7 +527,7 @@ const Landing = () => {
           <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
             Explore premium configurations & blueprints
           </h2>
-          <p className="text-sm text-slate-400 font-medium leading-relaxed mt-2.5 max-w-xl mx-auto">
+          <p className="text-sm text-text-main font-medium leading-relaxed mt-2.5 max-w-xl mx-auto">
             Visually verified, production-ready courses, guides, and shell scripts built by technical experts.
           </p>
         </div>
@@ -536,22 +535,21 @@ const Landing = () => {
         {/* Resources Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {resources.map((res, idx) => {
-            // Category-specific visual styles
-            let catColor = "from-accent-cyan/15 to-accent-cyan/5 border-accent-cyan/25 glow-border-cyan";
-            let hoverGlow = "hover:border-accent-cyan/40 hover:shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(6,182,212,0.12)]";
+            let catColor = "from-accent-cyan/15 to-accent-cyan/5 border-accent-cyan/25 glow-border-cyan card-tint-cyan";
+            let hoverGlow = "hover:border-accent-cyan/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
             let Icon = Terminal;
             let themeTextColor = "text-accent-cyan";
             let themeHoverText = "group-hover:text-accent-cyan";
 
             if (res.category === "Sys Design") {
-              catColor = "from-accent-orange/15 to-accent-orange/5 border-accent-orange/25 glow-border-orange";
-              hoverGlow = "hover:border-accent-orange/40 hover:shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(249,115,22,0.12)]";
+              catColor = "from-accent-orange/15 to-accent-orange/5 border-accent-orange/25 glow-border-orange card-tint-peach";
+              hoverGlow = "hover:border-accent-orange/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
               Icon = Layers;
               themeTextColor = "text-accent-orange";
               themeHoverText = "group-hover:text-accent-orange";
             } else if (res.category === "AI / ML") {
-              catColor = "from-accent-purple/15 to-accent-purple/5 border-accent-purple/25 glow-border-purple";
-              hoverGlow = "hover:border-accent-purple/40 hover:shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.12)]";
+              catColor = "from-accent-purple/15 to-accent-purple/5 border-accent-purple/25 glow-border-purple card-tint-purple";
+              hoverGlow = "hover:border-accent-purple/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
               Icon = Cpu;
               themeTextColor = "text-accent-purple";
               themeHoverText = "group-hover:text-accent-purple";
@@ -560,17 +558,15 @@ const Landing = () => {
             return (
               <div
                 key={idx}
-                className={`group relative rounded-3xl border p-6 bg-[#03050c]/40 transition-all duration-300 hover:translate-y-[-6px] hover:scale-[1.01] flex flex-col justify-between text-left ${catColor} ${hoverGlow} ${res.rotation}`}
+                className={`group relative rounded-3xl border p-6 bg-glass-card transition-all duration-300 hover:translate-y-[-6px] hover:scale-[1.01] flex flex-col justify-between text-left ${catColor} ${hoverGlow} ${res.rotation}`}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl" />
-                
-                <div className="space-y-4">
+                <div className="space-y-4 w-full">
                   {/* Card Header */}
                   <div className="flex items-center justify-between">
                     <span className={`sticker ${res.pillColor} scale-90 origin-left`}>
                       {res.badgeText}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{res.category}</span>
+                    <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{res.category}</span>
                   </div>
 
                   {/* UI-driven Graphic Course Thumbnail Composition */}
@@ -578,7 +574,7 @@ const Landing = () => {
                     res.category === 'Web Dev' ? 'from-[#0b2447] via-[#19376d] to-[#02040a] border-accent-cyan/30' :
                     res.category === 'Sys Design' ? 'from-[#2c1100] via-[#4d2200] to-[#02040a] border-accent-orange/30' :
                     'from-[#200b3b] via-[#3d1355] to-[#02040a] border-accent-purple/30'
-                  } border relative overflow-hidden flex items-center justify-center p-4 shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] transition-transform duration-300 group-hover:scale-[1.02]`}>
+                  } border relative overflow-hidden flex items-center justify-center p-4 shadow-[inset_0_4px_20px_rgba(0,0,0,0.4)] transition-transform duration-300 group-hover:scale-[1.02]`}>
                     
                     {/* Glowing Light Effect */}
                     <div className={`absolute h-28 w-28 rounded-full bg-gradient-to-br ${
@@ -590,24 +586,24 @@ const Landing = () => {
                     {/* Dot grid decoration for futuristic coding vibe */}
                     <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
                     
-                    <div className="w-full h-full flex flex-col justify-between relative z-10 text-[9px] font-mono text-slate-500 leading-normal">
+                    <div className="w-full h-full flex flex-col justify-between relative z-10 text-[9px] font-mono text-text-muted leading-normal">
                       <div className="flex items-center justify-between border-b border-glass-border/40 pb-1.5 mb-1.5">
                         <div className="flex items-center gap-1.5">
                           <Icon size={12} className={themeTextColor} />
-                          <span className="text-white font-bold group-hover:text-white transition-colors">{res.type} config</span>
+                          <span className="text-text-title font-bold transition-colors">{res.type} config</span>
                         </div>
                         <span className="text-[8px]">v2.1.0</span>
                       </div>
                       
                       <div className="space-y-1">
-                        <div className="h-1.5 bg-slate-800 rounded-sm w-[85%]"></div>
-                        <div className="h-1.5 bg-slate-800 rounded-sm w-[60%]"></div>
-                        <div className="h-1.5 bg-slate-800 rounded-sm w-[75%]"></div>
+                        <div className="h-1.5 bg-glass-border rounded-sm w-[85%]"></div>
+                        <div className="h-1.5 bg-glass-border rounded-sm w-[60%]"></div>
+                        <div className="h-1.5 bg-glass-border rounded-sm w-[75%]"></div>
                       </div>
 
                       <div className="flex justify-between items-end border-t border-glass-border/30 pt-1.5 mt-1.5">
                         <span className="text-[8px] uppercase tracking-wider">{res.difficulty}</span>
-                        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-800 text-[8px] font-bold text-white uppercase">
+                        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-bg-dark text-[8px] font-bold text-text-title uppercase">
                           {res.initials}
                         </div>
                       </div>
@@ -616,25 +612,25 @@ const Landing = () => {
 
                   {/* Title & Description */}
                   <div className="space-y-2">
-                    <h3 className={`text-sm font-bold text-white leading-snug transition-colors duration-200 ${themeHoverText}`}>
+                    <h3 className={`text-sm font-bold text-text-title leading-snug transition-colors duration-200 ${themeHoverText}`}>
                       {res.title}
                     </h3>
-                    <p className="text-xs text-slate-400 font-medium leading-relaxed line-clamp-3">
+                    <p className="text-xs text-text-main font-medium leading-relaxed line-clamp-3">
                       {res.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-glass-border/40 space-y-4">
+                <div className="mt-6 pt-4 border-t border-glass-border/40 space-y-4 w-full">
                   {/* Creator & Stats Row */}
-                  <div className="flex items-center justify-between text-[10px] text-slate-500">
+                  <div className="flex items-center justify-between text-[10px] text-text-muted">
                     <div className="flex items-center gap-2">
-                      <div className={`h-6 w-6 rounded-full flex items-center justify-center font-extrabold text-[8px] text-white uppercase bg-gradient-to-br ${
+                      <div className={`h-6 w-6 rounded-full flex items-center justify-center font-extrabold text-[8px] text-text-title uppercase bg-gradient-to-br ${
                         res.category === 'Web Dev' ? 'from-cyan-500/30' : res.category === 'Sys Design' ? 'from-orange-500/30' : 'from-purple-500/30'
                       } to-transparent border border-glass-border transition-transform duration-300 group-hover:scale-105`}>
                         {res.initials}
                       </div>
-                      <span className="font-semibold text-slate-300">{res.creator}</span>
+                      <span className="font-semibold text-text-main">{res.creator}</span>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -644,9 +640,9 @@ const Landing = () => {
                   </div>
 
                   {/* Duration & Difficulty Row */}
-                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                  <div className="flex items-center justify-between text-[10px] text-text-muted">
                     <div className="flex items-center gap-1.5">
-                      <Clock size={11} className="text-slate-500" />
+                      <Clock size={11} className="text-text-muted" />
                       <span>{res.duration}</span>
                     </div>
                     <span className="font-bold text-[9px] uppercase tracking-wider">{res.difficulty}</span>
@@ -655,13 +651,13 @@ const Landing = () => {
                   {/* Price & CTA Button */}
                   <div className="flex items-center justify-between gap-4 pt-1.5">
                     <div className="text-left">
-                      <span className="text-[9px] text-slate-500 uppercase tracking-widest block leading-none">Price</span>
-                      <span className="text-sm font-extrabold text-white mt-1.5 block">{res.price}</span>
+                      <span className="text-[9px] text-text-muted uppercase tracking-widest block leading-none">Price</span>
+                      <span className="text-sm font-extrabold text-text-title mt-1.5 block">{res.price}</span>
                     </div>
                     <Button
                       variant="primary"
                       onClick={() => handlePlaceholderClick(res.title)}
-                      className="text-[10px] font-bold py-2 px-4 rounded-xl shimmer-btn"
+                      className="text-[10px] font-bold py-2 px-4 rounded-xl"
                     >
                       Unlock Now
                     </Button>
@@ -686,7 +682,7 @@ const Landing = () => {
               Sometimes you don't need another tutorial.
             </h2>
           </div>
-          <p className="text-xs text-slate-400 font-semibold max-w-xs leading-relaxed text-left">
+          <p className="text-xs text-text-main font-semibold max-w-xs leading-relaxed text-left">
             "You need an architect who has already deployed it at scale." Connect live with verified developers.
           </p>
         </div>
@@ -696,7 +692,7 @@ const Landing = () => {
           {experts.map((exp, idx) => (
             <SpotlightCard
               key={idx}
-              className="group p-6 bg-[#03050c]/50 border border-glass-border/70 rounded-2xl relative overflow-hidden text-left hover:translate-y-[-4px] hover:scale-[1.01] hover:border-slate-600 transition-all duration-300 ease-out"
+              className="group p-6 bg-glass-card border border-glass-border rounded-2xl relative overflow-hidden text-left hover:translate-y-[-4px] hover:scale-[1.01] hover:border-glass-border-hover transition-all duration-300 ease-out"
               glowColor={exp.glowColor}
             >
               {/* Radial gradient background light */}
@@ -704,7 +700,7 @@ const Landing = () => {
 
               <div className="flex flex-col sm:flex-row gap-5 relative z-10">
                 {/* Expert portrait */}
-                <div className={`h-16 w-16 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)] relative border font-extrabold text-lg text-white uppercase bg-gradient-to-br transition-all duration-300 ${
+                <div className={`h-16 w-16 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative border font-extrabold text-lg text-white uppercase bg-gradient-to-br transition-all duration-300 ${
                   idx === 0
                     ? "from-orange-500 to-amber-500 border-orange-400/30 glow-border-orange group-hover:shadow-[0_0_15px_rgba(249,115,22,0.25)] group-hover:border-orange-400"
                     : "from-purple-500 to-pink-500 border-purple-400/30 glow-border-purple group-hover:shadow-[0_0_15px_rgba(168,85,247,0.25)] group-hover:border-purple-400"
@@ -714,7 +710,7 @@ const Landing = () => {
                   ) : (
                     exp.name.split(' ').map(n => n[0]).join('')
                   )}
-                  <div className="absolute -bottom-2 -right-2 bg-[#02040a] p-1 rounded-tl-xl border-t border-l border-glass-border">
+                  <div className="absolute -bottom-2 -right-2 bg-bg-darker p-1 rounded-tl-xl border-t border-l border-glass-border">
                     <span className="text-[8px] text-amber-400">★</span>
                   </div>
                   {/* Status Indicator */}
@@ -724,13 +720,13 @@ const Landing = () => {
                   </span>
                 </div>
 
-                <div className="space-y-3.5 flex-grow">
+                <div className="space-y-3.5 flex-grow w-full">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-glass-border/40 pb-2">
                     <div>
-                      <h3 className={`text-sm font-bold text-white mb-0.5 transition-colors ${
+                      <h3 className={`text-sm font-bold text-text-title mb-0.5 transition-colors ${
                         idx === 0 ? "group-hover:text-accent-orange" : "group-hover:text-accent-purple"
                       }`}>{exp.name}</h3>
-                      <p className="text-[10px] text-slate-500 font-bold">{exp.role}</p>
+                      <p className="text-[10px] text-text-muted font-bold">{exp.role}</p>
                     </div>
                     
                     <span className="text-[9px] text-accent-orange bg-accent-orange/15 border border-accent-orange/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider transition-all duration-300 group-hover:bg-accent-orange/25 group-hover:border-accent-orange/40 group-hover:shadow-[0_0_8px_rgba(249,115,22,0.2)]">
@@ -738,14 +734,14 @@ const Landing = () => {
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-400 leading-relaxed font-medium transition-colors group-hover:text-slate-300">
+                  <p className="text-xs text-text-main leading-relaxed font-medium transition-colors group-hover:text-text-title">
                     Former developer specialized in high-scale infrastructure audits, multi-region database replications, and zero-downtime container configuration.
                   </p>
 
-                  <div className="pt-2 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    <span className="transition-colors group-hover:text-slate-400">{exp.expertise}</span>
-                    <div className="flex items-center gap-3 font-semibold text-slate-400 normal-case">
-                      <span className="transition-colors group-hover:text-slate-300">{exp.sessions}</span>
+                  <div className="pt-2 flex items-center justify-between text-[10px] text-text-muted font-bold uppercase tracking-wider">
+                    <span className="transition-colors group-hover:text-text-main">{exp.expertise}</span>
+                    <div className="flex items-center gap-3 font-semibold text-text-muted normal-case">
+                      <span className="transition-colors group-hover:text-text-title">{exp.sessions}</span>
                       <span className="flex items-center gap-0.5"><span className="text-amber-500 transition-transform duration-200 group-hover:scale-110">★</span> {exp.rating}</span>
                     </div>
                   </div>
@@ -770,7 +766,7 @@ const Landing = () => {
             <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
               Compile notes & sell configurations.
             </h2>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+            <p className="text-sm text-text-main font-medium leading-relaxed">
               Compile your schema templates, config scripts, and blueprints. Set your pricing model and distribute files securely to builders on CKM.
             </p>
 
@@ -784,8 +780,8 @@ const Landing = () => {
                 <div key={idx} className="flex gap-2">
                   <Check size={13} className="text-accent-purple mt-0.5 shrink-0" />
                   <div>
-                    <h4 className="text-white font-bold">{item.title}</h4>
-                    <p className="text-[9px] text-slate-500 mt-0.5">{item.text}</p>
+                    <h4 className="text-text-title font-bold">{item.title}</h4>
+                    <p className="text-[9px] text-text-muted mt-0.5">{item.text}</p>
                   </div>
                 </div>
               ))}
@@ -793,7 +789,7 @@ const Landing = () => {
           </div>
 
           {/* Right visual dashboard preview */}
-          <div className="lg:col-span-7 bg-[#03050c] border border-glass-border/80 rounded-2xl p-6 shadow-2xl relative overflow-hidden text-left animate-fade-in">
+          <div className="lg:col-span-7 bg-bg-panel border border-glass-border rounded-2xl p-6 shadow-2xl relative overflow-hidden text-left">
             <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-accent-purple/5 blur-2xl pointer-events-none"></div>
             
             {/* Header with Creator Identity */}
@@ -804,64 +800,64 @@ const Landing = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white leading-none">Alex Rivera</span>
+                    <span className="text-xs font-bold text-text-title leading-none">Alex Rivera</span>
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   </div>
-                  <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-0.5 block">CKM Verified Creator</span>
+                  <span className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5 block">CKM Verified Creator</span>
                 </div>
               </div>
-              <span className="text-[10px] text-slate-500 font-bold">Standard Account</span>
+              <span className="text-[10px] text-text-muted font-bold">Standard Account</span>
             </div>
 
             {/* Premium Stats Grid */}
             <div className="grid grid-cols-4 gap-3 mb-5">
-              <div className="bg-[#02040a]/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Earnings</div>
+              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
+                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Earnings</div>
                 <div className="text-[11px] font-extrabold text-emerald-400 mt-1">$4,850.00</div>
               </div>
-              <div className="bg-[#02040a]/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Resources</div>
-                <div className="text-[11px] font-extrabold text-white mt-1">18 Items</div>
+              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
+                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Resources</div>
+                <div className="text-[11px] font-extrabold text-text-title mt-1">18 Items</div>
               </div>
-              <div className="bg-[#02040a]/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Learners</div>
+              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
+                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Learners</div>
                 <div className="text-[11px] font-extrabold text-accent-blue mt-1">1,420</div>
               </div>
-              <div className="bg-[#02040a]/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Rating</div>
+              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
+                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Rating</div>
                 <div className="text-[11px] font-extrabold text-amber-400 mt-1">4.9 ★</div>
               </div>
             </div>
 
             {/* Miniature Resource Catalog Preview */}
             <div className="space-y-2 mb-5">
-              <div className="text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">Published Resources</div>
+              <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-widest mb-1.5">Published Resources</div>
               {[
-                { title: "Production Next.js 15 Masterclass", type: "Course", price: "$29.00", category: "Web Dev", color: "border-accent-cyan/20 bg-accent-cyan/5", text: "text-accent-cyan" },
-                { title: "Raft Consensus Blueprint & Scripts", type: "Guide", price: "$15.00", category: "Sys Design", color: "border-accent-orange/20 bg-accent-orange/5", text: "text-accent-orange" }
+                { title: "Production Next.js 15 Masterclass", type: "Course", price: "$29.00", category: "Web Dev", color: "border-accent-cyan/20 bg-accent-cyan/5 card-tint-cyan", text: "text-accent-cyan" },
+                { title: "Raft Consensus Blueprint & Scripts", type: "Guide", price: "$15.00", category: "Sys Design", color: "border-accent-orange/20 bg-accent-orange/5 card-tint-peach", text: "text-accent-orange" }
               ].map((res, i) => (
-                <div key={i} className="flex items-center justify-between p-2.5 bg-slate-950/40 border border-glass-border rounded-xl">
+                <div key={i} className="flex items-center justify-between p-2.5 bg-bg-darker/40 border border-glass-border rounded-xl">
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex px-1.5 py-0.5 rounded text-[8px] font-extrabold border ${res.color} ${res.text}`}>
                       {res.type}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-200">{res.title}</span>
+                    <span className="text-[10px] font-bold text-text-title">{res.title}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-white">{res.price}</span>
+                  <span className="text-[10px] font-bold text-text-title">{res.price}</span>
                 </div>
               ))}
             </div>
 
             {/* Analytical Graph mockup */}
-            <div className="bg-[#02040a]/40 border border-glass-border/40 rounded-xl p-4">
-              <div className="flex items-center justify-between text-[9px] text-slate-500 mb-4">
+            <div className="bg-bg-darker/40 border border-glass-border/40 rounded-xl p-4">
+              <div className="flex items-center justify-between text-[9px] text-text-muted mb-4">
                 <span>Revenue Metrics</span>
                 <span className="text-accent-purple font-bold">+18.5% growth</span>
               </div>
               <div className="flex items-end justify-between h-20 px-2 gap-2 pt-2">
                 {[30, 45, 35, 60, 50, 75, 90, 85].map((h, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center">
-                    <div className="w-full bg-gradient-to-t from-accent-purple/20 to-accent-purple rounded-t-sm transition-all duration-500 hover:to-white" style={{ height: `${h}%` }}></div>
+                    <div className="w-full bg-gradient-to-t from-accent-purple/20 to-accent-purple rounded-t-sm transition-all duration-500 hover:to-text-title" style={{ height: `${h}%` }}></div>
                   </div>
                 ))}
               </div>
@@ -889,27 +885,27 @@ const Landing = () => {
           ].map((d, idx) => (
             <SpotlightCard
               key={idx}
-              className="p-6 bg-[#03050c]/50 border border-glass-border rounded-2xl flex flex-col justify-between text-left"
+              className="p-6 bg-glass-card border border-glass-border rounded-2xl flex flex-col justify-between text-left"
               glowColor="rgba(236, 72, 153, 0.12)"
             >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+              <div className="space-y-4 w-full">
+                <div className="flex items-center justify-between text-[10px] font-bold text-text-muted">
                   <span className="uppercase tracking-wider">{d.topic}</span>
                   <span>Started by {d.author}</span>
                 </div>
-                <h3 className="text-xs font-bold text-white hover:text-blue-glow transition-all cursor-pointer leading-relaxed">
+                <h3 className="text-xs font-bold text-text-title hover:text-accent-blue transition-all cursor-pointer leading-relaxed">
                   "{d.title}"
                 </h3>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-glass-border/30 flex items-center justify-between text-[10px] text-slate-500 font-semibold">
+              <div className="mt-8 pt-4 border-t border-glass-border/30 flex items-center justify-between text-[10px] text-text-muted font-semibold w-full">
                 <div className="flex gap-4">
                   <span>{d.replies} replies</span>
                   <span>{d.likes} likes</span>
                 </div>
                 <button
                   onClick={() => handlePlaceholderClick("Community Forum")}
-                  className="text-accent-pink hover:text-white flex items-center gap-1 transition"
+                  className="text-accent-pink hover:text-text-title flex items-center gap-1 transition cursor-pointer"
                 >
                   Join discussion <ArrowRight size={10} />
                 </button>
@@ -923,18 +919,18 @@ const Landing = () => {
       <section className="mx-auto max-w-7xl px-6 py-20 relative z-10 border-t border-glass-border/30">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {[
-            { num: "10K+", label: "Active Learners", color: "text-accent-blue", bgGlow: "rgba(59, 130, 246, 0.12)" },
-            { num: "2.5K+", label: "Verified Resources", color: "text-accent-cyan", bgGlow: "rgba(6, 182, 212, 0.12)" },
-            { num: "800+", label: "Specialist Creators", color: "text-accent-purple", bgGlow: "rgba(168, 85, 247, 0.12)" },
-            { num: "320+", label: "Consultant Experts", color: "text-accent-orange", bgGlow: "rgba(249, 115, 22, 0.12)" }
+            { num: "10K+", label: "Active Learners", color: "text-accent-blue", bgGlow: "rgba(59, 130, 246, 0.08)" },
+            { num: "2.5K+", label: "Verified Resources", color: "text-accent-cyan", bgGlow: "rgba(6, 182, 212, 0.08)" },
+            { num: "800+", label: "Specialist Creators", color: "text-accent-purple", bgGlow: "rgba(168, 85, 247, 0.08)" },
+            { num: "320+", label: "Consultant Experts", color: "text-accent-orange", bgGlow: "rgba(249, 115, 22, 0.08)" }
           ].map((stat, idx) => (
             <SpotlightCard
               key={idx}
-              className="group p-6 bg-[#03050c]/40 border border-glass-border/80 rounded-2xl text-center flex flex-col items-center justify-center animate-fade-in hover:translate-y-[-4px] hover:scale-[1.01] hover:border-slate-700 transition-all duration-300 ease-out"
+              className="group p-6 bg-glass-card border border-glass-border rounded-2xl text-center flex flex-col items-center justify-center hover:translate-y-[-4px] hover:scale-[1.01] hover:border-glass-border-hover transition-all duration-300 ease-out"
               glowColor={stat.bgGlow}
             >
               <div className={`text-2xl sm:text-3xl font-extrabold ${stat.color} tracking-tight transition-transform duration-300 group-hover:scale-105`}>{stat.num}</div>
-              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5 transition-colors group-hover:text-slate-300">{stat.label}</div>
+              <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider mt-1.5 transition-colors group-hover:text-text-title">{stat.label}</div>
             </SpotlightCard>
           ))}
         </div>
@@ -942,7 +938,6 @@ const Landing = () => {
 
       {/* FINAL CTA SECTION */}
       <section className="mx-auto max-w-5xl px-6 py-12 relative z-10">
-        <div className="glow-orb w-[450px] h-[450px] bg-accent-blue/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-glow"></div>
         
         <div className="relative rounded-3xl overflow-hidden bg-bg-panel border border-glass-border p-12 md:p-18 text-center shadow-2xl">
           <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none"></div>
@@ -951,14 +946,14 @@ const Landing = () => {
             <h2 className="hero-heading text-3xl sm:text-4xl leading-tight">
               Your next breakthrough could start here.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-text-main leading-relaxed font-medium">
               Join a modern repository built to connect resources, course modules, and direct mentorship lines.
             </p>
             <div className="pt-4 flex justify-center">
               {isAuthenticated ? (
                 <Button
                   variant="primary"
-                  className="font-bold px-8 py-3.5 rounded-xl text-xs shimmer-btn"
+                  className="font-bold px-8 py-3.5 rounded-xl text-xs"
                   onClick={() => handlePlaceholderClick("Marketplace Dashboard")}
                 >
                   Explore Dashboard
@@ -967,7 +962,7 @@ const Landing = () => {
                 <Link to="/signup">
                   <Button
                     variant="primary"
-                    className="font-bold px-8 py-3.5 rounded-xl text-xs shimmer-btn"
+                    className="font-bold px-8 py-3.5 rounded-xl text-xs"
                   >
                     Get Started with CKM
                   </Button>

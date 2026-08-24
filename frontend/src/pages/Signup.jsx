@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, Mail, KeyRound, AlertCircle, Eye, EyeOff, Sparkles, Share2, GraduationCap, Users, UserCheck, Settings, ShieldAlert, BadgeCheck } from "lucide-react";
+import {
+  User,
+  Mail,
+  KeyRound,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Share2,
+  GraduationCap,
+  Users,
+  UserCheck,
+  Settings,
+  ShieldAlert,
+  Check
+} from "lucide-react";
 import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
 
@@ -129,109 +143,111 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative select-none">
+    <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 md:grid-cols-12 overflow-hidden relative select-none">
       
       {/* Background visual details */}
       <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
       
-      {/* Left panel branding visual composition */}
-      <div className="hidden lg:flex lg:col-span-4 bg-[#050811]/60 border-r border-glass-border/30 flex-col justify-between p-10 relative overflow-hidden">
-        <div className="absolute inset-0 line-grid opacity-20 pointer-events-none"></div>
-        <div className="glow-orb w-[300px] h-[300px] bg-accent-blue/10 top-[-50px] left-[-50px] animate-glow"></div>
-        <div className="glow-orb w-[280px] h-[280px] bg-accent-purple/5 bottom-[10%] right-[-50px] animate-glow" style={{ animationDelay: "-3s" }}></div>
+      {/* Left panel branding layout */}
+      <div className="hidden md:flex md:col-span-5 bg-bg-dark border-r border-glass-border/30 flex-col justify-between p-10 relative overflow-hidden">
+        <div className="absolute inset-0 line-grid opacity-15 pointer-events-none"></div>
+        <div className="glow-orb w-[300px] h-[300px] bg-accent-blue/5 top-[-50px] left-[-50px]"></div>
+        <div className="glow-orb w-[280px] h-[280px] bg-accent-purple/5 bottom-[10%] right-[-50px]"></div>
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white z-10">
+        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-text-title z-10 select-none hover:opacity-85 transition">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.25)]">
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-deep">
               <Share2 size={14} className="text-accent-blue" />
             </div>
           </div>
-          <span className="font-extrabold tracking-widest text-slate-100 text-base">CKM</span>
+          <span className="font-extrabold tracking-widest text-text-title text-base">CKM</span>
         </Link>
 
-        {/* Dynamic graphics and stickers */}
-        <div className="my-auto space-y-7 z-10 text-left relative">
-          <div className="sticker sticker-purple rotate-[-2deg] mb-2">
-            <Sparkles size={11} className="text-accent-purple" />
-            <span>EXCHANGE PLATFORM v2.0</span>
+        {/* Copywriting */}
+        <div className="my-auto space-y-6 z-10 text-left relative max-w-sm">
+          <div className="space-y-2">
+            <h1 className="hero-heading text-3xl font-extrabold text-text-title leading-tight">
+              Join the marketplace
+            </h1>
+            <p className="text-xs text-accent-purple font-bold tracking-wider uppercase">
+              Configure your workspace path.
+            </p>
           </div>
           
-          <h1 className="hero-heading text-4xl leading-tight">
-            Share and <br />
-            package <span className="text-gradient-cyan">expertise.</span>
-          </h1>
-          <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-            Access compiled developer guides, system templates, and live consultation scheduler listings.
+          <p className="text-xs text-text-main leading-relaxed">
+            Create an account to start sharing templates, reading production masterclasses, booking specialists, or auditing system activities.
           </p>
 
-          <div className="relative h-44 w-full max-w-[280px] bg-[#03050c] border border-glass-border rounded-2xl p-4 shadow-2xl flex items-center justify-center">
-            <div className="h-10 w-10 rounded-xl bg-gradient-accent p-[1.5px] z-20 shadow-lg animate-float">
-              <div className="h-full w-full rounded-xl bg-[#02040a] flex items-center justify-center text-white">
-                <Share2 size={16} />
+          <div className="space-y-3.5 border-t border-glass-border/30 pt-5">
+            <div className="flex items-start gap-2.5">
+              <div className="h-5 w-5 rounded-md bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0 mt-0.5">
+                <Check size={11} strokeWidth={3} />
               </div>
+              <p className="text-[11px] text-text-muted leading-snug">
+                <strong className="text-text-main font-bold">Vetted technical assets:</strong> Access zero-trust setups, Raft consensuses, and Next.js guides.
+              </p>
             </div>
             
-            {/* Inner nodes */}
-            <div className="absolute top-[12%] left-[12%] h-8 w-8 rounded-lg bg-[#050811] border border-glass-border flex items-center justify-center text-[9px] text-slate-400 font-bold z-10">
-              PDF
+            <div className="flex items-start gap-2.5">
+              <div className="h-5 w-5 rounded-md bg-accent-purple/15 text-accent-purple flex items-center justify-center shrink-0 mt-0.5">
+                <Check size={11} strokeWidth={3} />
+              </div>
+              <p className="text-[11px] text-text-muted leading-snug">
+                <strong className="text-text-main font-bold">Monetize experience:</strong> Publish guides or offer scheduled 1:1 consultation availability as a Creator or Expert.
+              </p>
             </div>
-            <div className="absolute bottom-[12%] left-[15%] h-8 w-8 rounded-lg bg-[#050811] border border-glass-border flex items-center justify-center text-[9px] text-slate-400 font-bold z-10">
-              1:1
-            </div>
-            <div className="absolute top-[20%] right-[12%] h-8 w-8 rounded-lg bg-[#050811] border border-glass-border flex items-center justify-center text-[9px] text-slate-400 font-bold z-10">
-              ZIP
-            </div>
-            
-            <svg className="absolute inset-0 h-full w-full text-slate-800 pointer-events-none" fill="none" viewBox="0 0 280 176">
-              <line x1="68" y1="40" x2="140" y2="88" stroke="currentColor" strokeWidth={1.5} strokeDasharray="3 3" />
-              <line x1="80" y1="135" x2="140" y2="88" stroke="currentColor" strokeWidth={1.5} strokeDasharray="3 3" />
-              <line x1="220" y1="50" x2="140" y2="88" stroke="currentColor" strokeWidth={1.5} strokeDasharray="3 3" />
-            </svg>
-          </div>
-          
-          {/* Floating Sticker */}
-          <div className="absolute top-2 right-2 sticker sticker-blue rotate-[4deg]">
-            <span>10K+ Builders</span>
           </div>
         </div>
 
-        <p className="text-[10px] text-slate-600 font-medium z-10">
-          &copy; {new Date().getFullYear()} Collaborative Knowledge Marketplace.
-        </p>
+        {/* Platform stats */}
+        <div className="flex items-center gap-6 z-10 border-t border-glass-border/20 pt-4 text-left">
+          <div>
+            <span className="block text-md font-bold text-text-title">10K+</span>
+            <span className="text-[9px] uppercase tracking-wider text-text-muted">Builders</span>
+          </div>
+          <div>
+            <span className="block text-md font-bold text-text-title">500+</span>
+            <span className="text-[9px] uppercase tracking-wider text-text-muted">Guides</span>
+          </div>
+          <div>
+            <span className="block text-md font-bold text-text-title">99.9%</span>
+            <span className="text-[9px] uppercase tracking-wider text-text-muted">Uptime</span>
+          </div>
+        </div>
       </div>
 
       {/* Right panel layout split form */}
-      <div className="col-span-1 lg:col-span-8 flex flex-col justify-center px-6 sm:px-12 py-12 z-10 h-full overflow-y-auto">
+      <div className="col-span-1 md:col-span-7 flex flex-col justify-center px-6 sm:px-12 py-12 z-10 h-full overflow-y-auto">
         <div className="w-full max-w-4xl mx-auto space-y-6">
           
-          <div className="text-center lg:text-left space-y-1">
-            <Link to="/" className="inline-flex lg:hidden items-center gap-2 text-md font-bold text-white tracking-wider mb-2">
+          <div className="text-center md:text-left space-y-1">
+            <Link to="/" className="inline-flex md:hidden items-center gap-2 text-md font-bold text-text-title tracking-wider mb-2">
               <span className="h-2 w-2 rounded bg-gradient-accent"></span>
               CKM
             </Link>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Choose your path</h2>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">
-              Select one of the four roles below to configure your custom workspace account.
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-title tracking-tight">Create account</h2>
+            <p className="text-xs sm:text-sm text-text-muted font-medium">
+              Choose your profile role to unlock specialized workspace layouts.
             </p>
           </div>
 
-          <SpotlightCard className="p-6 bg-[#050811]/50 border border-glass-border rounded-2xl shadow-2xl relative" glowColor="rgba(59, 130, 246, 0.12)">
+          <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl shadow-2xl relative" glowColor="rgba(59, 130, 246, 0.08)">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:divide-x lg:divide-glass-border">
               
-              {/* Column 1: FOUR role selector experiences */}
+              {/* Column 1: Compact Role Selector */}
               <div className="lg:col-span-5 space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
-                  <h3 className="text-xs font-bold tracking-wider uppercase text-slate-300">1. Account Role</h3>
+                  <h3 className="text-xs font-bold tracking-wider uppercase text-text-title">1. Account Role</h3>
                 </div>
 
                 <div className="grid grid-cols-1 gap-2.5">
                   {[
-                    { id: "learner", title: "Learner", desc: "Learn new skills", icon: GraduationCap, color: "bg-accent-blue/15 text-accent-blue border-accent-blue/30", glow: "hover:border-accent-blue/40 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]" },
-                    { id: "creator", title: "Creator", desc: "Share your knowledge", icon: Users, color: "bg-accent-purple/15 text-accent-purple border-accent-purple/30", glow: "hover:border-accent-purple/40 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]" },
-                    { id: "expert", title: "Expert", desc: "Mentor others", icon: UserCheck, color: "bg-accent-orange/15 text-accent-orange border-accent-orange/30", glow: "hover:border-accent-orange/40 hover:shadow-[0_0_15px_rgba(249,115,22,0.15)]" },
-                    { id: "admin", title: "Admin", desc: "Manage the platform", icon: Settings, color: "bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30", glow: "hover:border-accent-emerald/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]" }
+                    { id: "learner", title: "Learner", desc: "Access study masterclasses", icon: GraduationCap, color: "bg-accent-blue/15 text-accent-blue border-accent-blue/30" },
+                    { id: "creator", title: "Creator", desc: "Publish assets and guides", icon: Users, color: "bg-accent-purple/15 text-accent-purple border-accent-purple/30" },
+                    { id: "expert", title: "Expert", desc: "List schedules and consult", icon: UserCheck, color: "bg-accent-orange/15 text-accent-orange border-accent-orange/30" },
+                    { id: "admin", title: "Admin", desc: "Audit and moderation actions", icon: Settings, color: "bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30" }
                   ].map((role) => {
                     const Icon = role.icon;
                     const isActive = selectedRole === role.id;
@@ -239,21 +255,21 @@ const Signup = () => {
                       <div
                         key={role.id}
                         onClick={() => handleRoleSelect(role.id)}
-                        className={`group flex items-center gap-3.5 p-3 rounded-xl border cursor-pointer transition-all duration-300 hover:translate-y-[-2px] hover:scale-[1.01] ${
+                        className={`group flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all duration-200 hover:-translate-y-0.5 ${
                           isActive
-                            ? "bg-slate-900/90 border-slate-700 shadow-lg " + role.glow
-                            : "bg-[#03050c]/80 border-glass-border " + role.glow
+                            ? "bg-bg-darker/90 border-text-muted shadow-md"
+                            : "bg-bg-dark/40 border-glass-border hover:border-glass-border-hover"
                         }`}
                       >
-                        <div className={`p-2.5 rounded-xl transition-all duration-300 group-hover:scale-[1.08] group-hover:rotate-[3deg] ${isActive ? role.color : "bg-[#050811] text-slate-500"}`}>
-                          <Icon size={15} />
+                        <div className={`p-2 rounded-xl transition duration-150 group-hover:scale-105 ${isActive ? role.color : "bg-bg-deep text-text-muted"}`}>
+                          <Icon size={14} />
                         </div>
-                        <div className="flex-grow text-left">
-                          <h4 className="text-xs font-extrabold text-white leading-none">{role.title}</h4>
-                          <p className="text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors mt-1 leading-normal">{role.desc}</p>
+                        <div className="flex-grow text-left leading-tight">
+                          <h4 className="text-xs font-extrabold text-text-title">{role.title}</h4>
+                          <p className="text-[10px] text-text-muted mt-0.5 leading-normal">{role.desc}</p>
                         </div>
                         {isActive && (
-                          <div className="h-4.5 w-4.5 rounded-full bg-accent-blue flex items-center justify-center text-white text-[9px] font-bold shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+                          <div className="h-4 w-4 rounded-full bg-accent-blue flex items-center justify-center text-white text-[8px] font-bold">
                             ✓
                           </div>
                         )}
@@ -263,25 +279,25 @@ const Signup = () => {
                 </div>
               </div>
 
-              {/* Column 2: Inputs */}
+              {/* Column 2: Details Inputs */}
               <div className="lg:col-span-7 lg:pl-8 space-y-4 text-left">
                 <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
-                  <h3 className="text-xs font-bold tracking-wider uppercase text-slate-300">2. Register details</h3>
+                  <h3 className="text-xs font-bold tracking-wider uppercase text-text-title">2. Details</h3>
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs px-3.5 py-2.5 rounded-xl animate-shake">
+                  <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs px-3.5 py-2.5 rounded-xl">
                     <AlertCircle size={14} className="shrink-0" />
-                    <span className="font-semibold">{error}</span>
+                    <span className="font-semibold text-left">{error}</span>
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Dynamic conditional name block (Admin does not require name since backend defaults it) */}
+                <form onSubmit={handleSubmit} className="space-y-3.5">
+                  {/* Name (hidden for Admin) */}
                   {selectedRole !== "admin" && (
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Full name</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Full name</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -290,16 +306,16 @@ const Signup = () => {
                           placeholder="John Doe"
                           value={formData.name}
                           onChange={handleChange}
-                          className="w-full bg-[#03050c] border border-glass-border text-slate-200 text-xs rounded-xl pl-9.5 pr-4 py-3 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/30 transition"
+                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-4 py-2.5"
                         />
-                        <User size={14} className="absolute left-3.5 top-3.5 text-slate-500" />
+                        <User size={14} className="absolute left-3.5 top-3 text-text-muted" />
                       </div>
                     </div>
                   )}
 
                   {/* Email */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Email address</label>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Email address</label>
                     <div className="relative">
                       <input
                         type="email"
@@ -308,16 +324,16 @@ const Signup = () => {
                         placeholder="name@company.com"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full bg-[#03050c] border border-glass-border text-slate-200 text-xs rounded-xl pl-9.5 pr-4 py-3 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/30 transition"
+                        className="w-full form-input text-xs rounded-xl pl-9.5 pr-4 py-2.5"
                       />
-                      <Mail size={14} className="absolute left-3.5 top-3.5 text-slate-500" />
+                      <Mail size={14} className="absolute left-3.5 top-3 text-text-muted" />
                     </div>
                   </div>
 
-                  {/* Password Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
+                  {/* Passwords */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Password</label>
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
@@ -326,21 +342,21 @@ const Signup = () => {
                           placeholder="••••••••"
                           value={formData.password}
                           onChange={handleChange}
-                          className="w-full bg-[#03050c] border border-glass-border text-slate-200 text-xs rounded-xl pl-9.5 pr-10 py-3 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/30 transition"
+                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-10 py-2.5"
                         />
-                        <KeyRound size={14} className="absolute left-3.5 top-3.5 text-slate-500" />
+                        <KeyRound size={14} className="absolute left-3.5 top-3 text-text-muted" />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-slate-500 hover:text-white"
+                          className="absolute right-3 top-2.5 text-text-muted hover:text-text-title cursor-pointer"
                         >
-                          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Confirm</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Confirm</label>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? "text" : "password"}
@@ -349,24 +365,24 @@ const Signup = () => {
                           placeholder="••••••••"
                           value={formData.confirmPassword}
                           onChange={handleChange}
-                          className="w-full bg-[#03050c] border border-glass-border text-slate-200 text-xs rounded-xl pl-9.5 pr-10 py-3 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/30 transition"
+                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-10 py-2.5"
                         />
-                        <KeyRound size={14} className="absolute left-3.5 top-3.5 text-slate-500" />
+                        <KeyRound size={14} className="absolute left-3.5 top-3 text-text-muted" />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-3 text-slate-500 hover:text-white"
+                          className="absolute right-3 top-2.5 text-text-muted hover:text-text-title cursor-pointer"
                         >
-                          {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                          {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Dynamic Admin Access Token Field */}
+                  {/* Admin Access Token */}
                   {selectedRole === "admin" && (
-                    <div className="space-y-1.5 animate-fade-in">
-                      <label className="text-[11px] font-bold text-accent-emerald uppercase tracking-widest flex items-center gap-1.5">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-accent-emerald uppercase tracking-widest flex items-center gap-1.5">
                         <ShieldAlert size={12} />
                         Admin Access Token
                       </label>
@@ -378,24 +394,24 @@ const Signup = () => {
                           placeholder="Enter admin token"
                           value={formData.adminAccessToken}
                           onChange={handleChange}
-                          className="w-full bg-[#03050c] border border-accent-emerald/30 text-slate-200 text-xs rounded-xl pl-9.5 pr-4 py-3 outline-none focus:border-accent-emerald/50 focus:ring-1 focus:ring-accent-emerald/20 transition"
+                          className="w-full bg-bg-dark border border-accent-emerald/30 text-text-main text-xs rounded-xl pl-9.5 pr-4 py-2.5 outline-none focus:border-accent-emerald/50 focus:ring-1 focus:ring-accent-emerald/10 transition"
                         />
-                        <KeyRound size={14} className="absolute left-3.5 top-3.5 text-slate-500" />
+                        <KeyRound size={14} className="absolute left-3.5 top-3.5 text-text-muted" />
                       </div>
                     </div>
                   )}
 
                   {/* Submit */}
-                  <Button type="submit" loading={loading} className="w-full py-3.5 text-xs font-bold rounded-xl mt-4">
+                  <Button type="submit" loading={loading} className="w-full py-3 text-xs font-bold rounded-xl mt-3">
                     Create Account
                   </Button>
 
-                  {/* Google OAuth signup (disable if admin) */}
+                  {/* Google OAuth Signup */}
                   {selectedRole !== "admin" && (
                     <>
-                      <div className="flex items-center my-4">
+                      <div className="flex items-center my-3.5">
                         <div className="flex-grow h-[1px] bg-glass-border" />
-                        <span className="text-[9px] text-slate-500 uppercase px-2.5 font-bold">Or register with</span>
+                        <span className="text-[8px] text-text-muted uppercase px-2.5 font-bold">Or register with</span>
                         <div className="flex-grow h-[1px] bg-glass-border" />
                       </div>
 
@@ -403,15 +419,15 @@ const Signup = () => {
                         type="button"
                         onClick={handleGoogleSignup}
                         disabled={loading}
-                        className="w-full flex items-center justify-center gap-2 bg-slate-950 border border-glass-border hover:bg-slate-900 text-xs text-slate-200 font-bold py-3.5 px-4 rounded-xl transition"
+                        className="w-full flex items-center justify-center gap-2 bg-bg-darker border border-glass-border hover:bg-glass-border text-xs text-text-main hover:text-text-title font-bold py-3 px-4 rounded-xl transition cursor-pointer"
                       >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24">
+                        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                           <path
                             fill="#EA4335"
                             d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.111 4.114-3.478 0-6.3-2.822-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.11.63 4.23 1.64l3.15-3.15C19.29 2.45 15.98 1.1 12.24 1.1 6.13 1.1 1.1 6.13 1.1 12.24s5.03 11.14 11.14 11.14c6.19 0 11.23-5.04 11.23-11.24 0-.74-.08-1.46-.23-2.16H12.24z"
                           />
                         </svg>
-                        Register with Google
+                        Continue with Google
                       </button>
                     </>
                   )}
@@ -423,7 +439,7 @@ const Signup = () => {
           </SpotlightCard>
 
           {/* Footer Navigation */}
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-text-muted">
             Already have an account?{" "}
             <Link to="/login" className="text-accent-blue hover:underline font-bold">
               Sign in
