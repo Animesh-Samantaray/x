@@ -1,0 +1,81 @@
+PHASE 1 — FOUNDATION
+│
+├── Project Setup
+├── Database Setup
+└── Common Infrastructure
+     ├── Error Handling
+     ├── API Response Format
+     ├── Validation
+     └── Middleware
+     
+PHASE 2 — AUTHENTICATION & AUTHORIZATION
+│
+├── User Authentication
+├── User Roles & Permissions
+└── User Profile
+     ├── Learner Profile
+     ├── Creator Profile
+     ├── Expert Profile
+     └── Admin Profile
+
+PHASE 3 — CONTENT FOUNDATION
+│
+├── Categories & Topics
+├── Resource Management
+├── Resource Publishing
+└── Resource Explore & Details
+
+PHASE 4 — DISCOVERY
+│
+├── Search
+├── Filters
+├── Sorting
+└── Recommendations (future)
+
+PHASE 5 — COURSES & LEARNING
+│
+├── Course Management
+├── Course Enrollment
+├── Learning Progress
+├── Bookmarks
+└── Ratings & Reviews
+
+PHASE 6 — ROLE DASHBOARDS
+│
+├── Learner Dashboard
+├── Creator Dashboard
+└── Expert Dashboard
+
+PHASE 7 — EXPERT / MENTORSHIP
+│
+├── Expert Listing & Profiles
+├── Mentorship
+└── Session Booking
+
+PHASE 8 — SOCIAL
+│
+├── Discussion Forum
+├── Chat & Messaging
+└── Notifications
+
+PHASE 9 — COMMERCE
+│
+├── Payments
+├── Orders
+└── Creator & Expert Earnings
+
+PHASE 10 — ADMIN
+│
+├── Admin Dashboard
+├── User Management
+├── Content Management
+├── Reports
+├── Moderation
+└── Analytics
+
+PHASE 11 — QUALITY & RELEASE
+│
+├── Testing
+├── Security
+├── Performance
+└── Deployment

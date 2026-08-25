@@ -13,10 +13,11 @@ const Button = ({
   const baseStyles = "relative inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 transition-all duration-200 ease-out focus:outline-none focus:ring-1 focus:ring-accent-indigo disabled:opacity-50 disabled:pointer-events-none text-sm cursor-pointer select-none active:scale-[0.98]";
   
   const variants = {
-    primary: "bg-btn-primary text-white hover:bg-btn-primary-hover hover:-translate-y-0.5 border border-accent-indigo/10 shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_18px_rgba(99,102,241,0.2)] transition-all",
-    secondary: "bg-btn-secondary text-text-btn-secondary border border-glass-border hover:bg-btn-secondary-bg-hover hover:border-glass-border-hover hover:-translate-y-0.5 transition-all",
-    text: "text-text-muted hover:text-text-title bg-transparent transition-colors",
-    danger: "bg-rose-500/10 text-rose-600 border border-rose-500/25 dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-500/20 hover:bg-rose-500/20 hover:-translate-y-0.5 dark:hover:bg-rose-950/40 transition-all",
+    primary: "bg-btn-primary text-white hover:bg-btn-primary-hover hover:-translate-y-0.5 border border-accent-indigo/10 shadow-[0_2px_12px_rgba(124,58,237,0.15)] hover:shadow-[0_4px_18px_rgba(124,58,237,0.3)] transition-all duration-200",
+    secondary: "bg-btn-secondary text-text-btn-secondary border border-glass-border hover:bg-btn-secondary-bg-hover hover:border-glass-border-hover hover:-translate-y-0.5 transition-all duration-200",
+    text: "text-text-muted hover:text-text-title bg-transparent transition-colors duration-200",
+    danger: "bg-rose-500/10 text-rose-600 border border-rose-500/25 dark:bg-rose-950/20 dark:text-rose-300 dark:border-rose-500/20 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-900 hover:-translate-y-0.5 transition-all duration-200",
+    success: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/25 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-500/20 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-900 hover:-translate-y-0.5 transition-all duration-200",
   };
 
   return (

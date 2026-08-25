@@ -15,7 +15,9 @@ const Navbar = () => {
     localStorage.setItem("theme", nextTheme);
     if (nextTheme === "light") {
       document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
     } else {
+      document.documentElement.classList.add("dark");
       document.documentElement.classList.remove("light");
     }
   };
@@ -28,24 +30,24 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-50 rounded-2xl border border-glass-border bg-bg-dark/60 backdrop-blur-xl px-4 py-2 flex items-center justify-between shadow-[0_10px_35px_-10px_rgba(0,0,0,0.5)] transition-all duration-300">
+    <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-50 rounded-2xl border border-glass-border bg-nav-bg backdrop-blur-xl px-4 py-2 flex items-center justify-between shadow-lg shadow-purple-950/5 dark:shadow-[0_10px_35px_-10px_rgba(0,0,0,0.5)] transition-all duration-300">
       {/* Brand logo */}
       <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-text-title select-none transition-transform duration-200 hover:scale-[1.02]">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(124,58,237,0.2)]">
           <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-deep">
-            <Share2 size={14} className="text-accent-blue" />
+            <Share2 size={14} className="text-accent-violet" />
           </div>
         </div>
         <span className="font-black tracking-widest text-text-title text-base">CKM</span>
       </Link>
 
       {/* Desktop navigation */}
-      <div className="hidden md:flex items-center space-x-8">
+      <div className="hidden md:flex items-center space-x-2">
         {navLinks.map((link, idx) => (
           <a
             key={idx}
             href={link.path}
-            className="text-[13px] font-medium text-text-muted hover:text-text-title transition-colors duration-200 relative py-1 after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:bg-accent-cyan after:transition-all after:duration-300 hover:after:w-full"
+            className="text-[13px] font-bold text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 dark:hover:text-white dark:hover:bg-white/5 px-4 py-2 rounded-xl transition-all duration-200"
           >
             {link.name}
           </a>
@@ -56,7 +58,7 @@ const Navbar = () => {
       <div className="hidden md:flex items-center space-x-3.5">
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-xl border border-glass-border hover:bg-glass-border hover:text-text-title text-text-muted transition duration-200 cursor-pointer active:scale-95"
+          className="p-2.5 rounded-xl border border-glass-border hover:bg-glass-border hover:text-text-title text-text-muted transition duration-200 cursor-pointer active:scale-95 flex items-center justify-center"
           aria-label="Toggle theme"
         >
           {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
@@ -86,13 +88,13 @@ const Navbar = () => {
       {/* Mobile Drawer */}
       {isOpen && (
         <div className="absolute top-16 left-0 right-0 rounded-2xl border border-glass-border bg-bg-dark/95 backdrop-blur-2xl p-5 shadow-2xl md:hidden flex flex-col space-y-4">
-          <div className="flex flex-col space-y-3.5">
+          <div className="flex flex-col space-y-1">
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
                 href={link.path}
                 onClick={() => setIsOpen(false)}
-                className="text-sm font-medium text-text-muted hover:text-text-title py-1 transition-all relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-accent-cyan after:transition-all after:duration-300 hover:after:w-full"
+                className="text-sm font-bold text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 dark:hover:text-white dark:hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200 text-left"
               >
                 {link.name}
               </a>

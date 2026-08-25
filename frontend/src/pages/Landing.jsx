@@ -193,6 +193,7 @@ const Landing = () => {
       <div className="glow-orb w-[600px] h-[600px] bg-accent-pink/5 bottom-[10%] right-[-100px]"></div>
 
       {/* HERO SECTION */}
+      <div className="w-full bg-[#f1eaff]/65 dark:bg-[#070b1a] border-b border-purple-500/10 dark:border-purple-950/30">
       <section className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-28 pb-20 z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
@@ -377,8 +378,10 @@ const Landing = () => {
 
         </div>
       </section>
+      </div>
 
       {/* DISCOVER SECTION */}
+      <div className="w-full bg-[#e8edfe] dark:bg-[#0b1020] border-b border-blue-500/10 dark:border-blue-950/30">
       <section id="explore" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
         <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-cyan/5 rounded-full blur-[90px] pointer-events-none"></div>
         
@@ -416,14 +419,23 @@ const Landing = () => {
                 "06": "hover:border-accent-magenta/40 hover:shadow-[0_0_20px_rgba(236,72,153,0.06)]"
               };
               const hoverBorder = hoverBorders[cat.num] || "hover:border-glass-border-hover";
+              const catTints = {
+                "01": "card-tint-blue border-accent-blue/20",
+                "02": "card-tint-peach border-accent-orange/20",
+                "03": "card-tint-purple border-accent-purple/20",
+                "04": "card-tint-mint border-accent-emerald/20",
+                "05": "card-tint-pink border-accent-pink/20",
+                "06": "card-tint-cyan border-accent-cyan/20"
+              };
+              const catTint = catTints[cat.num] || "bg-glass-card border-glass-border";
               return (
                 <div
                   key={idx}
                   onMouseEnter={() => setActiveCategory(idx)}
                   className={`group relative rounded-2xl border p-5 transition-all duration-300 cursor-pointer overflow-hidden hover:translate-y-[-4px] hover:scale-[1.01] ${
                     activeCategory === idx
-                      ? "bg-bg-dark/60 border-accent-blue/30 shadow-2xl"
-                      : "bg-glass-card/80 border-glass-border"
+                      ? "card-tint-purple border-accent-purple/40 shadow-2xl"
+                      : catTint
                   } ${hoverBorder}`}
                 >
                   {/* Asymmetric color glow sphere in background */}
@@ -451,9 +463,11 @@ const Landing = () => {
 
         </div>
       </section>
+      </div>
 
       {/* LEARNING VISUALIZATION */}
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#e3faf2] dark:bg-[#050814] border-b border-emerald-500/10 dark:border-emerald-950/30">
+      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
         <div className="absolute top-[20%] right-[-150px] w-[500px] h-[500px] bg-accent-blue/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -515,9 +529,11 @@ const Landing = () => {
 
         </div>
       </section>
+      </div>
 
       {/* FEATURED RESOURCES SHOWCASE SECTION */}
-      <section id="resources" className="mx-auto max-w-7xl px-6 py-20 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#faf7f2]/90 dark:bg-[#0f1226] border-b border-amber-500/10 dark:border-purple-950/30">
+      <section id="resources" className="mx-auto max-w-7xl px-6 py-20 relative z-10">
         <div className="absolute top-[20%] left-[-150px] w-[500px] h-[500px] bg-accent-cyan/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -558,7 +574,7 @@ const Landing = () => {
             return (
               <div
                 key={idx}
-                className={`group relative rounded-3xl border p-6 bg-glass-card transition-all duration-300 hover:translate-y-[-6px] hover:scale-[1.01] flex flex-col justify-between text-left ${catColor} ${hoverGlow} ${res.rotation}`}
+                className={`group relative rounded-3xl border p-6 transition-all duration-300 hover:translate-y-[-6px] hover:scale-[1.01] flex flex-col justify-between text-left ${catColor} ${hoverGlow} ${res.rotation}`}
               >
                 <div className="space-y-4 w-full">
                   {/* Card Header */}
@@ -668,9 +684,11 @@ const Landing = () => {
           })}
         </div>
       </section>
+      </div>
 
       {/* EXPERT DISCOVERY SECTION */}
-      <section id="experts" className="mx-auto max-w-7xl px-6 py-24 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#ffe8d6]/80 dark:bg-[#070b1a] border-b border-orange-500/10 dark:border-indigo-950/30">
+      <section id="experts" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
         <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-orange/5 rounded-full blur-[90px] pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
@@ -692,7 +710,9 @@ const Landing = () => {
           {experts.map((exp, idx) => (
             <SpotlightCard
               key={idx}
-              className="group p-6 bg-glass-card border border-glass-border rounded-2xl relative overflow-hidden text-left hover:translate-y-[-4px] hover:scale-[1.01] hover:border-glass-border-hover transition-all duration-300 ease-out"
+              className={`group p-6 border rounded-2xl relative overflow-hidden text-left hover:translate-y-[-4px] hover:scale-[1.01] transition-all duration-300 ease-out ${
+                idx === 0 ? "card-tint-peach border-accent-orange/20" : "card-tint-purple border-accent-purple/20"
+              }`}
               glowColor={exp.glowColor}
             >
               {/* Radial gradient background light */}
@@ -751,9 +771,11 @@ const Landing = () => {
           ))}
         </div>
       </section>
+      </div>
 
       {/* CREATORS SECTION */}
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#fdf2f8]/90 dark:bg-[#0b1020] border-b border-pink-500/10 dark:border-purple-950/30">
+      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
         <div className="absolute top-[20%] right-[-150px] w-[500px] h-[500px] bg-accent-purple/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -866,9 +888,11 @@ const Landing = () => {
 
         </div>
       </section>
+      </div>
 
       {/* COMMUNITY DISCUSSIONS */}
-      <section id="community" className="mx-auto max-w-7xl px-6 py-24 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#f5e0ff]/80 dark:bg-[#050814] border-b border-purple-500/10 dark:border-purple-950/30">
+      <section id="community" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
         <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-pink/5 rounded-full blur-[90px] pointer-events-none"></div>
 
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -885,7 +909,9 @@ const Landing = () => {
           ].map((d, idx) => (
             <SpotlightCard
               key={idx}
-              className="p-6 bg-glass-card border border-glass-border rounded-2xl flex flex-col justify-between text-left"
+              className={`p-6 border rounded-2xl flex flex-col justify-between text-left ${
+                idx === 0 ? "card-tint-cyan border-accent-cyan/20" : "card-tint-pink border-accent-pink/20"
+              }`}
               glowColor="rgba(236, 72, 153, 0.12)"
             >
               <div className="space-y-4 w-full">
@@ -914,9 +940,11 @@ const Landing = () => {
           ))}
         </div>
       </section>
+      </div>
 
       {/* PLATFORM STATISTICS SECTION */}
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10 border-t border-glass-border/30">
+      <div className="w-full bg-[#e6fffa]/80 dark:bg-[#0b1020] border-b border-teal-500/10 dark:border-teal-950/30">
+      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {[
             { num: "10K+", label: "Active Learners", color: "text-accent-blue", bgGlow: "rgba(59, 130, 246, 0.08)" },
@@ -926,7 +954,12 @@ const Landing = () => {
           ].map((stat, idx) => (
             <SpotlightCard
               key={idx}
-              className="group p-6 bg-glass-card border border-glass-border rounded-2xl text-center flex flex-col items-center justify-center hover:translate-y-[-4px] hover:scale-[1.01] hover:border-glass-border-hover transition-all duration-300 ease-out"
+              className={`group p-6 border rounded-2xl text-center flex flex-col items-center justify-center hover:translate-y-[-4px] hover:scale-[1.01] transition-all duration-300 ease-out ${
+                idx === 0 ? "card-tint-blue border-accent-blue/20" :
+                idx === 1 ? "card-tint-cyan border-accent-cyan/20" :
+                idx === 2 ? "card-tint-purple border-accent-purple/20" :
+                "card-tint-peach border-accent-orange/20"
+              }`}
               glowColor={stat.bgGlow}
             >
               <div className={`text-2xl sm:text-3xl font-extrabold ${stat.color} tracking-tight transition-transform duration-300 group-hover:scale-105`}>{stat.num}</div>
@@ -935,25 +968,27 @@ const Landing = () => {
           ))}
         </div>
       </section>
+      </div>
 
       {/* FINAL CTA SECTION */}
+      <div className="w-full bg-[#eee9ff] dark:bg-transparent py-6 border-b border-purple-500/10">
       <section className="mx-auto max-w-5xl px-6 py-12 relative z-10">
         
-        <div className="relative rounded-3xl overflow-hidden bg-bg-panel border border-glass-border p-12 md:p-18 text-center shadow-2xl">
-          <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none"></div>
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] dark:from-purple-950 dark:to-indigo-950 border border-purple-500/20 dark:border-purple-800/30 p-12 md:p-18 text-center shadow-2xl">
+          <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none"></div>
           
           <div className="relative z-10 max-w-xl mx-auto space-y-6">
-            <h2 className="hero-heading text-3xl sm:text-4xl leading-tight">
+            <h2 className="text-3xl sm:text-4xl leading-tight font-extrabold text-white">
               Your next breakthrough could start here.
             </h2>
-            <p className="text-xs sm:text-sm text-text-main leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed font-medium">
               Join a modern repository built to connect resources, course modules, and direct mentorship lines.
             </p>
             <div className="pt-4 flex justify-center">
               {isAuthenticated ? (
                 <Button
-                  variant="primary"
-                  className="font-bold px-8 py-3.5 rounded-xl text-xs"
+                  variant="secondary"
+                  className="font-bold px-8 py-3.5 rounded-xl text-xs bg-white text-purple-700 hover:bg-purple-50 border border-transparent shadow-lg shadow-purple-950/20 active:scale-95 transition-all duration-150 cursor-pointer"
                   onClick={() => handlePlaceholderClick("Marketplace Dashboard")}
                 >
                   Explore Dashboard
@@ -961,8 +996,8 @@ const Landing = () => {
               ) : (
                 <Link to="/signup">
                   <Button
-                    variant="primary"
-                    className="font-bold px-8 py-3.5 rounded-xl text-xs"
+                    variant="secondary"
+                    className="font-bold px-8 py-3.5 rounded-xl text-xs bg-white text-purple-700 hover:bg-purple-50 border border-transparent shadow-lg shadow-purple-950/20 active:scale-95 transition-all duration-150 cursor-pointer"
                   >
                     Get Started with CKM
                   </Button>
@@ -972,6 +1007,7 @@ const Landing = () => {
           </div>
         </div>
       </section>
+      </div>
 
     </div>
   );

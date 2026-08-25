@@ -56,6 +56,40 @@ const Profile = () => {
 
   const role = user?.role || "learner";
 
+  const syncProfileStates = (p) => {
+    setProfile(p);
+    setBio(p.bio || "");
+    setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : "");
+    setInterests(Array.isArray(p.interests) ? p.interests.join(", ") : "");
+    setLearningGoals(Array.isArray(p.learningGoals) ? p.learningGoals.join(", ") : "");
+    setEducation(p.education || "");
+    setLocation(p.location || "");
+    setHeadline(p.headline || "");
+    setExpertise(Array.isArray(p.expertise) ? p.expertise.join(", ") : "");
+    setExperience(p.experience || 0);
+    setQualifications(Array.isArray(p.qualifications) ? p.qualifications.join(", ") : "");
+    setLanguages(Array.isArray(p.languages) ? p.languages.join(", ") : "");
+    setHourlyRate(p.hourlyRate || 0);
+    setIsAvailable(p.isAvailable !== undefined ? p.isAvailable : true);
+    setWebsite(p.website || p.socialLinks?.website || "");
+    
+    setDepartment(p.department || "");
+    setPermissions(Array.isArray(p.permissions) ? p.permissions.join(", ") : "");
+
+    // Social Links
+    setLinkedinLink(p.socialLinks?.linkedin || "");
+    setGithubLink(p.socialLinks?.github || "");
+    setTwitterLink(p.socialLinks?.twitter || "");
+    setWebsiteLink(p.socialLinks?.website || p.website || "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    if (profile) {
+      syncProfileStates(profile);
+    }
+  };
+
   const loadProfile = async () => {
     try {
       setLoadingProfile(true);
@@ -71,33 +105,7 @@ const Profile = () => {
       }
 
       if (res && res.success && res.profile) {
-        const p = res.profile;
-        setProfile(p);
-        
-        // Populate inputs
-        setBio(p.bio || "");
-        setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : "");
-        setInterests(Array.isArray(p.interests) ? p.interests.join(", ") : "");
-        setLearningGoals(Array.isArray(p.learningGoals) ? p.learningGoals.join(", ") : "");
-        setEducation(p.education || "");
-        setLocation(p.location || "");
-        setHeadline(p.headline || "");
-        setExpertise(Array.isArray(p.expertise) ? p.expertise.join(", ") : "");
-        setExperience(p.experience || 0);
-        setQualifications(Array.isArray(p.qualifications) ? p.qualifications.join(", ") : "");
-        setLanguages(Array.isArray(p.languages) ? p.languages.join(", ") : "");
-        setHourlyRate(p.hourlyRate || 0);
-        setIsAvailable(p.isAvailable !== undefined ? p.isAvailable : true);
-        setWebsite(p.website || "");
-        
-        setDepartment(p.department || "");
-        setPermissions(Array.isArray(p.permissions) ? p.permissions.join(", ") : "");
-
-        // Social Links
-        setLinkedinLink(p.socialLinks?.linkedin || "");
-        setGithubLink(p.socialLinks?.github || "");
-        setTwitterLink(p.socialLinks?.twitter || "");
-        setWebsiteLink(p.socialLinks?.website || "");
+        syncProfileStates(res.profile);
       }
     } catch (err) {
       console.error("Load profile details failed:", err);
@@ -151,6 +159,19 @@ const Profile = () => {
     return true; // Admin/Default
   };
 
+  const getCompletionMessage = () => {
+    if (role === "learner") {
+      return "Please click \"Edit Profile\" and fill in your biography, skills, and interests to complete your listing.";
+    }
+    if (role === "creator") {
+      return "Please click \"Edit Profile\" and fill in your biography, skills, headline, and expertise areas to complete your listing.";
+    }
+    if (role === "expert") {
+      return "Please click \"Edit Profile\" and fill in your biography, skills, headline, expertise areas, and hourly rate to complete your listing.";
+    }
+    return "Please click \"Edit Profile\" and complete all required fields.";
+  };
+
   const isComplete = checkCompletion();
 
   const handleSave = async (e) => {
@@ -189,7 +210,8 @@ const Profile = () => {
           website: website.trim(),
           socialLinks: {
             ...baseSocials,
-            twitter: twitterLink.trim()
+            twitter: twitterLink.trim(),
+            website: website.trim()
           }
         };
       } else if (role === "expert") {
@@ -227,7 +249,7 @@ const Profile = () => {
       }
 
       if (res && res.success) {
-        setProfile(res.profile);
+        syncProfileStates(res.profile);
         setEditMode(false);
         triggerToast("Profile successfully updated!");
       }
@@ -289,7 +311,7 @@ const Profile = () => {
           <div>
             <h4 className="text-xs font-bold text-text-title">Your Profile is Incomplete</h4>
             <p className="text-[10px] text-text-muted mt-0.5">
-              Please click "Edit Profile" and fill in your biography, skills, and interests to complete your listing.
+              {getCompletionMessage()}
             </p>
           </div>
         </div>
@@ -307,8 +329,7 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Profile Header Widget */}
-      <SpotlightCard className="border border-glass-border p-6 sm:p-8 bg-glass-card shadow-2xl relative overflow-hidden" glowColor="rgba(59, 130, 246, 0.08)">
+      <SpotlightCard className="border border-glass-border/70 p-6 sm:p-8 bg-gradient-to-br from-purple-600/10 via-indigo-600/5 to-transparent dark:from-[#1E114A] dark:via-[#0F072D] dark:to-[#020512] dark:border-purple-500/20 shadow-2xl relative overflow-hidden" glowColor="rgba(124, 58, 237, 0.12)">
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
             {/* Avatar */}
@@ -349,7 +370,13 @@ const Profile = () => {
             </div>
           </div>
 
-          <Button onClick={() => setEditMode(!editMode)} className="flex items-center gap-2 text-xs py-2 px-4 shrink-0">
+          <Button onClick={() => {
+            if (editMode) {
+              handleCancelEdit();
+            } else {
+              setEditMode(true);
+            }
+          }} className="flex items-center gap-2 text-xs py-2 px-4 shrink-0">
             {editMode ? (
               <>
                 <X size={13} /> Cancel
@@ -627,6 +654,9 @@ const Profile = () => {
             </div>
 
             <div className="flex items-center justify-end gap-3 border-t border-glass-border/30 pt-4 mt-6">
+              <Button type="button" variant="secondary" onClick={handleCancelEdit} className="text-xs py-2 px-4">
+                Cancel
+              </Button>
               <Button type="submit" className="flex items-center gap-2 text-xs py-2.5 px-6">
                 <Save size={13} /> Save Profile
               </Button>
@@ -641,9 +671,9 @@ const Profile = () => {
             {role !== "admin" && (
               <>
                 {/* Biography */}
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl text-left" glowColor="rgba(6, 182, 212, 0.06)">
+                <SpotlightCard className="p-6 card-tint-purple rounded-2xl text-left" glowColor="rgba(124, 58, 237, 0.12)">
                   <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                    <BookOpen size={14} className="text-accent-cyan" />
+                    <BookOpen size={14} className="text-accent-purple" />
                     <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Biography</h3>
                   </div>
                   {profile?.bio ? (
@@ -661,9 +691,9 @@ const Profile = () => {
                 </SpotlightCard>
 
                 {/* Skills & Focus */}
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl text-left" glowColor="rgba(99, 102, 241, 0.06)">
+                <SpotlightCard className="p-6 card-tint-blue rounded-2xl text-left" glowColor="rgba(59, 130, 246, 0.12)">
                   <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                    <Heart size={14} className="text-accent-indigo" />
+                    <Heart size={14} className="text-accent-blue" />
                     <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Skills & Focus</h3>
                   </div>
 
@@ -766,22 +796,22 @@ const Profile = () => {
             {role === "learner" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border rounded-xl text-center py-8">
+                  <SpotlightCard className="p-5 card-tint-mint rounded-xl text-center py-8">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Education</h4>
-                    <p className="text-sm text-text-main mt-2 font-semibold">
+                    <p className="text-sm text-text-title mt-2 font-semibold">
                       {profile?.education || "Not specified"}
                     </p>
                   </SpotlightCard>
                   
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border rounded-xl text-center py-8">
+                  <SpotlightCard className="p-5 card-tint-pink rounded-xl text-center py-8">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Location</h4>
-                    <p className="text-sm text-text-main mt-2 font-semibold">
+                    <p className="text-sm text-text-title mt-2 font-semibold">
                       {profile?.location || "Not specified"}
                     </p>
                   </SpotlightCard>
                 </div>
 
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl">
+                <SpotlightCard className="p-6 card-tint-peach rounded-2xl">
                   <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                     <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest font-display">Learning Goals</h3>
                   </div>
@@ -804,19 +834,19 @@ const Profile = () => {
             {role === "creator" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-mint text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Experience</h4>
-                    <p className="text-lg font-extrabold text-accent-purple mt-1">
+                    <p className="text-lg font-extrabold text-accent-emerald mt-1">
                       {profile?.experience || 0} years
                     </p>
                   </SpotlightCard>
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-pink text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Education</h4>
                     <p className="text-sm font-semibold text-text-title mt-2 truncate">
                       {profile?.education || "Not specified"}
                     </p>
                   </SpotlightCard>
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-blue text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Website</h4>
                     <p className="text-sm font-semibold text-text-title mt-2 truncate">
                       {profile?.website ? (
@@ -828,14 +858,14 @@ const Profile = () => {
                   </SpotlightCard>
                 </div>
 
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl">
+                <SpotlightCard className="p-6 card-tint-peach rounded-2xl">
                   <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                     <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Expertise Areas</h3>
                   </div>
                   {profile?.expertise && profile.expertise.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5">
                       {profile.expertise.map((exp, idx) => (
-                        <span key={idx} className="bg-bg-dark border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main">
+                        <span key={idx} className="bg-bg-dark/40 border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main font-semibold">
                           {exp}
                         </span>
                       ))}
@@ -853,38 +883,38 @@ const Profile = () => {
             {role === "expert" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-pink text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Hourly Rate</h4>
-                    <p className="text-lg font-extrabold text-accent-emerald mt-1">
+                    <p className="text-lg font-extrabold text-accent-pink mt-1">
                       ${profile?.hourlyRate || 0} / hr
                     </p>
                   </SpotlightCard>
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-mint text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Experience</h4>
-                    <p className="text-lg font-extrabold text-accent-orange mt-1">
+                    <p className="text-lg font-extrabold text-accent-emerald mt-1">
                       {profile?.experience || 0} years
                     </p>
                   </SpotlightCard>
-                  <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center">
+                  <SpotlightCard className="p-5 card-tint-peach text-center">
                     <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Availability</h4>
                     <p className="text-sm font-semibold mt-2">
                       {profile?.isAvailable ? (
                         <span className="text-accent-emerald">Available</span>
                       ) : (
-                        <span className="text-rose-400">Unavailable</span>
+                        <span className="text-rose-500 font-bold">Unavailable</span>
                       )}
                     </p>
                   </SpotlightCard>
                 </div>
 
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl">
+                <SpotlightCard className="p-6 card-tint-purple rounded-2xl">
                   <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                     <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Qualifications</h3>
                   </div>
                   {profile?.qualifications && profile.qualifications.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5">
                       {profile.qualifications.map((q, idx) => (
-                        <span key={idx} className="bg-bg-dark border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main">
+                        <span key={idx} className="bg-bg-dark/40 border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main font-semibold">
                           {q}
                         </span>
                       ))}
