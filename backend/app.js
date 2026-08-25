@@ -8,6 +8,7 @@ import learnerRoutes from "./routes/learner.route.js";
 import creatorRoutes from "./routes/creator.route.js";
 import expertRoutes from "./routes/expert.route.js";
 import adminRoutes from "./routes/admin.route.js";
+import categoryRoutes from "./routes/category.route.js";
 
 const app = express();
 app.use(passport.initialize());
@@ -30,4 +31,6 @@ app.use("/api/creator", creatorRoutes);
 app.use("/api/expert", expertRoutes);
 app.use("/api/admin", adminRoutes);
 
+
+app.use("/api/category", categoryRoutes);
 export default app;
