@@ -92,15 +92,6 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
     try {
         const { name, description, isActive } = req.body;
-        if (
-            category.createdBy.toString() !== req.user._id.toString() &&
-            req.user.role !== "admin"
-        ) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not authorized to modify this category",
-            });
-        }
 
         const category = await Category.findById(req.params.id);
 
@@ -108,6 +99,16 @@ export const updateCategory = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Category not found",
+            });
+        }
+
+        if (
+            category.createdBy.toString() !== req.user._id.toString() &&
+            req.user.role !== "admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to modify this category",
             });
         }
 
@@ -155,6 +156,12 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Category not found",
+            });
+        }
         if (
             category.createdBy.toString() !== req.user._id.toString() &&
             req.user.role !== "admin"
@@ -162,12 +169,6 @@ export const deleteCategory = async (req, res) => {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to modify this category",
-            });
-        }
-        if (!category) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found",
             });
         }
 

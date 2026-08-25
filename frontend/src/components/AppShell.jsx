@@ -44,14 +44,18 @@ import {
 import SpotlightCard from "./SpotlightCard";
 import ProgressRing from "./ProgressRing";
 import Button from "./Button";
-import { getAllUsers, updateUser, deleteUser, getUserById } from "../services/adminApi";
+import UserManagement from "./UserManagement";
+import CreateResource from "../pages/CreateResource";
+import Resources from "../pages/Resources";
+import MyResources from "../pages/MyResources";
+import { getAllUsers } from "../services/adminApi";
+import { getAllResourcesAdmin, deleteResource, publishResource, archiveResource } from "../services/resourceService";
 
 const AppShell = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Active workspace states
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -60,7 +64,6 @@ const AppShell = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [apiError, setApiError] = useState(null);
 
-  // Filters for Admin User list
   const [roleFilter, setRoleFilter] = useState("all");
   const [verifiedFilter, setVerifiedFilter] = useState("all");
 
@@ -68,43 +71,74 @@ const AppShell = () => {
     return localStorage.getItem("theme") || "dark";
   });
 
-  // User management states for Admin
+  const [adminResources, setAdminResources] = useState([]);
+  const [loadingResources, setLoadingResources] = useState(false);
+  const [resourceSearchQuery, setResourceSearchQuery] = useState("");
+  const [resourceStatusFilter, setResourceStatusFilter] = useState("all");
+
+  const fetchAdminResources = async () => {
+    try {
+      setLoadingResources(true);
+      const res = await getAllResourcesAdmin();
+      if (res && res.success) {
+        setAdminResources(res.resources || []);
+      }
+    } catch (err) {
+      console.error("Fetch admin resources failed:", err);
+      setToastMessage("Failed to retrieve platform resources.");
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
+  const handleAdminDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this resource? This cannot be undone.")) {
+      try {
+        const res = await deleteResource(id);
+        if (res && res.success) {
+          setToastMessage("Resource deleted successfully.");
+          fetchAdminResources();
+        }
+      } catch (err) {
+        setToastMessage(err.response?.data?.message || "Failed to delete resource.");
+      }
+    }
+  };
+
+  const handleAdminPublish = async (id) => {
+    try {
+      const res = await publishResource(id);
+      if (res && res.success) {
+        setToastMessage("Resource published successfully.");
+        fetchAdminResources();
+      }
+    } catch (err) {
+      setToastMessage(err.response?.data?.message || "Failed to publish resource.");
+    }
+  };
+
+  const handleAdminArchive = async (id) => {
+    try {
+      const res = await archiveResource(id);
+      if (res && res.success) {
+        setToastMessage("Resource archived successfully.");
+        fetchAdminResources();
+      }
+    } catch (err) {
+      setToastMessage(err.response?.data?.message || "Failed to archive resource.");
+    }
+  };
+
+  const filteredAdminResources = adminResources.filter((r) => {
+    const matchesSearch =
+      r.title.toLowerCase().includes(resourceSearchQuery.toLowerCase()) ||
+      (r.createdBy?.name || "").toLowerCase().includes(resourceSearchQuery.toLowerCase());
+    const matchesStatus = resourceStatusFilter === "all" || r.status === resourceStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-
-  // View User Modal State
-  const [viewUserModal, setViewUserModal] = useState(null);
-  const [loadingViewUser, setLoadingViewUser] = useState(false);
-
-  // Edit User Modal State
-  const [editUserModal, setEditUserModal] = useState(null);
-  const [loadingEditUser, setLoadingEditUser] = useState(false);
-
-  // Form states for editing user (Basic & Profile fields)
-  const [editName, setEditName] = useState("");
-  const [editRole, setEditRole] = useState("");
-  const [editProfilePicture, setEditProfilePicture] = useState("");
-  const [editIsVerified, setEditIsVerified] = useState(false);
-  const [editBio, setEditBio] = useState("");
-  const [editSkills, setEditSkills] = useState("");
-  const [editInterests, setEditInterests] = useState("");
-  const [editLearningGoals, setEditLearningGoals] = useState("");
-  const [editEducation, setEditEducation] = useState("");
-  const [editLocation, setEditLocation] = useState("");
-  const [editHeadline, setEditHeadline] = useState("");
-  const [editExpertise, setEditExpertise] = useState("");
-  const [editExperience, setEditExperience] = useState(0);
-  const [editWebsite, setEditWebsite] = useState("");
-  const [editQualifications, setEditQualifications] = useState("");
-  const [editLanguages, setEditLanguages] = useState("");
-  const [editHourlyRate, setEditHourlyRate] = useState(0);
-  const [editIsAvailable, setEditIsAvailable] = useState(true);
-  const [editDepartment, setEditDepartment] = useState("");
-  const [editPermissions, setEditPermissions] = useState("");
-  const [editLinkedin, setEditLinkedin] = useState("");
-  const [editGithub, setEditGithub] = useState("");
-  const [editTwitter, setEditTwitter] = useState("");
-  const [editWebsiteLink, setEditWebsiteLink] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -122,166 +156,14 @@ const AppShell = () => {
   };
 
   useEffect(() => {
-    if (user?.role === "admin" && activeTab === "users") {
-      fetchUsers();
+    if (user?.role === "admin") {
+      if (activeTab === "users") {
+        fetchUsers();
+      } else if (activeTab === "content") {
+        fetchAdminResources();
+      }
     }
   }, [user, activeTab]);
-
-  const handleDeleteUser = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user and all associated profiles? This cannot be undone.")) {
-      try {
-        const res = await deleteUser(id);
-        if (res && res.success) {
-          setToastMessage("User successfully deleted.");
-          fetchUsers();
-        }
-      } catch (err) {
-        setToastMessage(err.response?.data?.message || "Failed to delete user.");
-      }
-    }
-  };
-
-  const handleOpenViewUser = async (id) => {
-    try {
-      setLoadingViewUser(true);
-      const res = await getUserById(id);
-      if (res && res.success) {
-        setViewUserModal(res.profile);
-      }
-    } catch (err) {
-      setToastMessage("Failed to retrieve user profile information.");
-    } finally {
-      setViewUserModal(null);
-      setLoadingViewUser(false);
-    }
-  };
-
-  const handleOpenEditUser = async (id) => {
-    try {
-      setLoadingEditUser(true);
-      const res = await getUserById(id);
-      if (res && res.success) {
-        const p = res.profile;
-        setEditUserModal(p);
-
-        // Populate fields
-        setEditName(p.user?.name || "");
-        setEditRole(p.user?.role || "");
-        setEditProfilePicture(p.user?.profilePicture || "");
-        setEditIsVerified(p.user?.isVerified || false);
-
-        setEditBio(p.bio || "");
-        setEditSkills(Array.isArray(p.skills) ? p.skills.join(", ") : "");
-        setEditInterests(Array.isArray(p.interests) ? p.interests.join(", ") : "");
-        setEditLearningGoals(Array.isArray(p.learningGoals) ? p.learningGoals.join(", ") : "");
-        setEditEducation(p.education || "");
-        setEditLocation(p.location || "");
-
-        setEditHeadline(p.headline || "");
-        setEditExpertise(Array.isArray(p.expertise) ? p.expertise.join(", ") : "");
-        setEditExperience(p.experience || 0);
-        setEditWebsite(p.website || "");
-
-        setEditQualifications(Array.isArray(p.qualifications) ? p.qualifications.join(", ") : "");
-        setEditLanguages(Array.isArray(p.languages) ? p.languages.join(", ") : "");
-        setEditHourlyRate(p.hourlyRate || 0);
-        setEditIsAvailable(p.isAvailable !== undefined ? p.isAvailable : true);
-
-        setEditDepartment(p.department || "");
-        setEditPermissions(Array.isArray(p.permissions) ? p.permissions.join(", ") : "");
-
-        setEditLinkedin(p.socialLinks?.linkedin || "");
-        setEditGithub(p.socialLinks?.github || "");
-        setEditTwitter(p.socialLinks?.twitter || "");
-        setEditWebsiteLink(p.socialLinks?.website || "");
-      }
-    } catch (err) {
-      setToastMessage("Failed to load edit form.");
-    } finally {
-      setLoadingEditUser(false);
-    }
-  };
-
-  const handleUpdateUserSubmit = async (e) => {
-    e.preventDefault();
-    if (!editUserModal) return;
-
-    try {
-      const splitArray = (str) =>
-        str ? str.split(",").map((s) => s.trim()).filter((s) => s.length > 0) : [];
-
-      const baseSocials = {
-        linkedin: editLinkedin.trim(),
-        github: editGithub.trim()
-      };
-
-      let payload = {
-        name: editName.trim(),
-        role: editRole,
-        profilePicture: editProfilePicture.trim(),
-        isVerified: editIsVerified
-      };
-
-      if (editRole === "learner") {
-        Object.assign(payload, {
-          bio: editBio.trim(),
-          skills: splitArray(editSkills),
-          interests: splitArray(editInterests),
-          learningGoals: splitArray(editLearningGoals),
-          education: editEducation.trim(),
-          location: editLocation.trim(),
-          socialLinks: {
-            ...baseSocials,
-            website: editWebsiteLink.trim()
-          }
-        });
-      } else if (editRole === "creator") {
-        Object.assign(payload, {
-          headline: editHeadline.trim(),
-          bio: editBio.trim(),
-          skills: splitArray(editSkills),
-          expertise: splitArray(editExpertise),
-          experience: Number(editExperience),
-          education: editEducation.trim(),
-          website: editWebsite.trim(),
-          socialLinks: {
-            ...baseSocials,
-            twitter: editTwitter.trim()
-          }
-        });
-      } else if (editRole === "expert") {
-        Object.assign(payload, {
-          headline: editHeadline.trim(),
-          bio: editBio.trim(),
-          expertise: splitArray(editExpertise),
-          skills: splitArray(editSkills),
-          experience: Number(editExperience),
-          qualifications: splitArray(editQualifications),
-          languages: splitArray(editLanguages),
-          hourlyRate: Number(editHourlyRate),
-          isAvailable: editIsAvailable,
-          socialLinks: {
-            ...baseSocials,
-            website: editWebsiteLink.trim()
-          }
-        });
-      } else if (editRole === "admin") {
-        Object.assign(payload, {
-          department: editDepartment.trim(),
-          permissions: splitArray(editPermissions)
-        });
-      }
-
-      const res = await updateUser(editUserModal.user?._id || editUserModal.user, payload);
-      if (res && res.success) {
-        setToastMessage("User configuration saved successfully!");
-        setEditUserModal(null);
-        fetchUsers();
-      }
-    } catch (err) {
-      setToastMessage(err.response?.data?.message || "Failed to update user.");
-    }
-  };
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -326,20 +208,24 @@ const AppShell = () => {
     }
   };
 
-  // Navigations by Role
   const roleNavigations = {
     learner: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
-      { id: "explore", label: "Explore Courses", icon: Compass, activeColor: "bg-accent-cyan" },
+      { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-learning", label: "My Learning", icon: BookOpen, activeColor: "bg-accent-purple" }
     ],
     creator: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
       { id: "create-content", label: "Create Content", icon: PlusCircle, activeColor: "bg-accent-purple" },
+      { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
+      { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
       { id: "analytics", label: "Creator Analytics", icon: TrendingUp, activeColor: "bg-accent-magenta" }
     ],
     expert: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
+      { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
+      { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
       { id: "availability", label: "Availability Scheduler", icon: Clock, activeColor: "bg-accent-orange" },
       { id: "consultations", label: "Consultations", icon: Calendar, activeColor: "bg-accent-amber" }
     ],
@@ -356,7 +242,6 @@ const AppShell = () => {
 
   const navItems = roleNavigations[user?.role || "learner"] || [];
 
-  // Filtered Users (For Admin Users page)
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -369,7 +254,6 @@ const AppShell = () => {
     return matchesSearch && matchesRole && matchesVerified;
   });
 
-  // Calculate Admin Stats
   const statLearners = users.filter((u) => u.role === "learner").length;
   const statCreators = users.filter((u) => u.role === "creator").length;
   const statExperts = users.filter((u) => u.role === "expert").length;
@@ -399,11 +283,9 @@ const AppShell = () => {
     </div>
   );
 
-  // Admin Side-Nav layout
   if (user?.role === "admin") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#eee9ff] via-[#e7edff] to-[#f1eaff] dark:from-[#070817] dark:via-[#070817] dark:to-[#0B0B1F] text-text-main flex flex-col font-sans select-none relative pt-16">
-        {/* Background Static Details */}
         <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
         <div className="glow-orb w-[600px] h-[600px] bg-accent-emerald/5 top-[-100px] left-[-100px]"></div>
         <div className="glow-orb w-[500px] h-[500px] bg-accent-cyan/5 bottom-[-100px] right-[-100px]"></div>
@@ -462,6 +344,11 @@ const AppShell = () => {
                     My Admin Profile
                   </Link>
                   
+                  <Link to="/resources/new" onClick={() => setProfileDropdownOpen(false)} className="group flex items-center gap-2 px-3.5 py-2 text-xs text-text-main hover:text-text-title hover:bg-glass-border rounded-lg border border-transparent transition duration-150">
+                    <PlusCircle size={12} className="text-accent-purple" />
+                    Create Resource
+                  </Link>
+                  
                   <button onClick={handleLogout} className="group flex items-center gap-2 px-3.5 py-2 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 rounded-lg border border-transparent transition duration-150 text-left w-full cursor-pointer">
                     <LogOut size={12} />
                     Log out
@@ -510,7 +397,7 @@ const AppShell = () => {
 
           {/* Main Panel Content Area */}
           <main className="flex-grow p-6 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
-            {location.pathname === "/profile" ? (
+            {location.pathname !== "/" ? (
               <Outlet />
             ) : tabLoading ? (
               <SkeletonLoader />
@@ -646,131 +533,11 @@ const AppShell = () => {
 
                 {/* ADMIN: USERS TAB */}
                 {activeTab === "users" && (
-                  <div className="space-y-6 text-left">
-                    <div className="border-b border-glass-border/40 pb-5">
-                      <h1 className="text-2xl font-extrabold text-text-title">User Management</h1>
-                      <p className="text-xs text-text-muted font-semibold mt-1">
-                        View profiles, edit roles, toggle verifications, and delete accounts.
-                      </p>
-                    </div>
-
-                    {/* Filter and Search controls */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-bg-darker border border-glass-border p-4 rounded-2xl">
-                      <div className="md:col-span-6 relative">
-                        <input
-                          type="text"
-                          placeholder="Search users by name, email..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5"
-                        />
-                        <Search size={14} className="absolute left-3 top-3.5 text-text-muted" />
-                      </div>
-                      <div className="md:col-span-3 text-xs">
-                        <select
-                          value={roleFilter}
-                          onChange={(e) => setRoleFilter(e.target.value)}
-                          className="w-full form-input rounded-xl p-2.5 bg-bg-dark cursor-pointer text-text-title border-glass-border"
-                        >
-                          <option value="all">All Roles</option>
-                          <option value="learner">Learners</option>
-                          <option value="creator">Creators</option>
-                          <option value="expert">Experts</option>
-                          <option value="admin">Admins</option>
-                        </select>
-                      </div>
-                      <div className="md:col-span-3 text-xs">
-                        <select
-                          value={verifiedFilter}
-                          onChange={(e) => setVerifiedFilter(e.target.value)}
-                          className="w-full form-input rounded-xl p-2.5 bg-bg-dark cursor-pointer text-text-title border-glass-border"
-                        >
-                          <option value="all">All Statuses</option>
-                          <option value="verified">Verified Only</option>
-                          <option value="unverified">Unverified Only</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Users list table */}
-                    <SpotlightCard className="p-0 bg-glass-card border border-glass-border rounded-2xl overflow-hidden" glowColor="rgba(16, 185, 129, 0.05)">
-                      {loadingUsers ? (
-                        <div className="text-center py-20 text-xs text-text-muted flex items-center justify-center gap-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-accent-emerald"></div>
-                          Loading user database...
-                        </div>
-                      ) : filteredUsers.length === 0 ? (
-                        <div className="text-center py-20 text-xs text-text-muted">
-                          No user accounts matched the filter criteria.
-                        </div>
-                      ) : (
-                        <div className="overflow-x-auto">
-                          <table className="w-full border-collapse text-xs text-left">
-                            <thead>
-                              <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">
-                                <th className="px-6 py-4">User</th>
-                                <th className="px-6 py-4">Role</th>
-                                <th className="px-6 py-4">Verification</th>
-                                <th className="px-6 py-4">Joined At</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-glass-border/30">
-                              {filteredUsers.map((item) => (
-                                <tr key={item._id} className="hover:bg-accent-purple/5 dark:hover:bg-glass-border/20 transition duration-150">
-                                  <td className="px-6 py-4 flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-lg overflow-hidden shrink-0 border border-glass-border bg-bg-dark">
-                                      {item.profilePicture ? (
-                                        <img src={item.profilePicture} alt={item.name} className="h-full w-full object-cover" />
-                                      ) : (
-                                        <div className="h-full w-full flex items-center justify-center font-bold text-[10px] bg-bg-panel text-text-title">
-                                          {item.name[0]}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <h4 className="font-bold text-text-title leading-tight">{item.name}</h4>
-                                      <p className="text-[10px] text-text-muted mt-0.5">{item.email}</p>
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    <span className={`text-[9px] border px-2 py-0.5 rounded font-bold uppercase tracking-wider ${getRoleColors(item.role)}`}>
-                                      {item.role}
-                                    </span>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    {item.isVerified ? (
-                                      <span className="text-[9px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 dark:bg-accent-cyan/15 dark:text-accent-cyan dark:border-accent-cyan/25 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                                        Verified
-                                      </span>
-                                    ) : (
-                                      <span className="text-[9px] bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:bg-glass-border dark:text-text-muted dark:border-glass-border/50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                                        Unverified
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td className="px-6 py-4 text-text-muted">
-                                    {new Date(item.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                                  </td>
-                                  <td className="px-6 py-4 text-right space-x-2 shrink-0">
-                                    <button onClick={() => handleOpenViewUser(item._id)} className="text-[10px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
-                                      View
-                                    </button>
-                                    <button onClick={() => handleOpenEditUser(item._id)} className="text-[10px] border border-accent-blue/20 bg-accent-blue/5 text-accent-blue hover:bg-accent-blue hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
-                                      Edit
-                                    </button>
-                                    <button onClick={() => handleDeleteUser(item._id)} className="text-[10px] border border-rose-500/25 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
-                                      Delete
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </SpotlightCard>
-                  </div>
+                  <UserManagement
+                    users={users}
+                    loadingUsers={loadingUsers}
+                    fetchUsers={fetchUsers}
+                  />
                 )}
 
                 {/* ADMIN: COURSES TAB */}
@@ -805,17 +572,119 @@ const AppShell = () => {
                 {/* ADMIN: CONTENT TAB */}
                 {activeTab === "content" && (
                   <div className="space-y-6 text-left">
-                    <div className="border-b border-glass-border/40 pb-5">
-                      <h1 className="text-2xl font-extrabold text-text-title">Content and Guide Management</h1>
-                      <p className="text-xs text-text-muted font-semibold mt-1">Manage files, checklists, resource packages, and verify content integrity.</p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-glass-border/40 pb-5 gap-4">
+                      <div>
+                        <h1 className="text-2xl font-extrabold text-text-title flex items-center gap-2">
+                          <FileText className="text-accent-cyan" size={24} /> Content & Guide Management
+                        </h1>
+                        <p className="text-xs text-text-muted font-semibold mt-1">
+                          Review, publish, archive, or moderate all resource configurations uploaded across the platform.
+                        </p>
+                      </div>
+                      <Button onClick={() => navigate("/resources/new")} className="text-xs py-2 px-4 shadow-lg flex items-center gap-2">
+                        <PlusCircle size={14} /> Create Resource
+                      </Button>
                     </div>
 
-                    <SpotlightCard className="p-12 bg-glass-card border border-glass-border text-center rounded-2xl" glowColor="rgba(6, 182, 212, 0.08)">
-                      <FileText size={28} className="text-text-muted mx-auto mb-3" />
-                      <h3 className="text-md font-bold text-text-title">Resource listing is empty</h3>
-                      <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
-                        No creators or experts have uploaded reference files, shell scripts, or documentation configurations to the system database yet.
-                      </p>
+                    {/* Filter and Search controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-bg-darker border border-glass-border p-4 rounded-2xl">
+                      <div className="md:col-span-8 relative">
+                        <input
+                          type="text"
+                          placeholder="Search resources by title, creator..."
+                          value={resourceSearchQuery}
+                          onChange={(e) => setResourceSearchQuery(e.target.value)}
+                          className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5"
+                        />
+                        <Search size={14} className="absolute left-3 top-3.5 text-text-muted" />
+                      </div>
+                      <div className="md:col-span-4 text-xs">
+                        <select
+                          value={resourceStatusFilter}
+                          onChange={(e) => setResourceStatusFilter(e.target.value)}
+                          className="w-full form-input rounded-xl p-2.5 bg-bg-dark cursor-pointer text-text-title border-glass-border"
+                        >
+                          <option value="all">All Statuses</option>
+                          <option value="draft">Drafts</option>
+                          <option value="published">Published</option>
+                          <option value="archived">Archived</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Resources list table */}
+                    <SpotlightCard className="p-0 bg-glass-card border border-glass-border rounded-2xl overflow-hidden" glowColor="rgba(6, 182, 212, 0.05)">
+                      {loadingResources ? (
+                        <div className="text-center py-20 text-xs text-text-muted flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-accent-cyan"></div>
+                          Loading resource catalog...
+                        </div>
+                      ) : filteredAdminResources.length === 0 ? (
+                        <div className="text-center py-20 text-xs text-text-muted">
+                          No resource packages found matching criteria.
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse text-xs text-left">
+                            <thead>
+                              <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">
+                                <th className="px-6 py-4">Resource</th>
+                                <th className="px-6 py-4">Creator</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Contents</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-glass-border/30">
+                              {filteredAdminResources.map((item) => (
+                                <tr key={item._id} className="hover:bg-accent-cyan/5 dark:hover:bg-glass-border/20 transition duration-150">
+                                  <td className="px-6 py-4">
+                                    <h4 className="font-bold text-text-title leading-tight">{item.title}</h4>
+                                    <p className="text-[10px] text-accent-cyan mt-1 font-semibold">{item.category?.name || "Uncategorized"}</p>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className="font-semibold text-text-main">{item.createdBy?.name || "System"}</span>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className={`text-[9px] border px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+                                      item.status === "published" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                                      item.status === "archived" ? "bg-slate-500/10 text-slate-400 border-slate-500/20" :
+                                      "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                    }`}>
+                                      {item.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 text-text-muted space-y-0.5">
+                                    <div>📄 {item.documents?.length || 0} Docs</div>
+                                    <div>🔗 {item.links?.length || 0} Links</div>
+                                  </td>
+                                  <td className="px-6 py-4 text-right space-x-2 shrink-0">
+                                    <button onClick={() => navigate(`/resources/${item._id}`)} className="text-[10px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
+                                      View
+                                    </button>
+                                    <button onClick={() => navigate(`/resources/edit/${item._id}`)} className="text-[10px] border border-accent-blue/20 bg-accent-blue/5 text-accent-blue hover:bg-accent-blue hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
+                                      Edit
+                                    </button>
+                                    {item.status !== "published" && (
+                                      <button onClick={() => handleAdminPublish(item._id)} className="text-[10px] border border-emerald-500/25 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
+                                        Publish
+                                      </button>
+                                    )}
+                                    {item.status !== "archived" && (
+                                      <button onClick={() => handleAdminArchive(item._id)} className="text-[10px] border border-amber-500/25 bg-amber-500/5 text-amber-400 hover:bg-amber-500 hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
+                                        Archive
+                                      </button>
+                                    )}
+                                    <button onClick={() => handleAdminDelete(item._id)} className="text-[10px] border border-rose-500/25 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer active:scale-95">
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </SpotlightCard>
                   </div>
                 )}
@@ -927,707 +796,16 @@ const AppShell = () => {
           </main>
         </div>
 
-        {/* VIEW USER DETAIL MODAL */}
-        {viewUserModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <SpotlightCard className="w-full max-w-2xl bg-gradient-to-br from-[#faf7ff] to-[#f5f3ff] dark:from-[#15172F] dark:to-[#0F1026] border border-glass-border/70 p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(124,58,237,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]" glowColor="rgba(124, 58, 237, 0.12)">
-              <div className="flex items-center justify-between border-b border-glass-border/30 pb-3.5 mb-5">
-                <h3 className="text-xs font-bold text-text-title uppercase tracking-widest flex items-center gap-2">
-                  <UserIcon size={14} className="text-accent-emerald" /> User Account Details
-                </h3>
-                <button onClick={() => setViewUserModal(null)} className="text-text-muted hover:text-rose-400 transition cursor-pointer">
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* View Profile Layout */}
-              <div className="space-y-6 text-xs max-h-[70vh] overflow-y-auto pr-1">
-                {/* Header Profile Section */}
-                <div className="flex items-center gap-4.5 bg-bg-darker/60 p-4 border border-glass-border rounded-xl">
-                  <div className="h-14 w-14 rounded-xl overflow-hidden border border-glass-border bg-bg-dark">
-                    {viewUserModal.user?.profilePicture ? (
-                      <img src={viewUserModal.user.profilePicture} alt={viewUserModal.user.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center font-bold text-lg bg-bg-panel text-text-title uppercase">
-                        {viewUserModal.user?.name ? viewUserModal.user.name[0] : ""}
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-bold text-text-title">{viewUserModal.user?.name}</h4>
-                    <p className="text-text-muted font-semibold">{viewUserModal.user?.email}</p>
-                    <div className="flex items-center gap-2 pt-0.5">
-                      <span className={`text-[8px] border px-2 py-0.2 rounded font-bold uppercase tracking-wider ${getRoleColors(viewUserModal.user?.role)}`}>
-                        {viewUserModal.user?.role}
-                      </span>
-                      {viewUserModal.user?.isVerified ? (
-                        <span className="text-[8px] bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20 px-2 py-0.2 rounded font-bold uppercase tracking-wider">
-                          Verified Profile
-                        </span>
-                      ) : (
-                        <span className="text-[8px] bg-glass-border text-text-muted border border-glass-border/30 px-2 py-0.2 rounded font-bold uppercase tracking-wider">
-                          Unverified
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Role-Specific details */}
-                <div className="space-y-4">
-                  {viewUserModal.user?.role !== "admin" && (
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-text-title uppercase text-[10px] tracking-wider text-text-muted">Biography</h4>
-                      <p className="bg-bg-darker/40 p-3 rounded-lg border border-glass-border/30 text-text-main italic leading-relaxed">
-                        {viewUserModal.bio || "No biography provided."}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Learner details */}
-                  {viewUserModal.user?.role === "learner" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Skills</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.skills && viewUserModal.skills.length > 0 ? (
-                            viewUserModal.skills.map((s, idx) => (
-                              <span key={idx} className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue px-2 py-0.5 rounded text-[10px] font-bold">
-                                {s}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No skills listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Interests</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.interests && viewUserModal.interests.length > 0 ? (
-                            viewUserModal.interests.map((i, idx) => (
-                              <span key={idx} className="bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan px-2 py-0.5 rounded text-[10px] font-bold">
-                                {i}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No interests listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Learning Goals</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.learningGoals && viewUserModal.learningGoals.length > 0 ? (
-                            viewUserModal.learningGoals.map((g, idx) => (
-                              <span key={idx} className="bg-accent-purple/10 border border-accent-purple/20 text-accent-purple px-2 py-0.5 rounded text-[10px] font-bold">
-                                {g}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No learning goals listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Education</h4>
-                        <p className="text-text-title font-semibold">{viewUserModal.education || "Not specified"}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Location</h4>
-                        <p className="text-text-title font-semibold">{viewUserModal.location || "Not specified"}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Creator details */}
-                  {viewUserModal.user?.role === "creator" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2">
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Headline</h4>
-                        <p className="text-text-title font-bold text-sm">{viewUserModal.headline || "No headline listed"}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Expertise</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.expertise && viewUserModal.expertise.length > 0 ? (
-                            viewUserModal.expertise.map((e, idx) => (
-                              <span key={idx} className="bg-accent-purple/10 border border-accent-purple/20 text-accent-purple px-2 py-0.5 rounded text-[10px] font-bold">
-                                {e}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No expertise topics listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Skills</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.skills && viewUserModal.skills.length > 0 ? (
-                            viewUserModal.skills.map((s, idx) => (
-                              <span key={idx} className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue px-2 py-0.5 rounded text-[10px] font-bold">
-                                {s}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No skills listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Experience</h4>
-                        <p className="text-text-title font-semibold">{viewUserModal.experience || 0} years</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Website</h4>
-                        <p className="text-accent-blue hover:underline font-semibold font-mono">{viewUserModal.website || "No website listed"}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Education</h4>
-                        <p className="text-text-title font-semibold">{viewUserModal.education || "Not specified"}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Expert details */}
-                  {viewUserModal.user?.role === "expert" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2">
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Headline</h4>
-                        <p className="text-text-title font-bold text-sm">{viewUserModal.headline || "No headline listed"}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Expertise</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.expertise && viewUserModal.expertise.length > 0 ? (
-                            viewUserModal.expertise.map((e, idx) => (
-                              <span key={idx} className="bg-accent-orange/10 border border-accent-orange/20 text-accent-orange px-2 py-0.5 rounded text-[10px] font-bold">
-                                {e}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No expertise listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Skills</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.skills && viewUserModal.skills.length > 0 ? (
-                            viewUserModal.skills.map((s, idx) => (
-                              <span key={idx} className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue px-2 py-0.5 rounded text-[10px] font-bold">
-                                {s}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No skills listed</span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Hourly Consultation Rate</h4>
-                        <p className="text-accent-emerald font-extrabold text-sm">${viewUserModal.hourlyRate || 0} / hr</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Professional Status</h4>
-                        <span className={`inline-block px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                          viewUserModal.isAvailable ? "bg-accent-emerald/10 text-accent-emerald" : "bg-rose-500/10 text-rose-400"
-                        }`}>
-                          {viewUserModal.isAvailable ? "Available for Mentorship" : "Unavailable"}
-                        </span>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Experience</h4>
-                        <p className="text-text-title font-semibold">{viewUserModal.experience || 0} years</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Languages</h4>
-                        <p className="text-text-title font-semibold">{Array.isArray(viewUserModal.languages) ? viewUserModal.languages.join(", ") : "Not specified"}</p>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1">Qualifications</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {viewUserModal.qualifications && viewUserModal.qualifications.length > 0 ? (
-                            viewUserModal.qualifications.map((q, idx) => (
-                              <span key={idx} className="bg-accent-indigo/10 border border-accent-indigo/25 text-accent-indigo px-2 py-0.5 rounded text-[10px] font-bold">
-                                {q}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted">No qualifications listed</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Admin details */}
-                  {viewUserModal.user?.role === "admin" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Administrative Department</h4>
-                        <p className="text-text-title font-extrabold text-sm">{viewUserModal.department || "General System Administration"}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-0.5">Last Active session</h4>
-                        <p className="text-text-title font-semibold">
-                          {viewUserModal.lastActive ? new Date(viewUserModal.lastActive).toLocaleString() : "Recently Online"}
-                        </p>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-1.5 border-b border-glass-border pb-1.5">Assigned Permissions</h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {viewUserModal.permissions && viewUserModal.permissions.length > 0 ? (
-                            viewUserModal.permissions.map((p, idx) => (
-                              <span key={idx} className="bg-accent-emerald/10 border border-accent-emerald/25 text-accent-emerald px-2.5 py-0.8 rounded text-[10px] font-bold uppercase tracking-wider">
-                                {p}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-muted font-bold italic">No custom permissions granted. Default administrator roles apply.</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social links */}
-                  {viewUserModal.user?.role !== "admin" && (
-                    <div className="pt-4 border-t border-glass-border/30">
-                      <h4 className="font-bold text-text-muted uppercase text-[10px] tracking-wider mb-2">Social Directories</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-                        {viewUserModal.socialLinks?.linkedin && (
-                          <div className="flex items-center gap-1.5 text-accent-blue font-semibold">
-                            <Share2 size={12} />
-                            <span>LinkedIn:</span>
-                            <a href={viewUserModal.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline font-mono text-[10px]">
-                              {viewUserModal.socialLinks.linkedin}
-                            </a>
-                          </div>
-                        )}
-                        {viewUserModal.socialLinks?.github && (
-                          <div className="flex items-center gap-1.5 text-text-title font-semibold">
-                            <Share2 size={12} className="text-text-muted" />
-                            <span>GitHub:</span>
-                            <a href={viewUserModal.socialLinks.github} target="_blank" rel="noopener noreferrer" className="hover:underline font-mono text-[10px] text-text-muted">
-                              {viewUserModal.socialLinks.github}
-                            </a>
-                          </div>
-                        )}
-                        {viewUserModal.socialLinks?.twitter && (
-                          <div className="flex items-center gap-1.5 text-accent-cyan font-semibold">
-                            <Share2 size={12} />
-                            <span>Twitter:</span>
-                            <a href={viewUserModal.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover:underline font-mono text-[10px]">
-                              {viewUserModal.socialLinks.twitter}
-                            </a>
-                          </div>
-                        )}
-                        {viewUserModal.socialLinks?.website && (
-                          <div className="flex items-center gap-1.5 text-accent-purple font-semibold">
-                            <Share2 size={12} />
-                            <span>Website:</span>
-                            <a href={viewUserModal.socialLinks.website} target="_blank" rel="noopener noreferrer" className="hover:underline font-mono text-[10px]">
-                              {viewUserModal.socialLinks.website}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 border-t border-glass-border/30 pt-4 mt-5">
-                <Button variant="secondary" onClick={() => setViewUserModal(null)} className="py-2 px-5 text-[10px]">
-                  Close Detail Panel
-                </Button>
-              </div>
-            </SpotlightCard>
-          </div>
-        )}
-
-        {/* EDIT USER CONFIGURATION MODAL */}
-        {editUserModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <SpotlightCard className="w-full max-w-2xl bg-gradient-to-br from-[#faf7ff] to-[#f5f3ff] dark:from-[#15172F] dark:to-[#0F1026] border border-glass-border/70 p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(124,58,237,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]" glowColor="rgba(124, 58, 237, 0.12)">
-              <div className="flex items-center justify-between border-b border-glass-border/30 pb-3.5 mb-5">
-                <h3 className="text-xs font-bold text-text-title uppercase tracking-widest flex items-center gap-2">
-                  <Settings size={14} className="text-accent-blue animate-spin" style={{ animationDuration: "10s" }} /> Edit User Account
-                </h3>
-                <button onClick={() => setEditUserModal(null)} className="text-text-muted hover:text-rose-400 transition cursor-pointer">
-                  <X size={18} />
-                </button>
-              </div>
-
-              <form onSubmit={handleUpdateUserSubmit} className="space-y-5 text-xs max-h-[70vh] overflow-y-auto pr-1">
-                {/* Basic User Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-bg-darker/40 p-4 border border-glass-border rounded-xl">
-                  <div className="space-y-1">
-                    <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Account Username</label>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="w-full form-input rounded-xl p-3"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">System Role</label>
-                    <select
-                      value={editRole}
-                      onChange={(e) => setEditRole(e.target.value)}
-                      className="w-full form-input rounded-xl p-3 bg-bg-dark cursor-pointer text-text-title border-glass-border"
-                    >
-                      <option value="learner">Learner</option>
-                      <option value="creator">Creator</option>
-                      <option value="expert">Expert</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2 space-y-1">
-                    <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Avatar Image URL</label>
-                    <input
-                      type="text"
-                      value={editProfilePicture}
-                      onChange={(e) => setEditProfilePicture(e.target.value)}
-                      className="w-full form-input rounded-xl p-3 font-mono text-[10px]"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2 pt-2.5">
-                    <input
-                      type="checkbox"
-                      id="editIsVerified"
-                      checked={editIsVerified}
-                      onChange={(e) => setEditIsVerified(e.target.checked)}
-                      className="h-4.5 w-4.5 rounded border-glass-border bg-bg-darker text-accent-emerald cursor-pointer"
-                    />
-                    <label htmlFor="editIsVerified" className="font-bold text-text-muted uppercase text-[10px] tracking-wider cursor-pointer">
-                      Verified Account Listing
-                    </label>
-                  </div>
-                </div>
-
-                {/* Role Specific Forms */}
-                <div className="space-y-4">
-                  {editRole !== "admin" && (
-                    <div className="space-y-1">
-                      <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Biography</label>
-                      <textarea
-                        value={editBio}
-                        onChange={(e) => setEditBio(e.target.value)}
-                        placeholder="Detailed profile description..."
-                        rows={3}
-                        className="w-full form-input rounded-xl p-3"
-                      />
-                    </div>
-                  )}
-
-                  {/* Learner fields */}
-                  {editRole === "learner" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Skills (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editSkills}
-                          onChange={(e) => setEditSkills(e.target.value)}
-                          placeholder="Node.js, TypeScript, MERN"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Interests (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editInterests}
-                          onChange={(e) => setEditInterests(e.target.value)}
-                          placeholder="DevOps, Microservices"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Learning Goals (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editLearningGoals}
-                          onChange={(e) => setEditLearningGoals(e.target.value)}
-                          placeholder="Full Stack Deployment, Docker Containerization"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Education</label>
-                        <input
-                          type="text"
-                          value={editEducation}
-                          onChange={(e) => setEditEducation(e.target.value)}
-                          placeholder="BS in Software Engineering"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Location</label>
-                        <input
-                          type="text"
-                          value={editLocation}
-                          onChange={(e) => setEditLocation(e.target.value)}
-                          placeholder="San Francisco, CA"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Personal Website URL</label>
-                        <input
-                          type="text"
-                          value={editWebsiteLink}
-                          onChange={(e) => setEditWebsiteLink(e.target.value)}
-                          className="w-full form-input rounded-xl p-3 font-mono"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Creator fields */}
-                  {editRole === "creator" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Headline / Specialization</label>
-                        <input
-                          type="text"
-                          value={editHeadline}
-                          onChange={(e) => setEditHeadline(e.target.value)}
-                          placeholder="e.g. Masterclass Course Instructor"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Expertise Topics (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editExpertise}
-                          onChange={(e) => setEditExpertise(e.target.value)}
-                          placeholder="React APIs, System Design"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Skills (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editSkills}
-                          onChange={(e) => setEditSkills(e.target.value)}
-                          placeholder="Next.js, Python, AWS"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Experience (Years)</label>
-                        <input
-                          type="number"
-                          value={editExperience}
-                          onChange={(e) => setEditExperience(e.target.value)}
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Sales Portfolio Website</label>
-                        <input
-                          type="text"
-                          value={editWebsite}
-                          onChange={(e) => setEditWebsite(e.target.value)}
-                          className="w-full form-input rounded-xl p-3 font-mono"
-                        />
-                      </div>
-                      <div className="space-y-1 sm:col-span-2">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Twitter/X handle Link</label>
-                        <input
-                          type="text"
-                          value={editTwitter}
-                          onChange={(e) => setEditTwitter(e.target.value)}
-                          className="w-full form-input rounded-xl p-3 font-mono"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Expert fields */}
-                  {editRole === "expert" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Headline / Professional Bio Title</label>
-                        <input
-                          type="text"
-                          value={editHeadline}
-                          onChange={(e) => setEditHeadline(e.target.value)}
-                          placeholder="Senior Solution Architect"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Expertise Topics (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editExpertise}
-                          onChange={(e) => setEditExpertise(e.target.value)}
-                          placeholder="Serverless APIs, K8s Clustering"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Skills (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editSkills}
-                          onChange={(e) => setEditSkills(e.target.value)}
-                          placeholder="Go, GCP, Terraform"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Consultation Hourly Rate ($)</label>
-                        <input
-                          type="number"
-                          value={editHourlyRate}
-                          onChange={(e) => setEditHourlyRate(e.target.value)}
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Mentorship Availability Status</label>
-                        <select
-                          value={editIsAvailable ? "true" : "false"}
-                          onChange={(e) => setEditIsAvailable(e.target.value === "true")}
-                          className="w-full form-input rounded-xl p-3 bg-bg-dark text-text-title border-glass-border"
-                        >
-                          <option value="true">Available for Schedulers</option>
-                          <option value="false">Unavailable</option>
-                        </select>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Experience (Years)</label>
-                        <input
-                          type="number"
-                          value={editExperience}
-                          onChange={(e) => setEditExperience(e.target.value)}
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Languages (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editLanguages}
-                          onChange={(e) => setEditLanguages(e.target.value)}
-                          placeholder="English, Spanish, Mandarin"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Qualifications / Accreditations (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editQualifications}
-                          onChange={(e) => setEditQualifications(e.target.value)}
-                          placeholder="AWS Certified Solutions Architect, GCP Fellow"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Personal Portfolio Link</label>
-                        <input
-                          type="text"
-                          value={editWebsiteLink}
-                          onChange={(e) => setEditWebsiteLink(e.target.value)}
-                          className="w-full form-input rounded-xl p-3 font-mono"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Admin fields */}
-                  {editRole === "admin" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Administration Department</label>
-                        <input
-                          type="text"
-                          value={editDepartment}
-                          onChange={(e) => setEditDepartment(e.target.value)}
-                          placeholder="Administration / Quality Control"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Assigned Permissions (Comma-separated)</label>
-                        <input
-                          type="text"
-                          value={editPermissions}
-                          onChange={(e) => setEditPermissions(e.target.value)}
-                          placeholder="manage_users, manage_content, view_analytics"
-                          className="w-full form-input rounded-xl p-3 font-mono"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social links block */}
-                  {editRole !== "admin" && (
-                    <div className="pt-4 border-t border-glass-border/30 space-y-3">
-                      <h4 className="font-bold text-text-muted uppercase text-[9px] tracking-wider">Social Links</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="font-bold text-text-muted uppercase text-[8px] tracking-wider">LinkedIn Profile URL</label>
-                          <input
-                            type="text"
-                            value={editLinkedin}
-                            onChange={(e) => setEditLinkedin(e.target.value)}
-                            className="w-full form-input rounded-xl p-2.5 font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="font-bold text-text-muted uppercase text-[8px] tracking-wider">GitHub Profile URL</label>
-                          <input
-                            type="text"
-                            value={editGithub}
-                            onChange={(e) => setEditGithub(e.target.value)}
-                            className="w-full form-input rounded-xl p-2.5 font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end gap-2 border-t border-glass-border/30 pt-4 mt-5">
-                  <Button type="button" variant="secondary" onClick={() => setEditUserModal(null)} className="py-2 px-4 text-[10px]">
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" className="py-2.5 px-6 text-[10px]">
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </SpotlightCard>
-          </div>
-        )}
       </div>
     );
   }
 
-  // Normal User (learner, creator, expert) navbar-based layout
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#eee9ff] via-[#e7edff] to-[#f1eaff] dark:from-[#070817] dark:via-[#070817] dark:to-[#0B0B1F] text-text-main flex flex-col font-sans select-none relative pt-16">
-      
-      {/* Background static details */}
       <div className="absolute inset-0 dot-grid opacity-35 pointer-events-none z-0"></div>
       <div className="glow-orb w-[500px] h-[500px] bg-accent-blue/5 top-[-100px] left-[-100px]"></div>
       <div className="glow-orb w-[500px] h-[500px] bg-accent-purple/5 bottom-[-100px] right-[-100px]"></div>
 
-      {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-300">
           <Info className="text-accent-blue shrink-0 animate-pulse" size={18} />
@@ -1752,7 +930,7 @@ const AppShell = () => {
           </div>
         )}
 
-        {!apiError && (location.pathname === "/profile" ? (
+        {!apiError && (location.pathname !== "/" ? (
           <Outlet />
         ) : tabLoading ? (
           <SkeletonLoader />
@@ -1852,7 +1030,7 @@ const AppShell = () => {
                         <SpotlightCard className="p-6 card-tint-purple rounded-2xl" glowColor="rgba(124, 58, 237, 0.12)">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Published Resources</h3>
-                            <button onClick={() => setToastMessage("Resource upload portal is launching in the next phase!")} className="text-[10px] font-bold text-accent-purple flex items-center gap-1 cursor-pointer">
+                            <button onClick={() => handleTabChange("create-content")} className="text-[10px] font-bold text-accent-purple flex items-center gap-1 cursor-pointer">
                               Upload Guide <PlusCircle size={12} />
                             </button>
                           </div>
@@ -1971,41 +1149,19 @@ const AppShell = () => {
               </div>
             )}
 
+            {/* WORKSPACE: EXPLORE RESOURCES TAB */}
+            {activeTab === "resources" && (
+              <Resources />
+            )}
+
+            {/* WORKSPACE: MY RESOURCES TAB */}
+            {activeTab === "my-resources" && (
+              <MyResources />
+            )}
+
             {/* WORKSPACE: CREATOR - CREATE CONTENT TAB */}
             {activeTab === "create-content" && (
-              <div className="space-y-6 text-left">
-                <div className="border-b border-glass-border/40 pb-5">
-                  <h1 className="text-2xl font-extrabold text-text-title">Create Platform Content</h1>
-                  <p className="text-xs text-text-muted font-semibold mt-1">Publish guides, developer configurations, checklists, or complete courses.</p>
-                </div>
-
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(168, 85, 247, 0.05)">
-                  <h3 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/30 pb-3 mb-4">
-                    New Resource Draft
-                  </h3>
-                  <form onSubmit={(e) => { e.preventDefault(); setToastMessage("Draft saved locally! Upload API is launching soon."); }} className="space-y-4 text-xs">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase">Resource Title</label>
-                        <input type="text" placeholder="e.g. Production-grade Docker Compose setup" className="w-full form-input rounded-xl p-3" required />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-text-muted uppercase">Price ($ USD)</label>
-                        <input type="number" placeholder="0 for Free" className="w-full form-input rounded-xl p-3" />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="font-bold text-text-muted uppercase">Content Summary</label>
-                      <textarea placeholder="Briefly describe what this resource contains..." rows={3} className="w-full form-input rounded-xl p-3" />
-                    </div>
-                    <div className="flex justify-end pt-2">
-                      <Button type="submit" className="py-2.5 px-6">
-                        Save Resource Draft
-                      </Button>
-                    </div>
-                  </form>
-                </SpotlightCard>
-              </div>
+              <CreateResource />
             )}
 
             {/* WORKSPACE: CREATOR - ANALYTICS TAB */}
