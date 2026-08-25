@@ -144,17 +144,13 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 md:grid-cols-12 overflow-hidden relative select-none">
-      
-      {/* Background visual details */}
       <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
       
-      {/* Left panel branding layout */}
       <div className="hidden md:flex md:col-span-5 bg-bg-dark border-r border-glass-border/30 flex-col justify-between p-10 relative overflow-hidden">
         <div className="absolute inset-0 line-grid opacity-15 pointer-events-none"></div>
         <div className="glow-orb w-[300px] h-[300px] bg-accent-blue/5 top-[-50px] left-[-50px]"></div>
         <div className="glow-orb w-[280px] h-[280px] bg-accent-purple/5 bottom-[10%] right-[-50px]"></div>
         
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-text-title z-10 select-none hover:opacity-85 transition">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.25)]">
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-deep">
@@ -200,7 +196,6 @@ const Signup = () => {
           </div>
         </div>
 
-        {/* Platform stats */}
         <div className="flex items-center gap-6 z-10 border-t border-glass-border/20 pt-4 text-left">
           <div>
             <span className="block text-md font-bold text-text-title">10K+</span>
@@ -217,7 +212,6 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Right panel layout split form */}
       <div className="col-span-1 md:col-span-7 flex flex-col justify-center px-6 sm:px-12 py-12 z-10 h-full overflow-y-auto">
         <div className="w-full max-w-4xl mx-auto space-y-6">
           
@@ -234,8 +228,6 @@ const Signup = () => {
 
           <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl shadow-2xl relative" glowColor="rgba(59, 130, 246, 0.08)">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:divide-x lg:divide-glass-border">
-              
-              {/* Column 1: Compact Role Selector */}
               <div className="lg:col-span-5 space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
@@ -279,7 +271,6 @@ const Signup = () => {
                 </div>
               </div>
 
-              {/* Column 2: Details Inputs */}
               <div className="lg:col-span-7 lg:pl-8 space-y-4 text-left">
                 <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
@@ -294,7 +285,6 @@ const Signup = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-3.5">
-                  {/* Name (hidden for Admin) */}
                   {selectedRole !== "admin" && (
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Full name</label>
@@ -313,7 +303,6 @@ const Signup = () => {
                     </div>
                   )}
 
-                  {/* Email */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Email address</label>
                     <div className="relative">
@@ -330,7 +319,6 @@ const Signup = () => {
                     </div>
                   </div>
 
-                  {/* Passwords */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Password</label>
@@ -379,7 +367,6 @@ const Signup = () => {
                     </div>
                   </div>
 
-                  {/* Admin Access Token */}
                   {selectedRole === "admin" && (
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-accent-emerald uppercase tracking-widest flex items-center gap-1.5">
@@ -401,12 +388,10 @@ const Signup = () => {
                     </div>
                   )}
 
-                  {/* Submit */}
                   <Button type="submit" loading={loading} className="w-full py-3 text-xs font-bold rounded-xl mt-3">
                     Create Account
                   </Button>
 
-                  {/* Google OAuth Signup */}
                   {selectedRole !== "admin" && (
                     <>
                       <div className="flex items-center my-3.5">
@@ -438,7 +423,6 @@ const Signup = () => {
             </div>
           </SpotlightCard>
 
-          {/* Footer Navigation */}
           <p className="text-center text-xs text-text-muted">
             Already have an account?{" "}
             <Link to="/login" className="text-accent-blue hover:underline font-bold">

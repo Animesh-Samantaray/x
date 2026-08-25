@@ -5,8 +5,6 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
 
  
-// GET MY ADMIN PROFILE
- 
 export const getAdminProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -37,7 +35,7 @@ export const getAdminProfile = async (req, res) => {
 };
 
  
-// UPDATE MY ADMIN PROFILE
+
  
 export const updateAdminProfile = async (req, res) => {
   try {
@@ -78,7 +76,7 @@ export const updateAdminProfile = async (req, res) => {
 };
 
  
-// GET ALL USERS (ADMIN ONLY IN ROUTE)
+
  
 export const getAllUsers = async (req, res) => {
   try {
@@ -98,8 +96,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
- 
-// GET USER BY ID (ADMIN ONLY IN ROUTE)
+
  
 export const getUserById = async (req, res) => {
   try {
@@ -144,7 +141,7 @@ export const getUserById = async (req, res) => {
 };
 
  
-// UPDATE USER (ADMIN ONLY IN ROUTE)
+
  
 export const updateUser = async (req, res) => {
   try {
@@ -199,13 +196,13 @@ export const updateUser = async (req, res) => {
           });
         }
 
-        // Cleanup old profile
+        
         if (targetUser.role === "learner") await LearnerProfile.findOneAndDelete({ user: id });
         if (targetUser.role === "creator") await CreatorProfile.findOneAndDelete({ user: id });
         if (targetUser.role === "expert") await ExpertProfile.findOneAndDelete({ user: id });
         if (targetUser.role === "admin") await AdminProfile.findOneAndDelete({ user: id });
 
-        // Instantiate new profile
+        
         if (role === "learner") await LearnerProfile.create({ user: id });
         if (role === "creator") await CreatorProfile.create({ user: id });
         if (role === "expert") await ExpertProfile.create({ user: id });
@@ -221,7 +218,7 @@ export const updateUser = async (req, res) => {
 
     await targetUser.save();
 
-    // Update the corresponding profile
+
     let profile;
     if (targetUser.role === "learner") {
       profile = await LearnerProfile.findOne({ user: id });
@@ -293,7 +290,7 @@ export const updateUser = async (req, res) => {
 };
 
  
-// DELETE USER (ADMIN ONLY IN ROUTE)
+
  
 export const deleteUser = async (req, res) => {
   try {
@@ -314,13 +311,13 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    // Cascade delete role profiles
+  
     await LearnerProfile.findOneAndDelete({ user: id });
     await CreatorProfile.findOneAndDelete({ user: id });
     await ExpertProfile.findOneAndDelete({ user: id });
     await AdminProfile.findOneAndDelete({ user: id });
 
-    // Delete User
+
     await User.findByIdAndDelete(id);
 
     return res.status(200).json({

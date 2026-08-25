@@ -56,7 +56,7 @@ export const getAllExperts = async (req, res) => {
 };
 
  
-// GET PARTICULAR EXPERT BY USER ID OR PROFILE ID
+// GET PARTICULAR EXPERT 
  
 export const getExpertById = async (req, res) => {
   try {

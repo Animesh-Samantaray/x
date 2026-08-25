@@ -56,7 +56,7 @@ export const getAllLearners = async (req, res) => {
 };
 
  
-// GET PARTICULAR LEARNER BY USER ID OR PROFILE ID
+// GET PARTICULAR LEARNER 
  
 export const getLearnerById = async (req, res) => {
   try {

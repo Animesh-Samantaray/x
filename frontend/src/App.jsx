@@ -6,6 +6,9 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import ResourceDetail from "./pages/ResourceDetail";
+import CreateResource from "./pages/CreateResource";
+import EditResource from "./pages/EditResource";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -25,6 +28,30 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="resources/:id"
+              element={
+                <ProtectedRoute>
+                  <ResourceDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="resources/new"
+              element={
+                <ProtectedRoute>
+                  <CreateResource />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="resources/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <EditResource />
                 </ProtectedRoute>
               }
             />

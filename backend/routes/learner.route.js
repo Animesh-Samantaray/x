@@ -14,7 +14,7 @@ import {
 
 const router = express.Router();
 
-// Get logged-in user's learner profile
+
 router.get(
   "/profile",
   authMiddleware,
@@ -22,7 +22,6 @@ router.get(
   getLearnerProfile
 );
 
-// Update learner profile
 router.put(
   "/profile",
   authMiddleware,
@@ -38,7 +37,7 @@ router.delete(
   deleteLearnerProfile
 );
 
-// Get all learners (admin only)
+ 
 router.get(
   "/",
   authMiddleware,
