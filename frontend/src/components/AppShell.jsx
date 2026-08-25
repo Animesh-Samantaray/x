@@ -289,7 +289,9 @@ const AppShell = () => {
     localStorage.setItem("theme", nextTheme);
     if (nextTheme === "light") {
       document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
     } else {
+      document.documentElement.classList.add("dark");
       document.documentElement.classList.remove("light");
     }
   };
@@ -314,13 +316,13 @@ const AppShell = () => {
   const getRoleColors = (roleName) => {
     switch (roleName) {
       case "admin":
-        return "bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20";
+        return "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:bg-accent-purple/10 dark:text-accent-purple dark:border-accent-purple/20";
       case "expert":
-        return "bg-accent-orange/10 text-accent-orange border-accent-orange/20";
+        return "bg-pink-500/10 text-pink-600 border-pink-500/20 dark:bg-accent-pink/10 dark:text-accent-pink dark:border-accent-pink/20";
       case "creator":
-        return "bg-accent-purple/10 text-accent-purple border-accent-purple/20";
+        return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-accent-emerald/10 dark:text-accent-emerald dark:border-accent-emerald/20";
       default:
-        return "bg-accent-blue/10 text-accent-blue border-accent-blue/20";
+        return "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-accent-blue/10 dark:text-accent-blue dark:border-accent-blue/20";
     }
   };
 
@@ -400,7 +402,7 @@ const AppShell = () => {
   // Admin Side-Nav layout
   if (user?.role === "admin") {
     return (
-      <div className="min-h-screen bg-transparent text-text-main flex flex-col font-sans select-none relative pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-[#eee9ff] via-[#e7edff] to-[#f1eaff] dark:from-[#070817] dark:via-[#070817] dark:to-[#0B0B1F] text-text-main flex flex-col font-sans select-none relative pt-16">
         {/* Background Static Details */}
         <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
         <div className="glow-orb w-[600px] h-[600px] bg-accent-emerald/5 top-[-100px] left-[-100px]"></div>
@@ -473,8 +475,8 @@ const AppShell = () => {
         {/* SIDEBAR CONTAINER LAYOUT */}
         <div className="flex-grow flex z-10 relative min-h-[calc(100vh-4rem)]">
           {/* Sidebar */}
-          <aside className="w-64 border-r border-glass-border bg-bg-darker/60 backdrop-blur-md hidden md:flex flex-col p-4 space-y-2 shrink-0">
-            <div className="px-3 py-2 text-[10px] font-bold text-text-muted uppercase tracking-widest border-b border-glass-border/30 mb-2">
+          <aside className="w-64 border-r border-violet-950/20 bg-gradient-to-b from-[#1E114A] to-[#0F072D] text-purple-200/90 hidden md:flex flex-col p-4 space-y-2 shrink-0">
+            <div className="px-3 py-2 text-[10px] font-extrabold text-purple-300/40 uppercase tracking-widest border-b border-purple-950/40 mb-2">
               Navigation
             </div>
             <nav className="flex-col space-y-1.5 flex-grow">
@@ -487,8 +489,8 @@ const AppShell = () => {
                     onClick={() => handleTabChange(item.id)}
                     className={`flex w-full items-center gap-3 px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 text-left ${
                       isActive
-                        ? `${item.activeColor} text-white shadow-lg shadow-black/20`
-                        : "text-text-muted hover:text-text-title hover:bg-glass-border"
+                        ? "bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white shadow-lg shadow-purple-900/30"
+                        : "text-purple-200/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     <Icon size={14} className="shrink-0" />
@@ -498,8 +500,8 @@ const AppShell = () => {
               })}
             </nav>
 
-            <div className="pt-4 border-t border-glass-border/40">
-              <button onClick={handleLogout} className="flex w-full items-center gap-3 px-4.5 py-2.5 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 rounded-xl transition duration-150 cursor-pointer">
+            <div className="pt-4 border-t border-purple-950/40">
+              <button onClick={handleLogout} className="flex w-full items-center gap-3 px-4.5 py-2.5 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition duration-150 cursor-pointer">
                 <LogOut size={14} />
                 <span>Sign Out</span>
               </button>
@@ -532,45 +534,55 @@ const AppShell = () => {
                     </div>
 
                     {/* Stats Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border" glowColor="rgba(16, 185, 129, 0.08)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Registered Users</div>
-                        <div className="text-2xl font-extrabold text-text-title mt-1.5">{users.length}</div>
-                        <p className="text-[9px] text-text-muted mt-1 font-semibold">Total database records</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                      {/* Total Users (purple) */}
+                      <SpotlightCard className="p-5 card-tint-purple text-left border border-accent-purple/10" glowColor="rgba(168, 85, 247, 0.12)">
+                        <div className="flex items-center gap-2">
+                          <Users size={14} className="text-accent-purple animate-pulse" />
+                          <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-wider">Total Users</div>
+                        </div>
+                        <div className="text-2xl font-extrabold text-accent-purple mt-1.5">{users.length}</div>
+                        <p className="text-[9px] text-text-muted mt-1 font-semibold">Database accounts</p>
                       </SpotlightCard>
                       
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border" glowColor="rgba(16, 185, 129, 0.08)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Verified Accounts</div>
-                        <div className="text-2xl font-extrabold text-accent-cyan mt-1.5">{statVerified}</div>
-                        <p className="text-[9px] text-text-muted mt-1 font-semibold">{verificationRate}% system verified rate</p>
+                      {/* Learners (blue) */}
+                      <SpotlightCard className="p-5 card-tint-blue text-left border border-accent-blue/10" glowColor="rgba(59, 130, 246, 0.12)">
+                        <div className="flex items-center gap-2">
+                          <BookOpen size={14} className="text-accent-blue" />
+                          <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-wider">Learners</div>
+                        </div>
+                        <div className="text-2xl font-extrabold text-accent-blue mt-1.5">{statLearners}</div>
+                        <p className="text-[9px] text-text-muted mt-1 font-semibold">Active students</p>
                       </SpotlightCard>
 
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border" glowColor="rgba(16, 185, 129, 0.08)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">By Role Profile</div>
-                        <div className="text-sm font-bold text-text-title mt-2 space-y-1">
-                          <div className="flex justify-between">
-                            <span className="text-[10px] text-text-muted">Learners:</span>
-                            <span>{statLearners}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[10px] text-text-muted">Creators:</span>
-                            <span>{statCreators}</span>
-                          </div>
+                      {/* Creators (green) */}
+                      <SpotlightCard className="p-5 card-tint-mint text-left border border-accent-emerald/10" glowColor="rgba(16, 185, 129, 0.12)">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp size={14} className="text-accent-emerald" />
+                          <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-wider">Creators</div>
                         </div>
+                        <div className="text-2xl font-extrabold text-accent-emerald mt-1.5">{statCreators}</div>
+                        <p className="text-[9px] text-text-muted mt-1 font-semibold">Publishing guides</p>
                       </SpotlightCard>
 
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border" glowColor="rgba(16, 185, 129, 0.08)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Specialists Directory</div>
-                        <div className="text-sm font-bold text-text-title mt-2 space-y-1">
-                          <div className="flex justify-between">
-                            <span className="text-[10px] text-text-muted">Experts:</span>
-                            <span>{statExperts}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[10px] text-text-muted">Admins:</span>
-                            <span>{statAdmins}</span>
-                          </div>
+                      {/* Experts (pink) */}
+                      <SpotlightCard className="p-5 card-tint-pink text-left border border-accent-pink/10" glowColor="rgba(236, 72, 153, 0.12)">
+                        <div className="flex items-center gap-2">
+                          <Briefcase size={14} className="text-accent-pink" />
+                          <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-wider">Experts</div>
                         </div>
+                        <div className="text-2xl font-extrabold text-accent-pink mt-1.5">{statExperts}</div>
+                        <p className="text-[9px] text-text-muted mt-1 font-semibold">Vetted specialists</p>
+                      </SpotlightCard>
+
+                      {/* Verification Rate (amber) */}
+                      <SpotlightCard className="p-5 card-tint-peach text-left border border-accent-orange/10" glowColor="rgba(249, 115, 22, 0.12)">
+                        <div className="flex items-center gap-2">
+                          <UserCheck size={14} className="text-accent-orange" />
+                          <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-wider">Verification</div>
+                        </div>
+                        <div className="text-2xl font-extrabold text-accent-orange mt-1.5">{verificationRate}%</div>
+                        <p className="text-[9px] text-text-muted mt-1 font-semibold">{statVerified} verified profiles</p>
                       </SpotlightCard>
                     </div>
 
@@ -705,7 +717,7 @@ const AppShell = () => {
                             </thead>
                             <tbody className="divide-y divide-glass-border/30">
                               {filteredUsers.map((item) => (
-                                <tr key={item._id} className="hover:bg-glass-border/20 transition duration-150">
+                                <tr key={item._id} className="hover:bg-accent-purple/5 dark:hover:bg-glass-border/20 transition duration-150">
                                   <td className="px-6 py-4 flex items-center gap-3">
                                     <div className="h-8 w-8 rounded-lg overflow-hidden shrink-0 border border-glass-border bg-bg-dark">
                                       {item.profilePicture ? (
@@ -728,11 +740,11 @@ const AppShell = () => {
                                   </td>
                                   <td className="px-6 py-4">
                                     {item.isVerified ? (
-                                      <span className="text-[9px] bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/25 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                                      <span className="text-[9px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 dark:bg-accent-cyan/15 dark:text-accent-cyan dark:border-accent-cyan/25 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                                         Verified
                                       </span>
                                     ) : (
-                                      <span className="text-[9px] bg-glass-border text-text-muted border border-glass-border/50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                                      <span className="text-[9px] bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:bg-glass-border dark:text-text-muted dark:border-glass-border/50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                                         Unverified
                                       </span>
                                     )}
@@ -918,7 +930,7 @@ const AppShell = () => {
         {/* VIEW USER DETAIL MODAL */}
         {viewUserModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <SpotlightCard className="w-full max-w-2xl bg-bg-panel border border-glass-border p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(0,0,0,0.6)]" glowColor="rgba(16, 185, 129, 0.08)">
+            <SpotlightCard className="w-full max-w-2xl bg-gradient-to-br from-[#faf7ff] to-[#f5f3ff] dark:from-[#15172F] dark:to-[#0F1026] border border-glass-border/70 p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(124,58,237,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]" glowColor="rgba(124, 58, 237, 0.12)">
               <div className="flex items-center justify-between border-b border-glass-border/30 pb-3.5 mb-5">
                 <h3 className="text-xs font-bold text-text-title uppercase tracking-widest flex items-center gap-2">
                   <UserIcon size={14} className="text-accent-emerald" /> User Account Details
@@ -1229,7 +1241,7 @@ const AppShell = () => {
               </div>
 
               <div className="flex items-center justify-end gap-2 border-t border-glass-border/30 pt-4 mt-5">
-                <Button onClick={() => setViewUserModal(null)} className="py-2 px-5 text-[10px] bg-transparent border border-glass-border text-text-main hover:text-text-title">
+                <Button variant="secondary" onClick={() => setViewUserModal(null)} className="py-2 px-5 text-[10px]">
                   Close Detail Panel
                 </Button>
               </div>
@@ -1240,7 +1252,7 @@ const AppShell = () => {
         {/* EDIT USER CONFIGURATION MODAL */}
         {editUserModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <SpotlightCard className="w-full max-w-2xl bg-bg-panel border border-glass-border p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(0,0,0,0.6)]" glowColor="rgba(59, 130, 246, 0.08)">
+            <SpotlightCard className="w-full max-w-2xl bg-gradient-to-br from-[#faf7ff] to-[#f5f3ff] dark:from-[#15172F] dark:to-[#0F1026] border border-glass-border/70 p-6 sm:p-8 rounded-2xl text-left shadow-[0_20px_50px_rgba(124,58,237,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]" glowColor="rgba(124, 58, 237, 0.12)">
               <div className="flex items-center justify-between border-b border-glass-border/30 pb-3.5 mb-5">
                 <h3 className="text-xs font-bold text-text-title uppercase tracking-widest flex items-center gap-2">
                   <Settings size={14} className="text-accent-blue animate-spin" style={{ animationDuration: "10s" }} /> Edit User Account
@@ -1591,10 +1603,10 @@ const AppShell = () => {
                 </div>
 
                 <div className="flex items-center justify-end gap-2 border-t border-glass-border/30 pt-4 mt-5">
-                  <Button type="button" onClick={() => setEditUserModal(null)} className="bg-transparent border border-glass-border text-text-main py-2 px-4 text-[10px]">
+                  <Button type="button" variant="secondary" onClick={() => setEditUserModal(null)} className="py-2 px-4 text-[10px]">
                     Cancel
                   </Button>
-                  <Button type="submit" className="py-2.5 px-6 text-[10px] bg-accent-blue text-white hover:bg-accent-purple shadow-md">
+                  <Button type="submit" variant="primary" className="py-2.5 px-6 text-[10px]">
                     Save Changes
                   </Button>
                 </div>
@@ -1608,7 +1620,7 @@ const AppShell = () => {
 
   // Normal User (learner, creator, expert) navbar-based layout
   return (
-    <div className="min-h-screen bg-transparent text-text-main flex flex-col font-sans select-none relative pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-[#eee9ff] via-[#e7edff] to-[#f1eaff] dark:from-[#070817] dark:via-[#070817] dark:to-[#0B0B1F] text-text-main flex flex-col font-sans select-none relative pt-16">
       
       {/* Background static details */}
       <div className="absolute inset-0 dot-grid opacity-35 pointer-events-none z-0"></div>
@@ -1650,7 +1662,7 @@ const AppShell = () => {
                 onClick={() => handleTabChange(tab.id)}
                 className={`group/tab flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
                   isActive
-                    ? `${tab.activeColor} text-white shadow-md`
+                    ? "bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white shadow-md shadow-purple-950/10"
                     : "text-text-muted hover:text-text-title hover:bg-glass-border"
                 }`}
               >
@@ -1765,10 +1777,10 @@ const AppShell = () => {
                 {user?.role === "learner" && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-8 space-y-6">
-                      <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(59, 130, 246, 0.08)">
+                      <SpotlightCard className="p-6 card-tint-blue rounded-2xl" glowColor="rgba(59, 130, 246, 0.12)">
                         <div className="flex flex-col sm:flex-row items-center gap-6 justify-between text-center sm:text-left">
                           <div className="space-y-2 flex-grow">
-                            <div className="inline-flex items-center gap-1 bg-accent-blue/10 text-accent-blue border border-accent-blue/20 px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                            <div className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-600 border border-blue-500/20 px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                               Learning
                             </div>
                             <h3 className="text-sm font-extrabold text-text-title leading-snug">
@@ -1786,14 +1798,14 @@ const AppShell = () => {
                         </div>
                       </SpotlightCard>
 
-                      <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(6, 182, 212, 0.08)">
+                      <SpotlightCard className="p-6 card-tint-purple rounded-2xl" glowColor="rgba(124, 58, 237, 0.12)">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Saved Resources</h3>
                             <span className="text-[10px] text-text-muted">0 items</span>
                           </div>
                           <div className="py-8 text-center space-y-3">
-                            <Bookmark size={20} className="text-text-muted mx-auto" />
+                            <Bookmark size={20} className="text-accent-purple mx-auto animate-pulse" />
                             <p className="text-xs text-text-muted max-w-xs mx-auto">
                               Save deployment checklists, configuration files, and references you want to revisit later.
                             </p>
@@ -1803,12 +1815,12 @@ const AppShell = () => {
                     </div>
 
                     <div className="lg:col-span-4 space-y-6">
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(249, 115, 22, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-peach rounded-2xl" glowColor="rgba(249, 115, 22, 0.12)">
                         <div className="flex items-center justify-between pb-3 border-b border-glass-border/40 mb-4">
                           <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Mentorship Calls</h3>
                         </div>
                         <div className="py-6 text-center space-y-3">
-                          <Calendar size={18} className="text-text-muted mx-auto" />
+                          <Calendar size={18} className="text-accent-orange mx-auto" />
                           <p className="text-xs text-text-muted">
                             No upcoming mentorship sessions. Reach out to expert schedulers for technical advice.
                           </p>
@@ -1821,23 +1833,23 @@ const AppShell = () => {
                 {user?.role === "creator" && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(168, 85, 247, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-mint text-center" glowColor="rgba(16, 185, 129, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Total Revenue</div>
                         <div className="text-lg font-extrabold text-accent-emerald mt-1">$0.00</div>
                       </SpotlightCard>
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(168, 85, 247, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-blue text-center" glowColor="rgba(59, 130, 246, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Sales volume</div>
-                        <div className="text-lg font-extrabold text-text-title mt-1">0 units</div>
+                        <div className="text-lg font-extrabold text-accent-blue mt-1">0 units</div>
                       </SpotlightCard>
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(168, 85, 247, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-pink text-center" glowColor="rgba(236, 72, 153, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Ratings</div>
-                        <div className="text-lg font-extrabold text-text-title mt-1">No ratings yet</div>
+                        <div className="text-lg font-extrabold text-accent-pink mt-1">No ratings yet</div>
                       </SpotlightCard>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                       <div className="lg:col-span-8">
-                        <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(168, 85, 247, 0.08)">
+                        <SpotlightCard className="p-6 card-tint-purple rounded-2xl" glowColor="rgba(124, 58, 237, 0.12)">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Published Resources</h3>
                             <button onClick={() => setToastMessage("Resource upload portal is launching in the next phase!")} className="text-[10px] font-bold text-accent-purple flex items-center gap-1 cursor-pointer">
@@ -1845,14 +1857,14 @@ const AppShell = () => {
                             </button>
                           </div>
                           <div className="py-12 text-center space-y-2">
-                            <FileText size={20} className="text-text-muted mx-auto" />
+                            <FileText size={20} className="text-accent-purple mx-auto" />
                             <p className="text-xs text-text-muted">You haven't uploaded or published any guides or scripts yet.</p>
                           </div>
                         </SpotlightCard>
                       </div>
                       
                       <div className="lg:col-span-4">
-                        <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(168, 85, 247, 0.06)">
+                        <SpotlightCard className="p-6 card-tint-peach rounded-2xl" glowColor="rgba(249, 115, 22, 0.12)">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Draft templates</h3>
                           </div>
@@ -1866,23 +1878,23 @@ const AppShell = () => {
                 {user?.role === "expert" && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(249, 115, 22, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-blue text-center" glowColor="rgba(59, 130, 246, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Completed sessions</div>
-                        <div className="text-lg font-extrabold text-text-title mt-1">0 calls</div>
+                        <div className="text-lg font-extrabold text-accent-blue mt-1">0 calls</div>
                       </SpotlightCard>
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(249, 115, 22, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-mint text-center" glowColor="rgba(16, 185, 129, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Mentorship Revenue</div>
                         <div className="text-lg font-extrabold text-accent-emerald mt-1">$0.00</div>
                       </SpotlightCard>
-                      <SpotlightCard className="p-5 bg-glass-card border border-glass-border text-center" glowColor="rgba(249, 115, 22, 0.06)">
+                      <SpotlightCard className="p-5 card-tint-pink text-center" glowColor="rgba(236, 72, 153, 0.12)">
                         <div className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Expert score</div>
-                        <div className="text-lg font-extrabold text-text-title mt-1">No reviews yet</div>
+                        <div className="text-lg font-extrabold text-accent-pink mt-1">No reviews yet</div>
                       </SpotlightCard>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                       <div className="lg:col-span-8">
-                        <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(249, 115, 22, 0.08)">
+                        <SpotlightCard className="p-6 card-tint-purple rounded-2xl" glowColor="rgba(124, 58, 237, 0.12)">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Availability scheduler</h3>
                             <button onClick={() => setToastMessage("Availability configuration setting is launching in the next phase!")} className="text-[10px] font-bold text-accent-orange flex items-center gap-1 cursor-pointer">
@@ -1890,14 +1902,14 @@ const AppShell = () => {
                             </button>
                           </div>
                           <div className="py-12 text-center space-y-2">
-                            <Clock size={20} className="text-text-muted mx-auto" />
+                            <Clock size={20} className="text-accent-orange mx-auto" />
                             <p className="text-xs text-text-muted">You haven't configured any available video consultation windows yet.</p>
                           </div>
                         </SpotlightCard>
                       </div>
                       
                       <div className="lg:col-span-4">
-                        <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(249, 115, 22, 0.06)">
+                        <SpotlightCard className="p-6 card-tint-peach rounded-2xl" glowColor="rgba(249, 115, 22, 0.12)">
                           <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
                             <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Upcoming Calls</h3>
                           </div>
