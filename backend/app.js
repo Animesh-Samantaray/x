@@ -10,13 +10,23 @@ import expertRoutes from "./routes/expert.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import resourceRoutes from "./routes/resource.route.js";
+import courseRoutes from "./routes/course.route.js";
 
 const app = express();
 app.use(passport.initialize());
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5174",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin:[ process.env.CLIENT_URL,"http://localhost:5173"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -32,7 +42,8 @@ app.use("/api/creator", creatorRoutes);
 app.use("/api/expert", expertRoutes);
 app.use("/api/admin", adminRoutes);
 
-
 app.use("/api/category", categoryRoutes);
 app.use("/api/resource", resourceRoutes);
+app.use("/api/courses", courseRoutes);
+
 export default app;

@@ -170,7 +170,7 @@ const Categories = () => {
         </div>
         {isAuthorized && (
           <Button onClick={openCreateModal} className="flex items-center gap-2 text-xs py-2.5 px-4 shadow-lg shrink-0">
-            <PlusCircle size={14} /> Add Category
+            <PlusCircle size={14} /> + Create Category
           </Button>
         )}
       </div>
@@ -301,7 +301,7 @@ const Categories = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-text-muted uppercase">Description</label>
+                <label className="font-bold text-text-muted uppercase">Category Description</label>
                 <textarea
                   placeholder="Summarize the kind of resources that belong in this category..."
                   value={formDescription}
