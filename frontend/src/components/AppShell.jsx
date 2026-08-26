@@ -48,6 +48,10 @@ import UserManagement from "./UserManagement";
 import CreateResource from "../pages/CreateResource";
 import Resources from "../pages/Resources";
 import MyResources from "../pages/MyResources";
+import Categories from "../pages/Categories";
+import ExploreCourses from "../pages/courses/ExploreCourses";
+import MyCourses from "../pages/courses/MyCourses";
+import CreateCourse from "../pages/courses/CreateCourse";
 import { getAllUsers } from "../services/adminApi";
 import { getAllResourcesAdmin, deleteResource, publishResource, archiveResource } from "../services/resourceService";
 
@@ -217,6 +221,9 @@ const AppShell = () => {
     ],
     creator: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
+      { id: "categories", label: "Categories", icon: Layers, activeColor: "bg-accent-indigo" },
+      { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "my-courses", label: "My Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
       { id: "create-content", label: "Create Content", icon: PlusCircle, activeColor: "bg-accent-purple" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
@@ -224,6 +231,9 @@ const AppShell = () => {
     ],
     expert: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
+      { id: "categories", label: "Categories", icon: Layers, activeColor: "bg-accent-indigo" },
+      { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "my-courses", label: "My Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
       { id: "availability", label: "Availability Scheduler", icon: Clock, activeColor: "bg-accent-orange" },
@@ -232,7 +242,9 @@ const AppShell = () => {
     admin: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
       { id: "users", label: "Users", icon: Users, activeColor: "bg-accent-emerald" },
-      { id: "courses", label: "Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "categories", label: "Categories", icon: Layers, activeColor: "bg-accent-indigo" },
+      { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "courses", label: "Course Management", icon: BookOpen, activeColor: "bg-accent-purple" },
       { id: "content", label: "Content Management", icon: FileText, activeColor: "bg-accent-cyan" },
       { id: "analytics", label: "Reports / Analytics", icon: BarChart3, activeColor: "bg-accent-magenta" },
       { id: "moderation", label: "Activity / Moderation", icon: Shield, activeColor: "bg-accent-orange" },
@@ -540,33 +552,19 @@ const AppShell = () => {
                   />
                 )}
 
+                {/* ADMIN: CATEGORIES TAB */}
+                {activeTab === "categories" && (
+                  <Categories />
+                )}
+
                 {/* ADMIN: COURSES TAB */}
                 {activeTab === "courses" && (
-                  <div className="space-y-6 text-left">
-                    <div className="border-b border-glass-border/40 pb-5">
-                      <h1 className="text-2xl font-extrabold text-text-title">Platform Course Catalog</h1>
-                      <p className="text-xs text-text-muted font-semibold mt-1">Review active courses, handle flags, and track enrollment metrics.</p>
-                    </div>
+                  <MyCourses />
+                )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <SpotlightCard className="p-6 bg-glass-card border border-glass-border" glowColor="rgba(168, 85, 247, 0.06)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Active Curriculum Modules</div>
-                        <div className="text-2xl font-extrabold text-text-title mt-2">0 Courses</div>
-                      </SpotlightCard>
-                      <SpotlightCard className="p-6 bg-glass-card border border-glass-border" glowColor="rgba(168, 85, 247, 0.06)">
-                        <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Total Enrolled Learners</div>
-                        <div className="text-2xl font-extrabold text-text-title mt-2">0 students</div>
-                      </SpotlightCard>
-                    </div>
-
-                    <SpotlightCard className="p-12 bg-glass-card border border-glass-border text-center rounded-2xl" glowColor="rgba(168, 85, 247, 0.08)">
-                      <BookOpen size={28} className="text-text-muted mx-auto mb-3" />
-                      <h3 className="text-md font-bold text-text-title">No courses created yet</h3>
-                      <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
-                        Once creators publish interactive modules or developer kits, they will be listed here for approval and global catalog listing.
-                      </p>
-                    </SpotlightCard>
-                  </div>
+                {/* ADMIN: EXPLORE COURSES TAB */}
+                {activeTab === "explore" && (
+                  <ExploreCourses />
                 )}
 
                 {/* ADMIN: CONTENT TAB */}
@@ -1102,33 +1100,12 @@ const AppShell = () => {
 
             {/* WORKSPACE: EXPLORE COURSES TAB */}
             {activeTab === "explore" && (
-              <div className="space-y-6 text-left">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-glass-border/40 pb-5">
-                  <div className="space-y-1">
-                    <h1 className="text-2xl font-extrabold text-text-title">Explore Courses</h1>
-                    <p className="text-xs text-text-muted font-semibold">Search and enroll in verified developer courses</p>
-                  </div>
-                  
-                  <div className="relative max-w-sm w-full">
-                    <input
-                      type="text"
-                      placeholder="Search courses, skills, masterclasses..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5"
-                    />
-                    <Search size={14} className="absolute left-3 top-3.5 text-text-muted" />
-                  </div>
-                </div>
+              <ExploreCourses />
+            )}
 
-                <SpotlightCard className="p-12 bg-glass-card border border-glass-border text-center rounded-2xl" glowColor="rgba(6, 182, 212, 0.08)">
-                  <Compass size={28} className="text-text-muted mx-auto mb-3" />
-                  <h3 className="text-md font-bold text-text-title">No courses listed</h3>
-                  <p className="text-xs text-text-muted max-w-md mx-auto mt-1">
-                    Currently, no technical course pathways are published. Creators will upload complete educational curricula in the next phase.
-                  </p>
-                </SpotlightCard>
-              </div>
+            {/* WORKSPACE: MY COURSES TAB */}
+            {activeTab === "my-courses" && (
+              <MyCourses />
             )}
 
             {/* WORKSPACE: MY LEARNING TAB */}
@@ -1147,6 +1124,11 @@ const AppShell = () => {
                   </p>
                 </SpotlightCard>
               </div>
+            )}
+
+            {/* WORKSPACE: CATEGORIES TAB */}
+            {activeTab === "categories" && (
+              <Categories />
             )}
 
             {/* WORKSPACE: EXPLORE RESOURCES TAB */}

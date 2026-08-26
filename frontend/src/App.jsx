@@ -9,6 +9,12 @@ import Profile from "./pages/Profile";
 import ResourceDetail from "./pages/ResourceDetail";
 import CreateResource from "./pages/CreateResource";
 import EditResource from "./pages/EditResource";
+import Categories from "./pages/Categories";
+import ExploreCourses from "./pages/courses/ExploreCourses";
+import CourseDetail from "./pages/courses/CourseDetail";
+import CreateCourse from "./pages/courses/CreateCourse";
+import EditCourse from "./pages/courses/EditCourse";
+import MyCourses from "./pages/courses/MyCourses";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -16,13 +22,13 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Main Layout routes */}
+         
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Landing />} />
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
             
-            {/* Protected Routes */}
+            
             <Route
               path="profile"
               element={
@@ -52,6 +58,54 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <EditResource />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="categories"
+              element={
+                <ProtectedRoute>
+                  <Categories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses"
+              element={
+                <ProtectedRoute>
+                  <ExploreCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses/new"
+              element={
+                <ProtectedRoute>
+                  <CreateCourse />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <EditCourse />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses/:id"
+              element={
+                <ProtectedRoute>
+                  <CourseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-courses"
+              element={
+                <ProtectedRoute>
+                  <MyCourses />
                 </ProtectedRoute>
               }
             />

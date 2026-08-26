@@ -4,7 +4,7 @@ import { getResources } from "../services/resourceService";
 import { getCategories } from "../services/categoryService";
 import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
-import { Search, BookOpen, Compass, ExternalLink, Calendar, User, Folder, Tag, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, BookOpen, Compass, ExternalLink, Calendar, User, Folder, Tag, AlertCircle, RefreshCw, X } from "lucide-react";
 
 const Resources = () => {
   const [resources, setResources] = useState([]);
@@ -43,15 +43,31 @@ const Resources = () => {
     fetchData();
   }, []);
 
+  const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "all";
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+  };
+
   const filteredResources = resources.filter((res) => {
+    const query = searchQuery.trim().toLowerCase();
     const matchesSearch =
-      res.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      res.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      res.topics.some((topic) => topic.toLowerCase().includes(searchQuery.toLowerCase()));
+      !query ||
+      (res.title || "").toLowerCase().includes(query) ||
+      (res.description || "").toLowerCase().includes(query) ||
+      (res.topics && res.topics.some((topic) => (topic || "").toLowerCase().includes(query)));
+
+    const categoryId = res.category
+      ? typeof res.category === "object"
+        ? res.category._id
+        : res.category
+      : null;
 
     const matchesCategory =
       selectedCategory === "all" ||
-      (res.category && (res.category._id === selectedCategory || res.category.name === selectedCategory));
+      (categoryId && categoryId === selectedCategory) ||
+      (res.category && typeof res.category === "object" && res.category.name === selectedCategory);
 
     return matchesSearch && matchesCategory;
   });
@@ -70,10 +86,10 @@ const Resources = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-bg-darker border border-glass-border p-4 rounded-2xl">
-        <div className="md:col-span-6 relative w-full">
+        <div className="md:col-span-5 relative w-full">
           <input
             type="text"
-            placeholder="Search resources by title, description, topics..."
+            placeholder="Search resources by title, description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5 bg-bg-dark text-text-title border-glass-border focus:border-accent-cyan/50 focus:outline-none"
@@ -96,7 +112,12 @@ const Resources = () => {
           </select>
         </div>
 
-        <div className="md:col-span-2 w-full">
+        <div className="md:col-span-3 flex items-center gap-2 w-full">
+          {hasActiveFilters && (
+            <Button onClick={handleClearFilters} variant="secondary" className="flex items-center gap-1 py-2 px-3 text-xs w-full justify-center text-rose-400 border-rose-500/30 hover:bg-rose-500/10">
+              <X size={12} /> Clear Filters
+            </Button>
+          )}
           <Button onClick={fetchData} variant="secondary" className="flex items-center gap-1.5 py-2 px-3 text-xs w-full justify-center">
             <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Refresh
           </Button>
@@ -128,11 +149,16 @@ const Resources = () => {
             <SpotlightCard className="p-12 bg-glass-card border border-glass-border text-center rounded-2xl" glowColor="rgba(6, 182, 212, 0.08)">
               <BookOpen size={28} className="text-text-muted mx-auto mb-3" />
               <h3 className="text-md font-bold text-text-title">No resources found</h3>
-              <p className="text-xs text-text-muted max-w-md mx-auto mt-1">
-                {searchQuery || selectedCategory !== "all" 
+              <p className="text-xs text-text-muted max-w-md mx-auto mt-1 mb-4">
+                {hasActiveFilters 
                   ? "We couldn't find any resources matching your search queries or selected category filter."
                   : "Currently, no published reference files or configuration templates are available."}
               </p>
+              {hasActiveFilters && (
+                <Button onClick={handleClearFilters} variant="secondary" className="text-xs py-2 px-4">
+                  Clear Filters
+                </Button>
+              )}
             </SpotlightCard>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

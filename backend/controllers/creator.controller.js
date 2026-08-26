@@ -56,7 +56,7 @@ export const getAllCreators = async (req, res) => {
 };
 
  
-// GET PARTICULAR CREATOR BY USER ID OR PROFILE ID
+
  
 export const getCreatorById = async (req, res) => {
   try {
