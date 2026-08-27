@@ -70,7 +70,7 @@ const resourceSchema = new mongoose.Schema(
 
     thumbnail: {
       type: String,
-      default:"https://img.magnific.com/free-vector/vintage-collage-frame-wallpaper-background-illustration-vector-paper-texture-with-design-space_53876-140661.jpg?semt=ais_hybrid&w=740&q=80",
+      default: "https://img.magnific.com/free-vector/vintage-collage-frame-wallpaper-background-illustration-vector-paper-texture-with-design-space_53876-140661.jpg?semt=ais_hybrid&w=740&q=80",
       trim: true,
     },
 
@@ -85,6 +85,12 @@ const resourceSchema = new mongoose.Schema(
       enum: ["draft", "published", "archived"],
       default: "draft",
     },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
+
   },
   {
     timestamps: true,

@@ -44,6 +44,10 @@ const ExploreCourses = () => {
     fetchData();
   }, []);
 
+  const handleEnrollSuccess = (courseId) => {
+    fetchData();
+  };
+
   const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "all";
 
   const filteredCourses = courses.filter((course) => {
@@ -134,7 +138,11 @@ const ExploreCourses = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
-                <CourseCard key={course._id} course={course} />
+                <CourseCard
+                  key={course._id}
+                  course={course}
+                  onEnrollSuccess={handleEnrollSuccess}
+                />
               ))}
             </div>
           )}

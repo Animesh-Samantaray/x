@@ -11,6 +11,8 @@ import adminRoutes from "./routes/admin.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import resourceRoutes from "./routes/resource.route.js";
 import courseRoutes from "./routes/course.route.js";
+import unitRoutes from "./routes/unit.route.js";
+import bookmarkRoutes from "./routes/bookmark.route.js";
 
 const app = express();
 app.use(passport.initialize());
@@ -45,5 +47,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/resource", resourceRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/units", unitRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 
 export default app;

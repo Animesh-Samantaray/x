@@ -49,4 +49,5 @@ const authMiddleware = async (req, res, next) => {
 };
 
 export const verifyToken = authMiddleware;
+export const protect = authMiddleware;
 export default authMiddleware;

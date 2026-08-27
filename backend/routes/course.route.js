@@ -5,6 +5,7 @@ import {
   getAllCourses,
   getCourseById,
   getMyCourses,
+  getMyEnrolledCourses,
   updateCourse,
   deleteCourse,
   enrollInCourse,
@@ -12,15 +13,14 @@ import {
   getEnrolledStudents,
 } from "../controllers/course.controller.js";
 
-import protect  from "../middlewares/auth.middleware.js";
-import  authorizeRoles  from "../middlewares/role.middleware.js";
+import protect from "../middlewares/auth.middleware.js";
+import authorizeRoles from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
-// Public
 router.get("/", getAllCourses);
 
-// not dor learners
+
 router.get(
   "/my-courses",
   protect,
@@ -28,10 +28,18 @@ router.get(
   getMyCourses
 );
 
-// all get it 
+
+router.get(
+  "/my-enrolled",
+  protect,
+  authorizeRoles("learner"),
+  getMyEnrolledCourses
+);
+
+
 router.get("/:id", getCourseById);
 
-// Create Course
+
 router.post(
   "/",
   protect,
@@ -39,7 +47,7 @@ router.post(
   createCourse
 );
 
-// Update Course
+
 router.put(
   "/:id",
   protect,
@@ -47,7 +55,7 @@ router.put(
   updateCourse
 );
 
-// Delete Course
+
 router.delete(
   "/:id",
   protect,
@@ -55,13 +63,14 @@ router.delete(
   deleteCourse
 );
 
-// Enroll
+
 router.post(
   "/:id/enroll",
   protect,
   authorizeRoles("learner"),
   enrollInCourse
 );
+
 
 router.delete(
   "/:id/enroll",
@@ -70,7 +79,7 @@ router.delete(
   unenrollFromCourse
 );
 
-// View enrolled students
+
 router.get(
   "/:id/students",
   protect,

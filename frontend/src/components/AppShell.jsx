@@ -194,6 +194,27 @@ const AppShell = () => {
     setTimeout(() => {
       setTabLoading(false);
     }, 350);
+
+    if (tab === "bookmarks") {
+      navigate("/bookmarks");
+      return;
+    }
+    if (tab === "my-learning") {
+      navigate("/my-learning");
+      return;
+    }
+    if (tab === "explore") {
+      navigate("/courses");
+      return;
+    }
+    if (tab === "my-courses") {
+      navigate("/my-courses");
+      return;
+    }
+    if (tab === "resources") {
+      navigate("/resources");
+      return;
+    }
     if (location.pathname !== "/") {
       navigate("/");
     }
@@ -216,6 +237,7 @@ const AppShell = () => {
     learner: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
       { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
+      { id: "bookmarks", label: "My Bookmarks", icon: Bookmark, activeColor: "bg-accent-amber" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-learning", label: "My Learning", icon: BookOpen, activeColor: "bg-accent-purple" }
     ],
@@ -831,7 +853,14 @@ const AppShell = () => {
         <nav className="hidden md:flex items-center bg-bg-darker border border-glass-border rounded-xl p-1 gap-1">
           {navItems.map((tab) => {
             const Icon = tab.icon;
-            const isActive = activeTab === tab.id && location.pathname === "/";
+            const isActive =
+              (tab.id === "bookmarks" && location.pathname.startsWith("/bookmarks")) ||
+              (tab.id === "my-learning" && location.pathname.startsWith("/my-learning")) ||
+              (tab.id === "explore" && location.pathname.startsWith("/courses")) ||
+              (tab.id === "resources" && location.pathname.startsWith("/resources")) ||
+              (tab.id === "my-courses" && location.pathname.startsWith("/my-courses")) ||
+              (activeTab === tab.id && location.pathname === "/");
+
             return (
               <button
                 key={tab.id}

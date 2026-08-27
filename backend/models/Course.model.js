@@ -45,17 +45,17 @@ const courseSchema = new mongoose.Schema(
       },
     ],
 
-    resources: [
+    units: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Resource",
+        ref: "Unit",
       },
     ],
 
     status: {
       type: String,
       enum: ["draft", "published", "archived"],
-      default: "published",
+      default: "draft",
     },
   },
   {

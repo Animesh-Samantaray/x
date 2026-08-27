@@ -14,111 +14,74 @@ import {
 } from "../controllers/resource.controller.js";
 
 import uploadMiddleware from "../middlewares/upload.middleware.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+import { protect } from "../middlewares/auth.middleware.js";
 import authorizeRoles from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
- 
-// Public
- 
 
 router.get("/", getResources);
-router.get("/:id/document/:docId", getDocument);
 
 
- 
-// Admin
- 
 router.get(
   "/admin/all",
-  authMiddleware,
+  protect,
   authorizeRoles("admin"),
   getAllResourcesAdmin
 );
 
 
- 
-// My Resources
- 
-
 router.get(
   "/my",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   getMyResources
 );
 
-
- 
-// Resource by ID
-
- 
-
-router.get(
-  "/:id",
-  authMiddleware,
-  getResourceById
-);
+router.get("/:id/document/:docId", getDocument);
 
 
- 
-// Create
- 
+router.get("/:id", protect, getResourceById);
+
 
 router.post(
   "/",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   uploadMiddleware.array("documents", 5),
   createResource
 );
 
 
- 
-// Update
- 
 
 router.put(
   "/:id",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   uploadMiddleware.array("documents", 5),
   updateResource
 );
 
 
- 
-// Delete
- 
-
 router.delete(
   "/:id",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   deleteResource
 );
 
 
- 
-// Publish
- 
-
 router.patch(
   "/:id/publish",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   publishResource
 );
 
 
- 
-// Archive
- 
-
 router.patch(
   "/:id/archive",
-  authMiddleware,
+  protect,
   authorizeRoles("creator", "expert", "admin"),
   archiveResource
 );
