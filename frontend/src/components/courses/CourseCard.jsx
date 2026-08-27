@@ -1,7 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import SpotlightCard from "../SpotlightCard";
-import { BookOpen, Users, Calendar, User, Eye, Edit2, Trash2, GraduationCap } from "lucide-react";
+import Button from "../Button";
+import { useAuth } from "../../context/AuthContext";
+import { isCourseEnrolled, enrollInCourse } from "../../services/courseService";
+import { BookOpen, Users, Calendar, User, Eye, Edit2, Trash2, GraduationCap, Settings, PlayCircle, CheckCircle } from "lucide-react";
 
 const CourseCard = ({
   course,
@@ -9,8 +12,41 @@ const CourseCard = ({
   onEdit,
   onDelete,
   onViewStudents,
+  onEnrollSuccess,
 }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [enrolling, setEnrolling] = useState(false);
+
   const hasThumbnail = course.thumbnail && course.thumbnail.startsWith("http");
+  const isEnrolled = isCourseEnrolled(course, user);
+  const isLearner = user?.role === "learner";
+  const isOwner = user && (course.createdBy?._id === user._id || course.createdBy === user._id);
+  const isAdmin = user?.role === "admin";
+
+  const handleQuickEnroll = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setEnrolling(true);
+      const res = await enrollInCourse(course._id);
+      if (res && res.success) {
+        if (onEnrollSuccess) {
+          onEnrollSuccess(course._id);
+        }
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to enroll in course.");
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -112,23 +148,68 @@ const CourseCard = ({
 
         {/* Action Controls */}
         <div className="flex items-center justify-between gap-1.5 pt-1">
-          <Link
-            to={`/courses/${course._id}`}
-            className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-          >
-            <Eye size={10} /> View
-          </Link>
+          {/* Enrollment controls shown strictly for Learners or when user is enrolled */}
+          {isEnrolled ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
+                <CheckCircle size={10} /> Enrolled
+              </span>
+              <Link
+                to={`/courses/${course._id}/learn`}
+                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <PlayCircle size={10} /> Go to Course
+              </Link>
+            </div>
+          ) : isOwner || isAdmin ? (
+            <div className="flex items-center gap-1.5">
+              <Link
+                to={`/courses/${course._id}/learn`}
+                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <PlayCircle size={10} /> Preview Workspace
+              </Link>
+              <Link
+                to={`/courses/${course._id}`}
+                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <Eye size={10} /> Details
+              </Link>
+            </div>
+          ) : isLearner || !user ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleQuickEnroll}
+                disabled={enrolling}
+                className="text-[9px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-md"
+              >
+                <GraduationCap size={10} /> {enrolling ? "Enrolling..." : "Enroll in Course"}
+              </button>
+              <Link
+                to={`/courses/${course._id}`}
+                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <Eye size={10} /> Details
+              </Link>
+            </div>
+          ) : (
+            <Link
+              to={`/courses/${course._id}`}
+              className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+            >
+              <Eye size={10} /> View Course
+            </Link>
+          )}
 
           {isOwnerOrAdmin && (
             <div className="flex items-center gap-1">
-              {onViewStudents && (
-                <button
-                  onClick={() => onViewStudents(course)}
-                  className="text-[9px] border border-accent-cyan/25 bg-accent-cyan/5 text-accent-cyan hover:bg-accent-cyan hover:text-white px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-                >
-                  <GraduationCap size={10} /> Students
-                </button>
-              )}
+              <Link
+                to={`/courses/${course._id}/manage`}
+                className="text-[9px] border border-accent-indigo/30 bg-accent-indigo/10 text-accent-indigo hover:bg-accent-indigo hover:text-white px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                title="Manage units & curriculum"
+              >
+                <Settings size={10} /> Manage
+              </Link>
               {onEdit && (
                 <button
                   onClick={() => onEdit(course._id)}

@@ -15,6 +15,10 @@ import CourseDetail from "./pages/courses/CourseDetail";
 import CreateCourse from "./pages/courses/CreateCourse";
 import EditCourse from "./pages/courses/EditCourse";
 import MyCourses from "./pages/courses/MyCourses";
+import CourseManage from "./pages/courses/CourseManage";
+import CourseLearn from "./pages/courses/CourseLearn";
+import MyBookmarks from "./pages/MyBookmarks";
+import LearnerMyLearning from "./pages/LearnerMyLearning";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -102,10 +106,42 @@ const App = () => {
               }
             />
             <Route
+              path="courses/:id/manage"
+              element={
+                <ProtectedRoute>
+                  <CourseManage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses/:id/learn"
+              element={
+                <ProtectedRoute>
+                  <CourseLearn />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="my-courses"
               element={
                 <ProtectedRoute>
                   <MyCourses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-learning"
+              element={
+                <ProtectedRoute>
+                  <LearnerMyLearning />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="bookmarks"
+              element={
+                <ProtectedRoute>
+                  <MyBookmarks />
                 </ProtectedRoute>
               }
             />

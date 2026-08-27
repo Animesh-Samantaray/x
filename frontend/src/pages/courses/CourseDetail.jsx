@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { getCourseById, deleteCourse } from "../../services/courseService";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getCourseById,
+  deleteCourse,
+  enrollInCourse,
+  unenrollFromCourse,
+  isCourseEnrolled
+} from "../../services/courseService";
 import { useAuth } from "../../context/AuthContext";
 import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
@@ -11,16 +17,16 @@ import {
   User,
   Users,
   Layers,
-  Tag,
   Edit2,
   Trash2,
   GraduationCap,
   ArrowLeft,
   AlertCircle,
-  FileText,
-  ExternalLink,
-  Eye,
-  X
+  PlayCircle,
+  X,
+  Settings,
+  LogOut,
+  CheckCircle
 } from "lucide-react";
 
 const CourseDetail = () => {
@@ -31,6 +37,11 @@ const CourseDetail = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [enrolling, setEnrolling] = useState(false);
+  const [unenrolling, setUnenrolling] = useState(false);
+  const [unenrollModalOpen, setUnenrollModalOpen] = useState(false);
+
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [studentsModalOpen, setStudentsModalOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -59,6 +70,37 @@ const CourseDetail = () => {
     }
   }, [id]);
 
+  const handleEnroll = async () => {
+    try {
+      setEnrolling(true);
+      setError("");
+      const res = await enrollInCourse(id);
+      if (res && res.success) {
+        await fetchCourse();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to enroll in course.");
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const handleUnenrollConfirm = async () => {
+    try {
+      setUnenrolling(true);
+      setError("");
+      const res = await unenrollFromCourse(id);
+      if (res && res.success) {
+        setUnenrollModalOpen(false);
+        await fetchCourse();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to unenroll from course.");
+    } finally {
+      setUnenrolling(false);
+    }
+  };
+
   const handleDelete = async () => {
     try {
       setDeleting(true);
@@ -82,7 +124,7 @@ const CourseDetail = () => {
     );
   }
 
-  if (error || !course) {
+  if (error && !course) {
     return (
       <div className="flex flex-col items-center justify-center p-8 border border-rose-500/20 bg-rose-500/5 rounded-2xl text-center max-w-md mx-auto my-12 text-left">
         <AlertCircle className="text-rose-400 mb-2 animate-bounce" size={28} />
@@ -97,13 +139,19 @@ const CourseDetail = () => {
 
   const isOwner = user && (course.createdBy?._id === user._id || course.createdBy === user._id);
   const isAdmin = user && user.role === "admin";
+  const isLearner = user && user.role === "learner";
   const canManage = isOwner || isAdmin;
+
+  // Determine if user is enrolled
+  const isEnrolled = isCourseEnrolled(course, user);
+
   const enrollmentCount = course.enrolledStudents?.length || 0;
+  const unitCount = course.units?.length || 0;
   const hasThumbnail = course.thumbnail && course.thumbnail.startsWith("http");
 
   return (
     <div className="space-y-6 text-left relative">
-      {/* Back button & Action Controls */}
+      {/* Top Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-glass-border/40 pb-4">
         <button
           onClick={() => navigate(-1)}
@@ -112,33 +160,78 @@ const CourseDetail = () => {
           <ArrowLeft size={14} /> Back
         </button>
 
-        {canManage && (
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Manage Course button for Creator/Admin */}
+          {canManage && (
+            <>
+              <Button
+                onClick={() => navigate(`/courses/${course._id}/manage`)}
+                className="text-xs py-2 px-3 flex items-center gap-1.5 bg-accent-indigo hover:bg-accent-purple"
+              >
+                <Settings size={14} /> Manage Course Curriculum
+              </Button>
+              <Button
+                onClick={() => setStudentsModalOpen(true)}
+                variant="secondary"
+                className="text-xs py-2 px-3 flex items-center gap-1.5 border-accent-cyan/30 text-accent-cyan hover:bg-accent-cyan/10"
+              >
+                <GraduationCap size={14} /> Enrolled Students ({enrollmentCount})
+              </Button>
+              <Button
+                onClick={() => navigate(`/courses/edit/${course._id}`)}
+                variant="secondary"
+                className="text-xs py-2 px-3 flex items-center gap-1.5"
+              >
+                <Edit2 size={14} /> Edit Metadata
+              </Button>
+              <Button
+                onClick={() => setDeleteConfirmOpen(true)}
+                variant="danger"
+                className="text-xs py-2 px-3 flex items-center gap-1.5"
+              >
+                <Trash2 size={14} /> Delete
+              </Button>
+            </>
+          )}
+
+          {/* Learner Enrollment / Learning Actions */}
+          {isEnrolled ? (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => navigate(`/courses/${course._id}/learn`)}
+                className="text-xs py-2.5 px-5 flex items-center gap-2 shadow-lg bg-gradient-to-r from-accent-purple to-accent-indigo"
+              >
+                <PlayCircle size={16} /> Continue Learning &rarr;
+              </Button>
+              <Button
+                onClick={() => setUnenrollModalOpen(true)}
+                variant="danger"
+                className="text-xs py-2.5 px-3 border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white"
+              >
+                Unenroll
+              </Button>
+            </div>
+          ) : isLearner ? (
             <Button
-              onClick={() => setStudentsModalOpen(true)}
-              variant="secondary"
-              className="text-xs py-2 px-3 flex items-center gap-1.5 border-accent-cyan/30 text-accent-cyan hover:bg-accent-cyan/10"
+              onClick={handleEnroll}
+              loading={enrolling}
+              className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
             >
-              <GraduationCap size={14} /> View Enrolled Students ({enrollmentCount})
+              <GraduationCap size={16} /> Enroll in Course
             </Button>
-            <Button
-              onClick={() => navigate(`/courses/edit/${course._id}`)}
-              className="text-xs py-2 px-3 flex items-center gap-1.5"
-            >
-              <Edit2 size={14} /> Edit Course
-            </Button>
-            <Button
-              onClick={() => setDeleteConfirmOpen(true)}
-              variant="danger"
-              className="text-xs py-2 px-3 flex items-center gap-1.5"
-            >
-              <Trash2 size={14} /> Delete
-            </Button>
-          </div>
-        )}
+          ) : null}
+        </div>
       </div>
 
-      {/* Main Course Header Card */}
+      {/* Error alert inside page */}
+      {error && (
+        <div className="p-3 border border-rose-500/20 bg-rose-500/5 rounded-xl text-xs text-rose-400 flex items-center gap-2 font-semibold">
+          <AlertCircle size={14} className="shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Main Course Details Header Card */}
       <SpotlightCard className="p-6 md:p-8 bg-glass-card border border-glass-border rounded-2xl overflow-hidden" glowColor="rgba(168, 85, 247, 0.12)">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Thumbnail */}
@@ -196,6 +289,10 @@ const CourseDetail = () => {
                 <span>Created by <strong className="text-text-title">{course.createdBy?.name || "Instructor"}</strong></span>
               </div>
               <div className="flex items-center gap-1.5">
+                <Layers size={14} className="text-accent-purple" />
+                <span><strong className="text-text-title">{unitCount}</strong> Learning Units</span>
+              </div>
+              <div className="flex items-center gap-1.5">
                 <Users size={14} className="text-accent-cyan" />
                 <span><strong className="text-text-title">{enrollmentCount}</strong> Enrolled Students</span>
               </div>
@@ -204,57 +301,74 @@ const CourseDetail = () => {
                 <span>{course.createdAt ? new Date(course.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A"}</span>
               </div>
             </div>
+
+            {/* CTA for Learner Flow */}
+            <div className="pt-4 border-t border-glass-border/30 flex items-center justify-between gap-4">
+              {isEnrolled ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5">
+                    <CheckCircle size={16} /> Enrolled in this course
+                  </span>
+                  <Button
+                    onClick={() => navigate(`/courses/${course._id}/learn`)}
+                    className="text-xs py-2.5 px-5 flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                  >
+                    <PlayCircle size={16} /> Continue Learning &rarr;
+                  </Button>
+                </div>
+              ) : isLearner ? (
+                <Button
+                  onClick={handleEnroll}
+                  loading={enrolling}
+                  className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                >
+                  <GraduationCap size={16} /> Enroll in Course
+                </Button>
+              ) : (isOwner || isAdmin) ? (
+                <Button
+                  onClick={() => navigate(`/courses/${course._id}/learn`)}
+                  className="text-xs py-2.5 px-5 flex items-center gap-2 bg-accent-purple/20 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white"
+                >
+                  <PlayCircle size={16} /> Preview Learning Workspace &rarr;
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
       </SpotlightCard>
 
-      {/* Attached Resources Section */}
-      <div className="space-y-4 pt-2">
-        <h2 className="text-md font-bold text-text-title flex items-center gap-2 border-b border-glass-border/40 pb-3">
-          <FileText className="text-accent-cyan" size={18} /> Course Knowledge Resources ({course.resources?.length || 0})
-        </h2>
+      {/* Unenroll Confirmation Modal */}
+      {unenrollModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <SpotlightCard className="w-full max-w-sm bg-bg-panel border border-glass-border/70 p-6 rounded-2xl text-left shadow-2xl space-y-4" glowColor="rgba(244, 63, 94, 0.12)">
+            <div className="flex items-center justify-between border-b border-glass-border/30 pb-3">
+              <h3 className="text-xs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-2">
+                <LogOut size={14} /> Confirm Unenrollment
+              </h3>
+              <button onClick={() => setUnenrollModalOpen(false)} className="text-text-muted hover:text-rose-400 transition cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
 
-        {!course.resources || course.resources.length === 0 ? (
-          <SpotlightCard className="p-8 text-center text-xs text-text-muted rounded-2xl" glowColor="rgba(6, 182, 212, 0.05)">
-            No resources are currently attached to this course.
+            <p className="text-xs text-text-main leading-relaxed">
+              Are you sure you want to unenroll from <strong className="text-text-title">{course.title}</strong>? You will lose access to the learning module.
+            </p>
+
+            <div className="flex justify-end gap-2.5 pt-2">
+              <Button variant="secondary" onClick={() => setUnenrollModalOpen(false)} disabled={unenrolling}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={handleUnenrollConfirm} loading={unenrolling}>
+                {unenrolling ? "Unenrolling..." : "Confirm Unenroll"}
+              </Button>
+            </div>
           </SpotlightCard>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {course.resources.map((res) => (
-              <SpotlightCard key={res._id || res} className="p-5 flex flex-col justify-between rounded-xl" glowColor="rgba(6, 182, 212, 0.08)">
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[8px] font-extrabold uppercase tracking-widest text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded">
-                      {res.category?.name || "Resource"}
-                    </span>
-                    {res.resourceType && (
-                      <span className="text-[8px] text-text-muted border border-glass-border px-1.5 py-0.2 rounded font-semibold uppercase">
-                        {res.resourceType}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-xs font-bold text-text-title line-clamp-1">{res.title}</h3>
-                  <p className="text-[10px] text-text-muted line-clamp-2 leading-relaxed">{res.description}</p>
-                </div>
-
-                <div className="pt-3 mt-3 border-t border-glass-border/30 flex justify-end">
-                  <Link
-                    to={`/resources/${res._id}`}
-                    className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-                  >
-                    <Eye size={10} /> View Resource
-                  </Link>
-                </div>
-              </SpotlightCard>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <SpotlightCard className="w-full max-w-sm bg-bg-panel border border-glass-border/70 p-6 rounded-2xl text-left shadow-2xl space-y-4" glowColor="rgba(244, 63, 94, 0.12)">
             <div className="flex items-center justify-between border-b border-glass-border/30 pb-3">
               <h3 className="text-xs font-bold text-rose-400 uppercase tracking-widest flex items-center gap-2">
