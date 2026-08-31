@@ -14,6 +14,8 @@ import courseRoutes from "./routes/course.route.js";
 import unitRoutes from "./routes/unit.route.js";
 import bookmarkRoutes from "./routes/bookmark.route.js";
 import progressRoutes from "./routes/progress.route.js";
+import reviewRoutes from "./routes/review.route.js";
+import sessionRoutes from "./routes/mentorshipSession.route.js";
 const app = express();
 app.use(passport.initialize());
 
@@ -49,7 +51,8 @@ app.use("/api/resource", resourceRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/units", unitRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
-
+app.use("/api/reviews", reviewRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("/api/session", sessionRoutes);
 
 export default app;

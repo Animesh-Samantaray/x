@@ -215,6 +215,22 @@ const AppShell = () => {
       navigate("/resources");
       return;
     }
+    if (tab === "my-resources") {
+      navigate("/my-resources");
+      return;
+    }
+    if (tab === "create-content" || tab === "create-resource") {
+      navigate("/resources/new");
+      return;
+    }
+    if (tab === "categories") {
+      navigate("/categories");
+      return;
+    }
+    if (tab === "sessions" || tab === "consultations" || tab === "availability") {
+      navigate("/sessions");
+      return;
+    }
     if (location.pathname !== "/") {
       navigate("/");
     }
@@ -239,6 +255,7 @@ const AppShell = () => {
       { id: "explore", label: "Explore Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
       { id: "bookmarks", label: "My Bookmarks", icon: Bookmark, activeColor: "bg-accent-amber" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
+      { id: "sessions", label: "Mentorship", icon: Video, activeColor: "bg-accent-orange" },
       { id: "my-learning", label: "My Learning", icon: BookOpen, activeColor: "bg-accent-purple" }
     ],
     creator: [
@@ -249,6 +266,7 @@ const AppShell = () => {
       { id: "create-content", label: "Create Content", icon: PlusCircle, activeColor: "bg-accent-purple" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
+      { id: "sessions", label: "Mentorship", icon: Video, activeColor: "bg-accent-orange" },
       { id: "analytics", label: "Creator Analytics", icon: TrendingUp, activeColor: "bg-accent-magenta" }
     ],
     expert: [
@@ -258,8 +276,7 @@ const AppShell = () => {
       { id: "my-courses", label: "My Courses", icon: BookOpen, activeColor: "bg-accent-purple" },
       { id: "resources", label: "Explore Resources", icon: Compass, activeColor: "bg-accent-cyan" },
       { id: "my-resources", label: "My Resources", icon: FileText, activeColor: "bg-accent-purple" },
-      { id: "availability", label: "Availability Scheduler", icon: Clock, activeColor: "bg-accent-orange" },
-      { id: "consultations", label: "Consultations", icon: Calendar, activeColor: "bg-accent-amber" }
+      { id: "sessions", label: "Mentorship Sessions", icon: Video, activeColor: "bg-accent-orange" }
     ],
     admin: [
       { id: "dashboard", label: "Dashboard", icon: Layers, activeColor: "bg-accent-blue" },
@@ -857,7 +874,10 @@ const AppShell = () => {
               (tab.id === "bookmarks" && location.pathname.startsWith("/bookmarks")) ||
               (tab.id === "my-learning" && location.pathname.startsWith("/my-learning")) ||
               (tab.id === "explore" && location.pathname.startsWith("/courses")) ||
-              (tab.id === "resources" && location.pathname.startsWith("/resources")) ||
+              (tab.id === "resources" && location.pathname === "/resources") ||
+              (tab.id === "my-resources" && location.pathname.startsWith("/my-resources")) ||
+              (tab.id === "categories" && location.pathname.startsWith("/categories")) ||
+              (tab.id === "sessions" && location.pathname.startsWith("/sessions")) ||
               (tab.id === "my-courses" && location.pathname.startsWith("/my-courses")) ||
               (activeTab === tab.id && location.pathname === "/");
 
@@ -1027,8 +1047,11 @@ const AppShell = () => {
                         <div className="py-6 text-center space-y-3">
                           <Calendar size={18} className="text-accent-orange mx-auto" />
                           <p className="text-xs text-text-muted">
-                            No upcoming mentorship sessions. Reach out to expert schedulers for technical advice.
+                            Connect with experienced experts for 1-on-1 or group mentorship sessions.
                           </p>
+                          <Button onClick={() => handleTabChange("sessions")} className="text-xs py-2 px-4 w-full bg-gradient-to-r from-accent-purple to-accent-indigo">
+                            Explore Mentorship Sessions &rarr;
+                          </Button>
                         </div>
                       </SpotlightCard>
                     </div>

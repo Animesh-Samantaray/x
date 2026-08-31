@@ -4,6 +4,7 @@ import SpotlightCard from "../SpotlightCard";
 import Button from "../Button";
 import { useAuth } from "../../context/AuthContext";
 import { isCourseEnrolled, enrollInCourse } from "../../services/courseService";
+import CourseRatingDisplay from "../reviews/CourseRatingDisplay";
 import { BookOpen, Users, Calendar, User, Eye, Edit2, Trash2, GraduationCap, Settings, PlayCircle, CheckCircle } from "lucide-react";
 
 const CourseCard = ({
@@ -100,6 +101,14 @@ const CourseCard = ({
                 {course.title}
               </h3>
             </Link>
+            {/* Rating display */}
+            <div className="pt-0.5">
+              <CourseRatingDisplay
+                averageRating={course.averageRating}
+                reviewCount={course.reviewCount}
+                size="xs"
+              />
+            </div>
             <p className="text-[10px] text-text-muted leading-relaxed line-clamp-2">
               {course.description}
             </p>

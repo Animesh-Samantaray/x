@@ -6,6 +6,8 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import Resources from "./pages/Resources";
+import MyResources from "./pages/MyResources";
 import ResourceDetail from "./pages/ResourceDetail";
 import CreateResource from "./pages/CreateResource";
 import EditResource from "./pages/EditResource";
@@ -19,6 +21,7 @@ import CourseManage from "./pages/courses/CourseManage";
 import CourseLearn from "./pages/courses/CourseLearn";
 import MyBookmarks from "./pages/MyBookmarks";
 import LearnerMyLearning from "./pages/LearnerMyLearning";
+import SessionsPage from "./pages/sessions/SessionsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -38,6 +41,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="resources"
+              element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-resources"
+              element={
+                <ProtectedRoute>
+                  <MyResources />
                 </ProtectedRoute>
               }
             />
@@ -142,6 +161,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <MyBookmarks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="sessions"
+              element={
+                <ProtectedRoute>
+                  <SessionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="sessions/:id"
+              element={
+                <ProtectedRoute>
+                  <SessionsPage />
                 </ProtectedRoute>
               }
             />

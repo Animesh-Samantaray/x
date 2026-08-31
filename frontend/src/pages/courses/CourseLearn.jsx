@@ -233,6 +233,13 @@ const CourseLearn = () => {
         </button>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate(`/courses/${course._id}#reviews`)}
+            className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <Star size={14} className="fill-amber-400 text-amber-400" />
+            Rate & Review Course
+          </button>
           <span className="text-[10px] uppercase font-bold text-accent-purple bg-accent-purple/10 border border-accent-purple/20 px-2.5 py-1 rounded">
             Learner Learning Workspace
           </span>
