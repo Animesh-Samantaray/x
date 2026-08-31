@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyCourses, getAllCourses, deleteCourse } from "../../services/courseService";
+import { getMyCourses, getAllCourses, getMyEnrolledCourses, deleteCourse } from "../../services/courseService";
+import { getMyProgress, getCourseProgress } from "../../services/progressService";
 import { useAuth } from "../../context/AuthContext";
 import CourseCard from "../../components/courses/CourseCard";
 import EnrolledStudents from "../../components/courses/EnrolledStudents";
@@ -13,6 +14,7 @@ const MyCourses = () => {
   const { user } = useAuth();
 
   const [courses, setCourses] = useState([]);
+  const [progressMap, setProgressMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,12 +27,51 @@ const MyCourses = () => {
     try {
       setLoading(true);
       setError("");
-      // For Admin, fetch all courses using getAllCourses(), otherwise getMyCourses()
-      const res = user?.role === "admin" ? await getAllCourses() : await getMyCourses();
-      if (res && res.success) {
-        setCourses(res.courses || []);
+
+      if (user?.role === "learner") {
+        const [enrolledRes, progressRes] = await Promise.all([
+          getMyEnrolledCourses(),
+          getMyProgress().catch(() => ({ success: false, progress: [] })),
+        ]);
+
+        if (enrolledRes && enrolledRes.success) {
+          const enrolledCourses = enrolledRes.courses || [];
+          setCourses(enrolledCourses);
+
+          const map = {};
+          if (progressRes && progressRes.success && Array.isArray(progressRes.progress)) {
+            progressRes.progress.forEach((p) => {
+              const courseId = typeof p.course === "object" ? p.course?._id : p.course;
+              if (courseId) {
+                map[String(courseId)] = p;
+              }
+            });
+          }
+
+          const fetchMissingPromises = enrolledCourses.map(async (c) => {
+            if (!map[String(c._id)]) {
+              try {
+                const pRes = await getCourseProgress(c._id);
+                if (pRes && pRes.success) {
+                  map[String(c._id)] = pRes.progress;
+                }
+              } catch (err) {
+                console.error(`Failed to load progress for course ${c._id}`, err);
+              }
+            }
+          });
+          await Promise.all(fetchMissingPromises);
+          setProgressMap(map);
+        } else {
+          setError("Failed to load enrolled courses.");
+        }
       } else {
-        setError("Failed to load course portfolio.");
+        const res = user?.role === "admin" ? await getAllCourses() : await getMyCourses();
+        if (res && res.success) {
+          setCourses(res.courses || []);
+        } else {
+          setError("Failed to load course portfolio.");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -135,6 +176,7 @@ const MyCourses = () => {
               <CourseCard
                 key={course._id}
                 course={course}
+                progress={progressMap[String(course._id)]}
                 isOwnerOrAdmin={canManage}
                 onEdit={(id) => navigate(`/courses/edit/${id}`)}
                 onDelete={(id) => setConfirmDeleteId(id)}

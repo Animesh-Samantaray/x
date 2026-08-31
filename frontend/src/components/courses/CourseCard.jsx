@@ -8,6 +8,7 @@ import { BookOpen, Users, Calendar, User, Eye, Edit2, Trash2, GraduationCap, Set
 
 const CourseCard = ({
   course,
+  progress,
   isOwnerOrAdmin = false,
   onEdit,
   onDelete,
@@ -145,6 +146,34 @@ const CourseCard = ({
             </div>
           </div>
         </div>
+
+        {/* Progress Bar for Enrolled Learner */}
+        {(() => {
+          const progressObj = progress || course.progress;
+          if (!progressObj) return null;
+          const pct = progressObj.percentage ?? 0;
+          const compCount = progressObj.completedCount ?? (Array.isArray(progressObj.completedUnits) ? progressObj.completedUnits.length : undefined);
+          const totUnits = progressObj.totalUnits ?? course.units?.length;
+
+          return (
+            <div className="pt-1 space-y-1.5 border-t border-glass-border/20">
+              <div className="flex items-center justify-between text-[10px] font-bold">
+                <span className="text-text-muted">
+                  {compCount !== undefined && totUnits !== undefined
+                    ? `${compCount} / ${totUnits} units completed`
+                    : "Course Progress"}
+                </span>
+                <span className="text-accent-purple font-extrabold">{pct}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-bg-dark rounded-full overflow-hidden border border-glass-border/60">
+                <div
+                  className="h-full bg-gradient-to-r from-accent-purple to-accent-cyan transition-all duration-300 rounded-full"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Action Controls */}
         <div className="flex items-center justify-between gap-1.5 pt-1">

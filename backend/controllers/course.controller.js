@@ -1,5 +1,6 @@
 import Course from "../models/Course.model.js";
 import Bookmark from "../models/Bookmark.model.js";
+import Progress from "../models/Progress.model.js";
 
 export const createCourse = async (req, res) => {
   try {
@@ -285,6 +286,8 @@ export const enrollInCourse = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const userId = req.user._id;
+
     const course = await Course.findById(id);
 
     if (!course) {
@@ -301,11 +304,10 @@ export const enrollInCourse = async (req, res) => {
       });
     }
 
-    
     let alreadyEnrolled = false;
 
     for (const studentId of course.enrolledStudents || []) {
-      if (studentId.toString() === req.user._id.toString()) {
+      if (studentId.toString() === userId.toString()) {
         alreadyEnrolled = true;
         break;
       }
@@ -318,13 +320,24 @@ export const enrollInCourse = async (req, res) => {
       });
     }
 
-    course.enrolledStudents.push(req.user._id);
-
+    
+    course.enrolledStudents.push(userId);
     await course.save();
+
+    
+    const progress = new Progress({
+      user: userId,
+      course: course._id,
+      completedUnits: [],
+      percentage: 0,
+    });
+
+    await progress.save();
 
     return res.status(200).json({
       success: true,
       message: "Enrolled in course successfully",
+      progress,
     });
   } catch (error) {
     console.error("Enroll in course error:", error);
