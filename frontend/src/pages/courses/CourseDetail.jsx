@@ -7,6 +7,7 @@ import {
   unenrollFromCourse,
   isCourseEnrolled
 } from "../../services/courseService";
+import { getCourseProgress } from "../../services/progressService";
 import { useAuth } from "../../context/AuthContext";
 import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
@@ -35,6 +36,7 @@ const CourseDetail = () => {
   const { user } = useAuth();
 
   const [course, setCourse] = useState(null);
+  const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -53,6 +55,16 @@ const CourseDetail = () => {
       const res = await getCourseById(id);
       if (res && res.success) {
         setCourse(res.course);
+        if (user && isCourseEnrolled(res.course, user)) {
+          try {
+            const progRes = await getCourseProgress(id);
+            if (progRes && progRes.success) {
+              setProgress(progRes.progress);
+            }
+          } catch (pErr) {
+            console.error("Progress fetch error:", pErr);
+          }
+        }
       } else {
         setError("Course not found.");
       }
@@ -65,10 +77,12 @@ const CourseDetail = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id && user) {
+      fetchCourse();
+    } else if (id) {
       fetchCourse();
     }
-  }, [id]);
+  }, [id, user]);
 
   const handleEnroll = async () => {
     try {
@@ -303,35 +317,59 @@ const CourseDetail = () => {
             </div>
 
             {/* CTA for Learner Flow */}
-            <div className="pt-4 border-t border-glass-border/30 flex items-center justify-between gap-4">
-              {isEnrolled ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5">
-                    <CheckCircle size={16} /> Enrolled in this course
-                  </span>
+            <div className="pt-4 border-t border-glass-border/30 space-y-4">
+              {isEnrolled && (
+                <div className="p-3.5 bg-bg-dark rounded-xl border border-glass-border/60 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-text-muted flex items-center gap-1.5">
+                      <CheckCircle size={14} className="text-emerald-400" />
+                      Course Progress
+                      {progress && progress.totalUnits !== undefined && (
+                        <span className="text-text-muted font-normal">
+                          ({progress.completedCount || 0}/{progress.totalUnits} units)
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-accent-purple font-extrabold">
+                      {progress ? progress.percentage || 0 : 0}%
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-bg-deep rounded-full overflow-hidden border border-glass-border/50">
+                    <div
+                      className="h-full bg-gradient-to-r from-accent-purple to-accent-cyan transition-all duration-300 rounded-full"
+                      style={{ width: `${progress ? progress.percentage || 0 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-4">
+                {isEnrolled ? (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={() => navigate(`/courses/${course._id}/learn`)}
+                      className="text-xs py-2.5 px-5 flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                    >
+                      <PlayCircle size={16} /> Continue Learning &rarr;
+                    </Button>
+                  </div>
+                ) : isLearner ? (
+                  <Button
+                    onClick={handleEnroll}
+                    loading={enrolling}
+                    className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                  >
+                    <GraduationCap size={16} /> Enroll in Course
+                  </Button>
+                ) : (isOwner || isAdmin) ? (
                   <Button
                     onClick={() => navigate(`/courses/${course._id}/learn`)}
-                    className="text-xs py-2.5 px-5 flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                    className="text-xs py-2.5 px-5 flex items-center gap-2 bg-accent-purple/20 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white"
                   >
-                    <PlayCircle size={16} /> Continue Learning &rarr;
+                    <PlayCircle size={16} /> Preview Learning Workspace &rarr;
                   </Button>
-                </div>
-              ) : isLearner ? (
-                <Button
-                  onClick={handleEnroll}
-                  loading={enrolling}
-                  className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
-                >
-                  <GraduationCap size={16} /> Enroll in Course
-                </Button>
-              ) : (isOwner || isAdmin) ? (
-                <Button
-                  onClick={() => navigate(`/courses/${course._id}/learn`)}
-                  className="text-xs py-2.5 px-5 flex items-center gap-2 bg-accent-purple/20 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white"
-                >
-                  <PlayCircle size={16} /> Preview Learning Workspace &rarr;
-                </Button>
-              ) : null}
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyEnrolledCourses, unenrollFromCourse } from "../services/courseService";
+import { getMyEnrolledCourses } from "../services/courseService";
+import { getMyProgress, getCourseProgress } from "../services/progressService";
 import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
 import CourseCard from "../components/courses/CourseCard";
-import { BookOpen, AlertCircle, PlayCircle, LogOut } from "lucide-react";
+import { BookOpen, AlertCircle } from "lucide-react";
 
 const LearnerMyLearning = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
+  const [progressMap, setProgressMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -16,9 +18,42 @@ const LearnerMyLearning = () => {
     try {
       setLoading(true);
       setError("");
-      const res = await getMyEnrolledCourses();
-      if (res && res.success) {
-        setCourses(res.courses || []);
+
+      const [enrolledRes, progressRes] = await Promise.all([
+        getMyEnrolledCourses(),
+        getMyProgress().catch(() => ({ success: false, progress: [] })),
+      ]);
+
+      if (enrolledRes && enrolledRes.success) {
+        const enrolledCourses = enrolledRes.courses || [];
+        setCourses(enrolledCourses);
+
+        const map = {};
+        if (progressRes && progressRes.success && Array.isArray(progressRes.progress)) {
+          progressRes.progress.forEach((p) => {
+            const courseId = typeof p.course === "object" ? p.course?._id : p.course;
+            if (courseId) {
+              map[String(courseId)] = p;
+            }
+          });
+        }
+
+        // Fetch detailed course progress for any enrolled course missing progress details
+        const fetchMissingPromises = enrolledCourses.map(async (c) => {
+          if (!map[String(c._id)]) {
+            try {
+              const pRes = await getCourseProgress(c._id);
+              if (pRes && pRes.success) {
+                map[String(c._id)] = pRes.progress;
+              }
+            } catch (err) {
+              console.error(`Failed to load progress for course ${c._id}`, err);
+            }
+          }
+        });
+        await Promise.all(fetchMissingPromises);
+
+        setProgressMap(map);
       } else {
         setError("Failed to fetch enrolled courses.");
       }
@@ -40,10 +75,10 @@ const LearnerMyLearning = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-glass-border/40 pb-5">
         <div>
           <h1 className="text-2xl font-extrabold text-text-title flex items-center gap-2">
-            <BookOpen className="text-accent-purple" size={24} /> My Learning Pathways
+            <BookOpen className="text-accent-purple" size={24} /> My Enrolled Courses
           </h1>
           <p className="text-xs text-text-muted font-semibold mt-1">
-            Access courses you are currently enrolled in and continue your learning modules.
+            Access courses you are currently enrolled in and track your unit completion progress.
           </p>
         </div>
 
@@ -98,6 +133,7 @@ const LearnerMyLearning = () => {
             <CourseCard
               key={course._id}
               course={course}
+              progress={progressMap[String(course._id)]}
               onEnrollSuccess={fetchEnrolledCourses}
             />
           ))}
