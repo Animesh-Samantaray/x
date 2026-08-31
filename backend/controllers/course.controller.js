@@ -1,7 +1,12 @@
+
 import Course from "../models/Course.model.js";
 import Bookmark from "../models/Bookmark.model.js";
 import Progress from "../models/Progress.model.js";
+import Review from "../models/Review.model.js";
 
+ 
+// CREATE COURSE
+ 
 export const createCourse = async (req, res) => {
   try {
     const {
@@ -28,6 +33,10 @@ export const createCourse = async (req, res) => {
       topics,
       status: status || "published",
       createdBy: req.user._id,
+      enrolledStudents: [],
+      units: [],
+      averageRating: 0,
+      reviewCount: 0,
     });
 
     return res.status(201).json({
@@ -36,6 +45,8 @@ export const createCourse = async (req, res) => {
       course,
     });
   } catch (error) {
+    console.error("Create course error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to create course",
@@ -45,20 +56,38 @@ export const createCourse = async (req, res) => {
 };
 
 
+ 
+// GET ALL PUBLISHED COURSES
+ 
 export const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find({ status: "published" })
+    const courses = await Course.find({
+      status: "published",
+    })
       .populate("category", "name")
       .populate("createdBy", "name email")
-      .populate("enrolledStudents", "_id name email")
       .sort({ createdAt: -1 });
+
+    const coursesWithRatings = await Promise.all(
+      courses.map(async (c) => {
+        const cObj = c.toObject();
+        const reviews = await Review.find({ course: c._id });
+        const reviewCount = reviews.length;
+        const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+        cObj.reviewCount = reviewCount;
+        cObj.averageRating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
+        return cObj;
+      })
+    );
 
     return res.status(200).json({
       success: true,
-      count: courses.length,
-      courses,
+      count: coursesWithRatings.length,
+      courses: coursesWithRatings,
     });
   } catch (error) {
+    console.error("Get all courses error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch courses",
@@ -68,14 +97,16 @@ export const getAllCourses = async (req, res) => {
 };
 
 
+ 
+// GET COURSE BY ID
+ 
 export const getCourseById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const course = await Course.findById(id)
       .populate("category", "name")
-      .populate("createdBy", "name email")
-      .populate("enrolledStudents", "_id name email");
+      .populate("createdBy", "name email");
 
     if (!course) {
       return res.status(404).json({
@@ -84,11 +115,20 @@ export const getCourseById = async (req, res) => {
       });
     }
 
+    const courseObj = course.toObject();
+    const reviews = await Review.find({ course: id });
+    const reviewCount = reviews.length;
+    const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+    courseObj.reviewCount = reviewCount;
+    courseObj.averageRating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
+
     return res.status(200).json({
       success: true,
-      course,
+      course: courseObj,
     });
   } catch (error) {
+    console.error("Get course by ID error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch course",
@@ -98,6 +138,9 @@ export const getCourseById = async (req, res) => {
 };
 
 
+ 
+// GET MY CREATED COURSES
+ 
 export const getMyCourses = async (req, res) => {
   try {
     const courses = await Course.find({
@@ -112,6 +155,8 @@ export const getMyCourses = async (req, res) => {
       courses,
     });
   } catch (error) {
+    console.error("Get my courses error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch your courses",
@@ -121,6 +166,9 @@ export const getMyCourses = async (req, res) => {
 };
 
 
+ 
+// GET MY ENROLLED COURSES
+ 
 export const getMyEnrolledCourses = async (req, res) => {
   try {
     const courses = await Course.find({
@@ -137,6 +185,8 @@ export const getMyEnrolledCourses = async (req, res) => {
       courses,
     });
   } catch (error) {
+    console.error("Get enrolled courses error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch enrolled courses",
@@ -146,6 +196,9 @@ export const getMyEnrolledCourses = async (req, res) => {
 };
 
 
+ 
+// UPDATE COURSE
+ 
 export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
@@ -178,12 +231,29 @@ export const updateCourse = async (req, res) => {
       status,
     } = req.body;
 
-    course.title = title ?? course.title;
-    course.description = description ?? course.description;
-    course.thumbnail = thumbnail ?? course.thumbnail;
-    course.category = category ?? course.category;
-    course.topics = topics ?? course.topics;
-    course.status = status ?? course.status;
+    if (title !== undefined) {
+      course.title = title;
+    }
+
+    if (description !== undefined) {
+      course.description = description;
+    }
+
+    if (thumbnail !== undefined) {
+      course.thumbnail = thumbnail;
+    }
+
+    if (category !== undefined) {
+      course.category = category;
+    }
+
+    if (topics !== undefined) {
+      course.topics = topics;
+    }
+
+    if (status !== undefined) {
+      course.status = status;
+    }
 
     await course.save();
 
@@ -193,6 +263,8 @@ export const updateCourse = async (req, res) => {
       course,
     });
   } catch (error) {
+    console.error("Update course error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to update course",
@@ -202,6 +274,9 @@ export const updateCourse = async (req, res) => {
 };
 
 
+ 
+// DELETE COURSE
+ 
 export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
@@ -215,7 +290,6 @@ export const deleteCourse = async (req, res) => {
       });
     }
 
-    
     if (
       req.user.role !== "admin" &&
       course.createdBy.toString() !== req.user._id.toString()
@@ -226,6 +300,12 @@ export const deleteCourse = async (req, res) => {
       });
     }
 
+    // Remove related data
+    await Unit.deleteMany({ course: id });
+    await Progress.deleteMany({ course: id });
+    await Bookmark.deleteMany({ course: id });
+    await Review.deleteMany({ course: id });
+
     await Course.findByIdAndDelete(id);
 
     return res.status(200).json({
@@ -233,6 +313,8 @@ export const deleteCourse = async (req, res) => {
       message: "Course deleted successfully",
     });
   } catch (error) {
+    console.error("Delete course error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to delete course",
@@ -242,12 +324,15 @@ export const deleteCourse = async (req, res) => {
 };
 
 
+ 
+// GET ENROLLED STUDENTS
+ 
 export const getEnrolledStudents = async (req, res) => {
   try {
     const { id } = req.params;
 
     const course = await Course.findById(id)
-      .populate("enrolledStudents", "name email");
+      .populate("enrolledStudents", "_id name email");
 
     if (!course) {
       return res.status(404).json({
@@ -256,7 +341,6 @@ export const getEnrolledStudents = async (req, res) => {
       });
     }
 
-    
     if (
       req.user.role !== "admin" &&
       course.createdBy.toString() !== req.user._id.toString()
@@ -273,6 +357,8 @@ export const getEnrolledStudents = async (req, res) => {
       students: course.enrolledStudents,
     });
   } catch (error) {
+    console.error("Get enrolled students error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to fetch enrolled students",
@@ -282,10 +368,12 @@ export const getEnrolledStudents = async (req, res) => {
 };
 
 
+ 
+// ENROLL IN COURSE
+ 
 export const enrollInCourse = async (req, res) => {
   try {
     const { id } = req.params;
-
     const userId = req.user._id;
 
     const course = await Course.findById(id);
@@ -320,19 +408,25 @@ export const enrollInCourse = async (req, res) => {
       });
     }
 
-    
     course.enrolledStudents.push(userId);
+
     await course.save();
 
-    
-    const progress = new Progress({
+    const existingProgress = await Progress.findOne({
       user: userId,
       course: course._id,
-      completedUnits: [],
-      percentage: 0,
     });
 
-    await progress.save();
+    let progress = existingProgress;
+
+    if (!progress) {
+      progress = await Progress.create({
+        user: userId,
+        course: course._id,
+        completedUnits: [],
+        percentage: 0,
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -350,9 +444,14 @@ export const enrollInCourse = async (req, res) => {
   }
 };
 
+
+ 
+// UNENROLL FROM COURSE
+ 
 export const unenrollFromCourse = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user._id;
 
     const course = await Course.findById(id);
 
@@ -366,7 +465,7 @@ export const unenrollFromCourse = async (req, res) => {
     let enrolled = false;
 
     for (const studentId of course.enrolledStudents || []) {
-      if (studentId.toString() === req.user._id.toString()) {
+      if (studentId.toString() === userId.toString()) {
         enrolled = true;
         break;
       }
@@ -380,15 +479,19 @@ export const unenrollFromCourse = async (req, res) => {
     }
 
     course.enrolledStudents = course.enrolledStudents.filter(
-      (studentId) =>
-        studentId.toString() !== req.user._id.toString()
+      (studentId) => studentId.toString() !== userId.toString()
     );
 
     await course.save();
 
-    
+    // Remove learner-specific data
     await Bookmark.deleteMany({
-      user: req.user._id,
+      user: userId,
+      course: id,
+    });
+
+    await Progress.deleteOne({
+      user: userId,
       course: id,
     });
 
@@ -406,3 +509,4 @@ export const unenrollFromCourse = async (req, res) => {
     });
   }
 };
+

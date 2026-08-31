@@ -12,6 +12,8 @@ import { useAuth } from "../../context/AuthContext";
 import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
 import EnrolledStudents from "../../components/courses/EnrolledStudents";
+import ReviewList from "../../components/reviews/ReviewList";
+import CourseRatingDisplay from "../../components/reviews/CourseRatingDisplay";
 import {
   BookOpen,
   Calendar,
@@ -27,7 +29,8 @@ import {
   X,
   Settings,
   LogOut,
-  CheckCircle
+  CheckCircle,
+  Star
 } from "lucide-react";
 
 const CourseDetail = () => {
@@ -83,6 +86,12 @@ const CourseDetail = () => {
       fetchCourse();
     }
   }, [id, user]);
+
+  const handleReviewChange = ({ averageRating, reviewCount }) => {
+    setCourse((prev) =>
+      prev ? { ...prev, averageRating, reviewCount } : prev
+    );
+  };
 
   const handleEnroll = async () => {
     try {
@@ -279,6 +288,11 @@ const CourseDetail = () => {
               <h1 className="text-xl md:text-2xl font-extrabold text-text-title leading-snug">
                 {course.title}
               </h1>
+              <CourseRatingDisplay
+                averageRating={course.averageRating}
+                reviewCount={course.reviewCount}
+                size="md"
+              />
             </div>
 
             <p className="text-xs text-text-main leading-relaxed whitespace-pre-wrap">
@@ -374,6 +388,13 @@ const CourseDetail = () => {
           </div>
         </div>
       </SpotlightCard>
+
+      {/* Reviews & Ratings Section */}
+      <ReviewList
+        courseId={course._id}
+        isEnrolled={isEnrolled}
+        onReviewChange={handleReviewChange}
+      />
 
       {/* Unenroll Confirmation Modal */}
       {unenrollModalOpen && (
