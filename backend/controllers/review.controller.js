@@ -266,3 +266,25 @@ export const deleteReview = async (req, res) => {
     });
   }
 };
+
+export const getMyReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({ user: req.user._id })
+      .populate("course", "title thumbnail category averageRating reviewCount")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: reviews.length,
+      reviews,
+    });
+  } catch (error) {
+    console.error("Get my reviews error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch your reviews",
+      error: error.message,
+    });
+  }
+};

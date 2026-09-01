@@ -24,18 +24,65 @@ import LearnerMyLearning from "./pages/LearnerMyLearning";
 import SessionsPage from "./pages/sessions/SessionsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Role-Based Dashboards
+import LearnerDashboard from "./pages/dashboards/LearnerDashboard";
+import CreatorDashboard from "./pages/dashboards/CreatorDashboard";
+import ExpertDashboard from "./pages/dashboards/ExpertDashboard";
+import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import DashboardRedirect from "./pages/dashboards/DashboardRedirect";
+
 const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-         
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Landing />} />
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
-            
-            
+
+            {/* General & Role-Based Dashboard Routes */}
+            <Route
+              path="dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardRedirect />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="learner/dashboard"
+              element={
+                <ProtectedRoute role="learner">
+                  <LearnerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="creator/dashboard"
+              element={
+                <ProtectedRoute role="creator">
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="expert/dashboard"
+              element={
+                <ProtectedRoute role="expert">
+                  <ExpertDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/dashboard"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="profile"
               element={

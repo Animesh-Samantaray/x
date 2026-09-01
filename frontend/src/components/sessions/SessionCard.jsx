@@ -41,8 +41,8 @@ const SessionCard = ({
 }) => {
   if (!session) return null;
 
-  const isLearner = currentUser?.role === "learner";
   const isExpert = currentUser?.role === "expert";
+
 
   const expertUserId = session.expert?.user?._id || session.expert?.user || session.expert;
   const isOwnerExpert = isExpert && (
@@ -51,19 +51,34 @@ const SessionCard = ({
     String(session.expert?._id) === String(currentUser?._id)
   );
 
-  const myLearnerEntry = isLearner
-    ? (session.learners || []).find((l) => {
-        const learnerId = l.user?._id || l.user;
-        return learnerId && String(learnerId) === String(currentUser?._id);
-      })
-    : null;
+  const currentUserIdStr = currentUser?._id || currentUser?.id || "";
+
+  const myLearnerEntry = (session.learners || []).find((l) => {
+    if (!l || !l.user) return false;
+    const learnerId = typeof l.user === "object" ? l.user._id || l.user.id : l.user;
+    return (
+      learnerId &&
+      currentUserIdStr &&
+      String(learnerId).trim() === String(currentUserIdStr).trim()
+    );
+  });
+
+  const isLearner =
+    currentUser?.role === "learner" ||
+    (!isOwnerExpert && Boolean(myLearnerEntry));
 
   const learnerStatus = myLearnerEntry?.status;
   const isAcceptedLearner = learnerStatus === "accepted";
   const isPendingLearner = learnerStatus === "pending";
   const isRejectedLearner = learnerStatus === "rejected";
 
-  const canJoin = (isOwnerExpert || isAcceptedLearner) && session.meetingUrl;
+
+  const canJoin =
+    (isOwnerExpert || isAcceptedLearner) &&
+    session.meetingUrl &&
+    session.status !== "completed" &&
+    session.status !== "cancelled";
+
 
   const formattedPrice = session.price > 0 ? `₹${session.price.toLocaleString("en-IN")}` : "Free";
   const expertName = session.expert?.user?.name || "Expert Mentor";
