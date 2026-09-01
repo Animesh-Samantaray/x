@@ -38,9 +38,10 @@ const Signup = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -118,7 +119,7 @@ const Signup = () => {
       );
 
       if (result.success) {
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError(result.message);
       }

@@ -28,6 +28,11 @@ export const updateReview = async (reviewId, { rating, comment }) => {
   return response.data;
 };
 
+export const getMyReviews = async () => {
+  const response = await api.get("/reviews/my");
+  return response.data;
+};
+
 export const deleteReview = async (reviewId) => {
   const response = await api.delete(`/reviews/${reviewId}`);
   return response.data;
@@ -36,7 +41,9 @@ export const deleteReview = async (reviewId) => {
 export default {
   getCourseReviews,
   getMyCourseReview,
+  getMyReviews,
   createReview,
   updateReview,
   deleteReview,
 };
+
