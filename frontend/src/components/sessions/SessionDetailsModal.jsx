@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import SpotlightCard from "../SpotlightCard";
 import Button from "../Button";
 import SessionStatusBadge from "./SessionStatusBadge";
 import LearnerRequestCard from "./LearnerRequestCard";
 import { getSessionById, acceptLearner, rejectLearner, cancelSession, completeSession } from "../../services/sessionService";
-import { X, ExternalLink, Users, Video, AlertCircle, Info } from "lucide-react";
+import { X, ExternalLink, Users, Video, AlertCircle, Info, MessageSquare } from "lucide-react";
 
 const formatLocalDateTime = (isoString) => {
   if (!isoString) return "N/A";
@@ -230,16 +231,28 @@ const SessionDetailsModal = ({
                 </div>
               </div>
 
-              {canJoin && (
-                <a
-                  href={session.meetingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-lg transition active:scale-95 cursor-pointer"
-                >
-                  <ExternalLink size={14} /> Join Meeting Now
-                </a>
-              )}
+              <div className="flex items-center gap-2">
+                {(isOwnerExpert || learnerStatus === "accepted") && (
+                  <Link
+                    to={`/chat?session=${session._id}`}
+                    onClick={onClose}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 font-extrabold text-xs border border-sky-500/30 transition cursor-pointer"
+                  >
+                    <MessageSquare size={14} /> Open Chat
+                  </Link>
+                )}
+
+                {canJoin && (
+                  <a
+                    href={session.meetingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-lg transition active:scale-95 cursor-pointer"
+                  >
+                    <ExternalLink size={14} /> Join Meeting Now
+                  </a>
+                )}
+              </div>
             </div>
 
             {session.message && (

@@ -35,9 +35,8 @@ const adminProfileSchema = new mongoose.Schema(
   }
 );
 
-const AdminProfile = mongoose.model(
-  "AdminProfile",
-  adminProfileSchema
-);
+const AdminProfile =
+  mongoose.models.AdminProfile ||
+  mongoose.model("AdminProfile", adminProfileSchema);
 
 export default AdminProfile;

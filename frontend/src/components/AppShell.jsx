@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  sendDesktopNotification,
+} from "../services/notification";
+import { initSocket, getSocket, extractId } from "../services/socket";
 import {
   Compass,
   BookOpen,
@@ -10,19 +17,42 @@ import {
   LogOut,
   User as UserIcon,
   ChevronDown,
-  TrendingUp,
   Layers,
   Video,
   Share2,
-  Settings,
   Sun,
   Moon,
   Info,
-  PlusCircle,
   FileText,
-  Shield,
-  BarChart3
+  MessageSquare,
+  X,
+  BellRing,
 } from "lucide-react";
+
+const playNotificationChime = () => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+  } catch (err) {
+    // Ignore audio autoplay policies
+  }
+};
 
 const AppShell = () => {
   const { user, logout } = useAuth();
@@ -31,11 +61,23 @@ const AppShell = () => {
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifPermission, setNotifPermission] = useState(
+    getNotificationPermission()
+  );
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("theme") || "dark";
   });
+
+  const currentUserId = extractId(user?.id || user?._id);
+
+  // Request browser desktop notification permission on user interaction
+  const handleRequestPermission = async () => {
+    const perm = await requestNotificationPermission();
+    setNotifPermission(perm);
+  };
 
   // Redirect root '/' to role dashboard
   useEffect(() => {
@@ -44,6 +86,99 @@ const AppShell = () => {
       navigate(targetPath, { replace: true });
     }
   }, [location.pathname, user?.role, navigate]);
+
+  // Global Socket.IO Notification Listener
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    initSocket(token);
+    const socket = getSocket();
+
+    if (socket) {
+      const handleNewNotification = (data) => {
+        const senderId = extractId(data.sender?._id || data.sender);
+        if (senderId && senderId === currentUserId) return;
+
+        playNotificationChime();
+
+        const notifObj = {
+          id: Date.now() + Math.random(),
+          title: data.title || "New Notification",
+          message: data.message || "",
+          conversationId: extractId(data.conversationId),
+          senderName: data.sender?.name || "Participant",
+          senderPic: data.sender?.profilePicture,
+          createdAt: data.createdAt || new Date().toISOString(),
+          read: false,
+        };
+
+        setNotifications((prev) => [notifObj, ...prev.slice(0, 19)]);
+        setUnreadCount((prev) => prev + 1);
+
+        // Show compact in-app toast using react-hot-toast
+        toast(
+          (t) => (
+            <div
+              className="flex items-center gap-3 cursor-pointer select-none"
+              onClick={() => {
+                toast.dismiss(t.id);
+                if (notifObj.conversationId) {
+                  navigate(`/chat?conversation=${notifObj.conversationId}`);
+                } else {
+                  navigate("/chat");
+                }
+              }}
+            >
+              <div className="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+                {notifObj.senderPic ? (
+                  <img src={notifObj.senderPic} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  notifObj.senderName?.[0] || "💬"
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h5 className="text-xs font-bold text-slate-100 truncate">{notifObj.senderName}</h5>
+                <p className="text-[11px] text-slate-400 truncate">{notifObj.message}</p>
+              </div>
+            </div>
+          ),
+          {
+            duration: 4000,
+            style: {
+              background: "#0f172a",
+              color: "#f8fafc",
+              border: "1px solid #1e293b",
+              borderRadius: "0.85rem",
+              padding: "0.5rem 0.75rem",
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+            },
+          }
+        );
+
+        // Browser desktop system notification
+        sendDesktopNotification({
+          title: `${notifObj.senderName} • ${notifObj.title}`,
+          body: notifObj.message,
+          icon: notifObj.senderPic || "/favicon.ico",
+          tag: notifObj.conversationId || "general",
+          onClick: () => {
+            if (notifObj.conversationId) {
+              navigate(`/chat?conversation=${notifObj.conversationId}`);
+            } else {
+              navigate("/chat");
+            }
+          },
+        });
+      };
+
+      socket.on("new_notification", handleNewNotification);
+
+      return () => {
+        socket.off("new_notification", handleNewNotification);
+      };
+    }
+  }, [currentUserId, navigate]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -61,6 +196,11 @@ const AppShell = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const markAllAsRead = () => {
+    setUnreadCount(0);
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const getRoleColors = (roleName) => {
@@ -81,6 +221,7 @@ const AppShell = () => {
       { path: "/learner/dashboard", label: "Dashboard", icon: Layers },
       { path: "/courses", label: "Explore Courses", icon: BookOpen },
       { path: "/my-courses", label: "My Courses", icon: BookOpen },
+      { path: "/chat", label: "Discussions", icon: MessageSquare },
       { path: "/resources", label: "Resources", icon: Compass },
       { path: "/bookmarks", label: "Bookmarks", icon: Bookmark },
       { path: "/sessions", label: "Mentorship", icon: Video },
@@ -88,6 +229,7 @@ const AppShell = () => {
     creator: [
       { path: "/creator/dashboard", label: "Dashboard", icon: Layers },
       { path: "/my-courses", label: "My Courses", icon: BookOpen },
+      { path: "/chat", label: "Discussions", icon: MessageSquare },
       { path: "/my-resources", label: "My Resources", icon: FileText },
       { path: "/categories", label: "Categories", icon: Layers },
       { path: "/courses", label: "Explore Courses", icon: Compass },
@@ -95,6 +237,7 @@ const AppShell = () => {
     expert: [
       { path: "/expert/dashboard", label: "Dashboard", icon: Layers },
       { path: "/sessions", label: "Mentorship Sessions", icon: Video },
+      { path: "/chat", label: "Discussions", icon: MessageSquare },
       { path: "/my-courses", label: "My Courses", icon: BookOpen },
       { path: "/my-resources", label: "My Resources", icon: FileText },
       { path: "/categories", label: "Categories", icon: Layers },
@@ -102,6 +245,7 @@ const AppShell = () => {
     admin: [
       { path: "/admin/dashboard", label: "Dashboard", icon: Layers },
       { path: "/admin/dashboard?tab=users", label: "Users", icon: Users },
+      { path: "/chat", label: "Discussions", icon: MessageSquare },
       { path: "/courses", label: "Course Management", icon: BookOpen },
       { path: "/resources", label: "Resource Management", icon: FileText },
       { path: "/categories", label: "Categories", icon: Layers },
@@ -116,12 +260,7 @@ const AppShell = () => {
       <div className="glow-orb w-[500px] h-[500px] bg-accent-blue/5 top-[-100px] left-[-100px]"></div>
       <div className="glow-orb w-[500px] h-[500px] bg-accent-purple/5 bottom-[-100px] right-[-100px]"></div>
 
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-300">
-          <Info className="text-accent-blue shrink-0 animate-pulse" size={18} />
-          <p className="text-xs font-semibold text-text-title">{toastMessage}</p>
-        </div>
-      )}
+
 
       {/* FIXED TOP HEADER */}
       <header className="fixed top-0 left-0 right-0 h-16 border-b border-glass-border bg-bg-deep/80 backdrop-blur-xl z-40 flex items-center justify-between px-4 sm:px-6">
@@ -172,16 +311,66 @@ const AppShell = () => {
 
           {/* Notifications Dropdown */}
           <div className="relative">
-            <button onClick={() => setNotificationsOpen(!notificationsOpen)} className="group h-9 w-9 rounded-xl border border-glass-border bg-glass-card flex items-center justify-center text-text-muted hover:text-text-title transition duration-200 active:scale-95 cursor-pointer">
+            <button
+              onClick={() => {
+                setNotificationsOpen(!notificationsOpen);
+                if (!notificationsOpen) markAllAsRead();
+              }}
+              className="group h-9 w-9 rounded-xl border border-glass-border bg-glass-card flex items-center justify-center text-text-muted hover:text-text-title transition duration-200 active:scale-95 cursor-pointer relative"
+            >
               <Bell size={15} className="text-accent-purple transition-transform group-hover:scale-110" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-extrabold text-[9px] flex items-center justify-center shadow-md animate-pulse">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </button>
             {notificationsOpen && (
-              <div className="absolute right-0 mt-3.5 w-72 rounded-2xl border border-glass-border bg-bg-panel p-4 shadow-2xl z-50 flex flex-col space-y-3">
+              <div className="absolute right-0 mt-3.5 w-80 rounded-2xl border border-glass-border bg-bg-panel p-3 shadow-2xl z-50 flex flex-col space-y-2">
                 <div className="flex items-center justify-between border-b border-glass-border/40 pb-2">
                   <h4 className="text-xs font-bold text-text-title uppercase tracking-wider">Notifications</h4>
+                  {notifPermission !== "granted" && (
+                    <button
+                      onClick={handleRequestPermission}
+                      className="text-[10px] text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <BellRing size={10} /> Enable Desktop
+                    </button>
+                  )}
                 </div>
-                <div className="py-4 text-center text-xs text-text-muted">
-                  No new notifications.
+                <div className="max-h-72 overflow-y-auto space-y-1">
+                  {notifications.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-text-muted">
+                      No new notifications.
+                    </div>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        onClick={() => {
+                          setNotificationsOpen(false);
+                          if (n.conversationId) {
+                            navigate(`/chat?conversation=${n.conversationId}`);
+                          } else {
+                            navigate("/chat");
+                          }
+                        }}
+                        className="p-2 rounded-xl hover:bg-glass-border cursor-pointer transition flex items-start gap-2.5 border border-transparent hover:border-glass-border"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                          {n.senderPic ? (
+                            <img src={n.senderPic} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            n.senderName?.[0] || "💬"
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-text-title truncate">{n.senderName}</p>
+                          <p className="text-[11px] text-text-muted truncate">{n.message}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}

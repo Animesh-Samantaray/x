@@ -97,6 +97,7 @@ const resourceSchema = new mongoose.Schema(
   }
 );
 
-const Resource = mongoose.model("Resource", resourceSchema);
+const Resource =
+  mongoose.models.Resource || mongoose.model("Resource", resourceSchema);
 
 export default Resource;

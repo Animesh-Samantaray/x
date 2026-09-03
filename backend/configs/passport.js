@@ -67,10 +67,7 @@ passport.use(
         }
 
         if (!role) {
-          return done(
-            new Error("No account associated with this Google ID. Please select a role and sign up first."),
-            null
-          );
+          role = "learner";
         }
 
         if (role === "admin") {

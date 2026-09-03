@@ -24,27 +24,27 @@ const StatCard = ({ title, value, subtext, icon: Icon, color = "blue", glowColor
   const activeGlow = glowColor || defaultGlows[color] || defaultGlows.blue;
 
   return (
-    <SpotlightCard className={`p-5 text-left border rounded-2xl ${activeColor}`} glowColor={activeGlow}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {Icon && <Icon size={16} className="shrink-0" />}
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted">
+    <SpotlightCard className={`p-3.5 sm:p-4 text-left border rounded-xl transition-all duration-200 ${activeColor}`} glowColor={activeGlow}>
+      <div className="flex items-center justify-between gap-1">
+        <div className="flex items-center gap-1.5 min-w-0">
+          {Icon && <Icon size={14} className="shrink-0" />}
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-text-muted truncate">
             {title}
           </span>
         </div>
         {trend && (
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-text-title">
+          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-white/10 text-text-title shrink-0">
             {trend}
           </span>
         )}
       </div>
 
-      <div className="text-2xl font-extrabold mt-2 text-text-title tracking-tight">
+      <div className="text-xl sm:text-2xl font-extrabold mt-1.5 text-text-title tracking-tight">
         {value}
       </div>
 
       {subtext && (
-        <p className="text-[10px] text-text-muted mt-1 font-semibold truncate">
+        <p className="text-[9px] text-text-muted mt-0.5 font-semibold truncate">
           {subtext}
         </p>
       )}

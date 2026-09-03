@@ -63,9 +63,8 @@ const learnerProfileSchema = new mongoose.Schema(
   }
 );
 
-const LearnerProfile = mongoose.model(
-  "LearnerProfile",
-  learnerProfileSchema
-);
+const LearnerProfile =
+  mongoose.models.LearnerProfile ||
+  mongoose.model("LearnerProfile", learnerProfileSchema);
 
 export default LearnerProfile;

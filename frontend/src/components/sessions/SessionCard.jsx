@@ -1,9 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import SpotlightCard from "../SpotlightCard";
 import Button from "../Button";
 import SessionStatusBadge from "./SessionStatusBadge";
 import LearnerRequestCard from "./LearnerRequestCard";
-import { Calendar, Clock, DollarSign, User, ExternalLink, Users, PlayCircle, Edit3 } from "lucide-react";
+import { Calendar, Clock, DollarSign, User, ExternalLink, Users, PlayCircle, Edit3, MessageSquare } from "lucide-react";
 
 const formatLocalDateTime = (isoString) => {
   if (!isoString) return "N/A";
@@ -207,18 +208,26 @@ const SessionCard = ({
               </div>
             ) : isAcceptedLearner ? (
               <div className="w-full space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <SessionStatusBadge status="accepted" type="learner" />
-                  {canJoin && (
-                    <a
-                      href={session.meetingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-lg transition active:scale-95 cursor-pointer"
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      to={`/chat?session=${session._id}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 font-bold text-xs border border-sky-500/30 transition cursor-pointer"
                     >
-                      <ExternalLink size={13} /> Join Session
-                    </a>
-                  )}
+                      <MessageSquare size={13} /> Chat
+                    </Link>
+                    {canJoin && (
+                      <a
+                        href={session.meetingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-lg transition active:scale-95 cursor-pointer"
+                      >
+                        <ExternalLink size={13} /> Join Session
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ) : isRejectedLearner ? (
@@ -240,6 +249,14 @@ const SessionCard = ({
               >
                 Details & Manage
               </Button>
+
+              <Link
+                to={`/chat?session=${session._id}`}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 font-bold text-xs border border-sky-500/30 transition cursor-pointer"
+                title="Open Session Discussion Chat"
+              >
+                <MessageSquare size={13} /> Chat
+              </Link>
 
               {onEditSession && session.status === "open" && (
                 <button

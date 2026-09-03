@@ -114,6 +114,7 @@ export const register = async (req, res) => {
 
     return res.status(201).json({
       success: true,
+      token,
       message: "Registration successful",
       user: {
         id: user._id,
@@ -132,7 +133,6 @@ export const register = async (req, res) => {
     });
   }
 };
-
 
 export const login = async (req, res) => {
   try {
@@ -172,6 +172,7 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      token,
       message: "Login successful",
       user: {
         id: user._id,
@@ -239,14 +240,14 @@ export const googleCallback = async (req, res) => {
     res.cookie("token", token, cookieOptions);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/`
+      `${process.env.CLIENT_URL || "http://localhost:5173"}/`
     );
 
   } catch (error) {
     console.error("Google Callback Error:", error);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/login?error=google_auth_failed`
+      `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=google_auth_failed`
     );
   }
 };

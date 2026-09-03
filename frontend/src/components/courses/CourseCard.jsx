@@ -66,10 +66,10 @@ const CourseCard = ({
     course.enrolledStudents?.length || course.enrollmentCount || 0;
 
   return (
-    <SpotlightCard className="h-full flex flex-col justify-between" glowColor="rgba(168, 85, 247, 0.1)">
+    <SpotlightCard className="h-full flex flex-col justify-between rounded-xl overflow-hidden border border-glass-border bg-glass-card hover:border-accent-purple/30 transition-all duration-200" glowColor="rgba(168, 85, 247, 0.08)">
       <div className="flex-grow flex flex-col">
         {/* Thumbnail & Badges */}
-        <div className="h-44 w-full bg-bg-dark border-b border-glass-border relative overflow-hidden rounded-t-2xl">
+        <div className="h-36 w-full bg-bg-dark border-b border-glass-border relative overflow-hidden">
           {hasThumbnail ? (
             <img
               src={course.thumbnail}
@@ -78,26 +78,26 @@ const CourseCard = ({
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#1E114A] via-[#140C36] to-[#0F072D] text-white">
-              <BookOpen size={40} className="text-accent-purple/60" />
+              <BookOpen size={32} className="text-accent-purple/60" />
             </div>
           )}
 
           {course.category && (
-            <span className="absolute top-3 left-3 text-[8px] font-extrabold uppercase tracking-widest bg-bg-deep/80 text-accent-purple border border-accent-purple/20 px-2 py-0.5 rounded backdrop-blur-md">
+            <span className="absolute top-2.5 left-2.5 text-[8px] font-extrabold uppercase tracking-widest bg-bg-deep/85 text-accent-purple border border-accent-purple/20 px-2 py-0.5 rounded-md backdrop-blur-md">
               {typeof course.category === "object" ? course.category.name : course.category}
             </span>
           )}
 
-          <span className={`absolute top-3 right-3 text-[8px] border px-2 py-0.5 rounded font-bold uppercase tracking-wider backdrop-blur-md ${getStatusStyle(course.status)}`}>
+          <span className={`absolute top-2.5 right-2.5 text-[8px] border px-2 py-0.5 rounded-md font-bold uppercase tracking-wider backdrop-blur-md ${getStatusStyle(course.status)}`}>
             {course.status || "draft"}
           </span>
         </div>
 
         {/* Content Body */}
-        <div className="p-5 text-left space-y-3 flex-grow flex flex-col justify-between">
-          <div className="space-y-2">
+        <div className="p-4 text-left space-y-2.5 flex-grow flex flex-col justify-between">
+          <div className="space-y-1.5">
             <Link to={`/courses/${course._id}`} className="block group">
-              <h3 className="text-sm font-bold text-text-title leading-snug group-hover:text-accent-purple transition duration-150 line-clamp-1">
+              <h3 className="text-xs sm:text-sm font-bold text-text-title leading-snug group-hover:text-accent-purple transition duration-150 line-clamp-1">
                 {course.title}
               </h3>
             </Link>
@@ -118,7 +118,7 @@ const CourseCard = ({
           {course.topics && course.topics.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1">
               {course.topics.slice(0, 3).map((topic, i) => (
-                <span key={i} className="text-[8px] bg-accent-purple/10 text-accent-purple border border-accent-purple/20 px-1.5 py-0.2 rounded font-semibold">
+                <span key={i} className="text-[8px] bg-accent-purple/10 text-accent-purple border border-accent-purple/20 px-1.5 py-0.2 rounded-md font-semibold">
                   #{topic}
                 </span>
               ))}
@@ -133,7 +133,7 @@ const CourseCard = ({
       </div>
 
       {/* Info Bar & Actions */}
-      <div className="px-5 pb-5 pt-3 border-t border-glass-border/30 space-y-3">
+      <div className="px-4 pb-4 pt-2.5 border-t border-glass-border/30 space-y-2.5">
         <div className="flex items-center justify-between text-[9px] text-text-muted">
           <div className="flex items-center gap-1">
             <User size={10} className="text-accent-purple/70" />
@@ -142,7 +142,7 @@ const CourseCard = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-1 text-accent-cyan">
               <Users size={10} />
               <span className="font-bold">{enrollmentCount} enrolled</span>
@@ -165,8 +165,8 @@ const CourseCard = ({
           const totUnits = progressObj.totalUnits ?? course.units?.length;
 
           return (
-            <div className="pt-1 space-y-1.5 border-t border-glass-border/20">
-              <div className="flex items-center justify-between text-[10px] font-bold">
+            <div className="pt-1 space-y-1 border-t border-glass-border/20">
+              <div className="flex items-center justify-between text-[9px] font-bold">
                 <span className="text-text-muted">
                   {compCount !== undefined && totUnits !== undefined
                     ? `${compCount} / ${totUnits} units completed`
@@ -174,7 +174,7 @@ const CourseCard = ({
                 </span>
                 <span className="text-accent-purple font-extrabold">{pct}%</span>
               </div>
-              <div className="w-full h-1.5 bg-bg-dark rounded-full overflow-hidden border border-glass-border/60">
+              <div className="w-full h-1 bg-bg-dark rounded-full overflow-hidden border border-glass-border/60">
                 <div
                   className="h-full bg-gradient-to-r from-accent-purple to-accent-cyan transition-all duration-300 rounded-full"
                   style={{ width: `${pct}%` }}
@@ -185,16 +185,16 @@ const CourseCard = ({
         })()}
 
         {/* Action Controls */}
-        <div className="flex items-center justify-between gap-1.5 pt-1">
+        <div className="flex items-center justify-between gap-1.5 pt-0.5">
           {/* Enrollment controls shown strictly for Learners or when user is enrolled */}
           {isEnrolled ? (
             <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
+              <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
                 <CheckCircle size={10} /> Enrolled
               </span>
               <Link
                 to={`/courses/${course._id}/learn`}
-                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
               >
                 <PlayCircle size={10} /> Go to Course
               </Link>
@@ -203,13 +203,13 @@ const CourseCard = ({
             <div className="flex items-center gap-1.5">
               <Link
                 to={`/courses/${course._id}/learn`}
-                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
               >
                 <PlayCircle size={10} /> Preview Workspace
               </Link>
               <Link
                 to={`/courses/${course._id}`}
-                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
               >
                 <Eye size={10} /> Details
               </Link>
@@ -219,13 +219,13 @@ const CourseCard = ({
               <button
                 onClick={handleQuickEnroll}
                 disabled={enrolling}
-                className="text-[9px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-md"
+                className="text-[9px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs"
               >
-                <GraduationCap size={10} /> {enrolling ? "Enrolling..." : "Enroll in Course"}
+                <GraduationCap size={10} /> {enrolling ? "Enrolling..." : "Enroll"}
               </button>
               <Link
                 to={`/courses/${course._id}`}
-                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
               >
                 <Eye size={10} /> Details
               </Link>
@@ -233,7 +233,7 @@ const CourseCard = ({
           ) : (
             <Link
               to={`/courses/${course._id}`}
-              className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2.5 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+              className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
             >
               <Eye size={10} /> View Course
             </Link>
@@ -243,7 +243,7 @@ const CourseCard = ({
             <div className="flex items-center gap-1">
               <Link
                 to={`/courses/${course._id}/manage`}
-                className="text-[9px] border border-accent-indigo/30 bg-accent-indigo/10 text-accent-indigo hover:bg-accent-indigo hover:text-white px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                className="text-[9px] border border-accent-indigo/30 bg-accent-indigo/10 text-accent-indigo hover:bg-accent-indigo hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
                 title="Manage units & curriculum"
               >
                 <Settings size={10} /> Manage
@@ -251,7 +251,7 @@ const CourseCard = ({
               {onEdit && (
                 <button
                   onClick={() => onEdit(course._id)}
-                  className="text-[9px] border border-accent-blue/25 bg-accent-blue/5 text-accent-blue hover:bg-accent-blue hover:text-white px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                  className="text-[9px] border border-accent-blue/25 bg-accent-blue/5 text-accent-blue hover:bg-accent-blue hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
                 >
                   <Edit2 size={10} /> Edit
                 </button>
@@ -259,7 +259,7 @@ const CourseCard = ({
               {onDelete && (
                 <button
                   onClick={() => onDelete(course._id)}
-                  className="text-[9px] border border-rose-500/25 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white px-2 py-1 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                  className="text-[9px] border border-rose-500/25 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
                 >
                   <Trash2 size={10} /> Delete
                 </button>

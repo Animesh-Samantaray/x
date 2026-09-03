@@ -1,12 +1,13 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import AppShell from "../components/AppShell";
+import Sidebar from "../components/layout/Sidebar";
 
 const MainLayout = () => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -17,7 +18,20 @@ const MainLayout = () => {
   }
 
   if (isAuthenticated) {
-    return <AppShell />;
+    return (
+      <div className="flex min-h-screen bg-bg-deep text-text-main font-sans selection:bg-accent-purple/30">
+        <Sidebar />
+        <main className="flex-1 min-w-0 overflow-y-auto flex flex-col">
+          {location.pathname === "/chat" ? (
+            <Outlet />
+          ) : (
+            <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-1">
+              <Outlet />
+            </div>
+          )}
+        </main>
+      </div>
+    );
   }
 
   return (

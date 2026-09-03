@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import authService from "../services/authService";
+import { initSocket, disconnectSocket } from "../services/socket";
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,11 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
+        const token = data.token || localStorage.getItem("token");
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        initSocket(token);
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -37,6 +43,11 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
+        const token = data.token || localStorage.getItem("token");
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        initSocket(token);
         return { success: true };
       }
       return { success: false, message: data.message || "Login failed" };
@@ -52,6 +63,11 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
+        const token = data.token || localStorage.getItem("token");
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        initSocket(token);
         return { success: true };
       }
       return { success: false, message: data.message || "Registration failed" };
@@ -68,6 +84,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error", error);
     } finally {
+      localStorage.removeItem("token");
+      disconnectSocket();
       setUser(null);
       setIsAuthenticated(false);
       setLoading(false);

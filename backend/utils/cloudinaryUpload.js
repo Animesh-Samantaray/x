@@ -1,11 +1,18 @@
 import streamifier from "streamifier";
 import cloudinary from "../configs/cloudinary.js";
 
-const uploadToCloudinary = (fileBuffer, mimetype, originalname) => {
+export const uploadToCloudinary = (file, mimetypeOverride, originalnameOverride) => {
   return new Promise((resolve, reject) => {
     try {
-      const uniqueSuffix =
-        Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const fileBuffer = file?.buffer || file;
+      const mimetype = file?.mimetype || mimetypeOverride;
+      const originalname = file?.originalname || originalnameOverride || "file";
+
+      if (!fileBuffer) {
+        return reject(new Error("No file buffer provided for Cloudinary upload."));
+      }
+
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
 
       const sanitizedName = originalname
         ? originalname.replace(/[^a-zA-Z0-9.-]/g, "_")
@@ -43,13 +50,27 @@ const uploadToCloudinary = (fileBuffer, mimetype, originalname) => {
         }
       );
 
-      streamifier
-        .createReadStream(fileBuffer)
-        .pipe(uploadStream);
+      streamifier.createReadStream(fileBuffer).pipe(uploadStream);
     } catch (error) {
       reject(error);
     }
   });
 };
 
-export default uploadToCloudinary;
+export const deleteFromCloudinary = async (publicId, resourceType = "image") => {
+  if (!publicId) return null;
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType || "image",
+    });
+    return result;
+  } catch (error) {
+    console.error("Cloudinary delete error:", error);
+    return null;
+  }
+};
+
+export default {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+};
