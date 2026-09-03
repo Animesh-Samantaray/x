@@ -193,7 +193,6 @@ export const getSessionConversation = async (req, res) => {
       });
     }
 
-    // Check if user is an accepted learner in this mentorship session
     const isAcceptedLearner = (session.learners || []).some((l) => {
       const lId = l.user?._id || l.user;
       return lId && lId.toString() === userId.toString() && l.status === "accepted";
@@ -398,10 +397,10 @@ export const deleteConversation = async (req, res) => {
 
     await Message.deleteMany({ conversation: conversationId });
 
-    // Delete conversation document
+    
     await Conversation.findByIdAndDelete(conversationId);
 
-    // Emit realtime event
+  
     try {
       const io = req.app.get("io");
       if (io) {

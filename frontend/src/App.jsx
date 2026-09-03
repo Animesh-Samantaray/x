@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import MainLayout from "./layouts/MainLayout";
 import Landing from "./pages/Landing";
@@ -22,6 +23,7 @@ import CourseLearn from "./pages/courses/CourseLearn";
 import MyBookmarks from "./pages/MyBookmarks";
 import LearnerMyLearning from "./pages/LearnerMyLearning";
 import SessionsPage from "./pages/sessions/SessionsPage";
+import Chat from "./pages/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Role-Based Dashboards
@@ -35,6 +37,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Landing />} />
@@ -224,6 +227,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <SessionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
                 </ProtectedRoute>
               }
             />

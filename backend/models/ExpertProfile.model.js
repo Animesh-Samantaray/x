@@ -85,9 +85,8 @@ const expertProfileSchema = new mongoose.Schema(
   }
 );
 
-const ExpertProfile = mongoose.model(
-  "ExpertProfile",
-  expertProfileSchema
-);
+const ExpertProfile =
+  mongoose.models.ExpertProfile ||
+  mongoose.model("ExpertProfile", expertProfileSchema);
 
 export default ExpertProfile;

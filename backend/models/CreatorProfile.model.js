@@ -74,9 +74,8 @@ const creatorProfileSchema = new mongoose.Schema(
   }
 );
 
-const CreatorProfile = mongoose.model(
-  "CreatorProfile",
-  creatorProfileSchema
-);
+const CreatorProfile =
+  mongoose.models.CreatorProfile ||
+  mongoose.model("CreatorProfile", creatorProfileSchema);
 
 export default CreatorProfile;

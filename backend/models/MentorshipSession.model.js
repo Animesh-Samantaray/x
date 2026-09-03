@@ -105,9 +105,8 @@ const mentorshipSessionSchema = new mongoose.Schema(
   }
 );
 
-const MentorshipSession = mongoose.model(
-  "MentorshipSession",
-  mentorshipSessionSchema
-);
+const MentorshipSession =
+  mongoose.models.MentorshipSession ||
+  mongoose.model("MentorshipSession", mentorshipSessionSchema);
 
 export default MentorshipSession;

@@ -3,9 +3,15 @@ import Course from "../models/Course.model.js";
 import Bookmark from "../models/Bookmark.model.js";
 import Progress from "../models/Progress.model.js";
 import Review from "../models/Review.model.js";
+import Unit from "../models/Unit.model.js";
+import Conversation from "../models/Conversation.model.js";
+import User from "../models/User.model.js";
+import {
+  createCourseConversation as createCourseConvService,
+  addParticipantToConversation,
+  removeParticipantFromConversation,
+} from "../services/conversation.service.js";
 
- 
-// CREATE COURSE
  
 export const createCourse = async (req, res) => {
   try {
@@ -39,6 +45,13 @@ export const createCourse = async (req, res) => {
       reviewCount: 0,
     });
 
+
+    try {
+      await createCourseConvService(course._id, course.createdBy);
+    } catch (convErr) {
+      console.error("Auto conversation creation error on course create:", convErr);
+    }
+
     return res.status(201).json({
       success: true,
       message: "Course created successfully",
@@ -55,9 +68,8 @@ export const createCourse = async (req, res) => {
   }
 };
 
-
  
-// GET ALL PUBLISHED COURSES
+
  
 export const getAllCourses = async (req, res) => {
   try {
@@ -96,9 +108,8 @@ export const getAllCourses = async (req, res) => {
   }
 };
 
-
  
-// GET COURSE BY ID
+
  
 export const getCourseById = async (req, res) => {
   try {
@@ -137,7 +148,6 @@ export const getCourseById = async (req, res) => {
   }
 };
 
-
  
 // GET MY CREATED COURSES
  
@@ -164,7 +174,6 @@ export const getMyCourses = async (req, res) => {
     });
   }
 };
-
 
  
 // GET MY ENROLLED COURSES
@@ -194,7 +203,6 @@ export const getMyEnrolledCourses = async (req, res) => {
     });
   }
 };
-
 
  
 // UPDATE COURSE
@@ -273,7 +281,6 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-
  
 // DELETE COURSE
  
@@ -305,6 +312,7 @@ export const deleteCourse = async (req, res) => {
     await Progress.deleteMany({ course: id });
     await Bookmark.deleteMany({ course: id });
     await Review.deleteMany({ course: id });
+    await Conversation.deleteMany({ course: id });
 
     await Course.findByIdAndDelete(id);
 
@@ -322,7 +330,6 @@ export const deleteCourse = async (req, res) => {
     });
   }
 };
-
 
  
 // GET ENROLLED STUDENTS
@@ -366,7 +373,6 @@ export const getEnrolledStudents = async (req, res) => {
     });
   }
 };
-
 
  
 // ENROLL IN COURSE
@@ -428,6 +434,19 @@ export const enrollInCourse = async (req, res) => {
       });
     }
 
+    // Add learner User ID to Course Conversation participants
+    try {
+      let conv = await Conversation.findOne({ course: course._id });
+      if (conv) {
+        await addParticipantToConversation(conv._id, req.user._id);
+      } else {
+        conv = await createCourseConvService(course._id, course.createdBy);
+        await addParticipantToConversation(conv._id, req.user._id);
+      }
+    } catch (convErr) {
+      console.error("Add learner to course conversation error:", convErr);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Enrolled in course successfully",
@@ -443,7 +462,6 @@ export const enrollInCourse = async (req, res) => {
     });
   }
 };
-
 
  
 // UNENROLL FROM COURSE
@@ -494,6 +512,16 @@ export const unenrollFromCourse = async (req, res) => {
       user: userId,
       course: id,
     });
+
+    // Remove learner from course conversation
+    try {
+      const conv = await Conversation.findOne({ course: id });
+      if (conv) {
+        await removeParticipantFromConversation(conv._id, req.user._id);
+      }
+    } catch (convErr) {
+      console.error("Remove learner from course conversation error:", convErr);
+    }
 
     return res.status(200).json({
       success: true,

@@ -1,6 +1,11 @@
 import MentorshipSession from "../models/MentorshipSession.model.js";
 import ExpertProfile from "../models/ExpertProfile.model.js";
 import User from "../models/User.model.js";
+import Conversation from "../models/Conversation.model.js";
+import {
+  createSessionConversation as createSessionConvService,
+  addParticipantToConversation,
+} from "../services/conversation.service.js";
 
 export const createSession = async (req, res) => {
   try {
@@ -67,6 +72,16 @@ export const createSession = async (req, res) => {
       learners: [],
       status: "open",
     });
+
+    // Automatically create session conversation
+    try {
+      const expertProfile = await ExpertProfile.findById(session.expert).select("user");
+      if (expertProfile && expertProfile.user) {
+        await createSessionConvService(session._id, expertProfile.user);
+      }
+    } catch (convErr) {
+      console.error("Auto conversation creation error on session create:", convErr);
+    }
 
     return res.status(201).json({
       success: true,
@@ -416,6 +431,19 @@ export const acceptLearner = async (req, res) => {
     }
 
     await session.save();
+
+    // Add accepted learner User ID to session Conversation
+    try {
+      let conv = await Conversation.findOne({ session: id });
+      if (conv) {
+        await addParticipantToConversation(conv._id, learnerId);
+      } else {
+        conv = await createSessionConvService(id, expert.user);
+        await addParticipantToConversation(conv._id, learnerId);
+      }
+    } catch (convErr) {
+      console.error("Add learner to session conversation error:", convErr);
+    }
 
     const updatedSession = await MentorshipSession.findById(id)
       .populate({
