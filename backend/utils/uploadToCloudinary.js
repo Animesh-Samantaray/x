@@ -13,17 +13,19 @@ const uploadToCloudinary = (fileBuffer, mimetype, originalname) => {
 
       let resourceType = "raw";
 
-      // Images
       if (mimetype?.startsWith("image/")) {
         resourceType = "image";
-      }
-
-      // Videos
-      else if (mimetype?.startsWith("video/")) {
+      } else if (mimetype?.startsWith("video/")) {
         resourceType = "video";
       }
 
-      const publicId = `${uniqueSuffix}-${sanitizedName}`;
+      const extensionIndex = sanitizedName.lastIndexOf(".");
+      const fileNameWithoutExtension =
+        extensionIndex > 0
+          ? sanitizedName.substring(0, extensionIndex)
+          : sanitizedName;
+
+      const publicId = `${uniqueSuffix}-${fileNameWithoutExtension}`;
 
       const uploadStream = cloudinary.uploader.upload_stream(
         {
