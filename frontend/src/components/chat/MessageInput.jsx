@@ -1,11 +1,13 @@
 import React, { useState, useRef } from "react";
 import { Send, Paperclip, X, Smile } from "lucide-react";
+import StickerPicker from "./StickerPicker";
 
 const MessageInput = ({ onSendMessage, disabled }) => {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const fileInputRef = useRef(null);
+  const stickerButtonRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -28,10 +30,17 @@ const MessageInput = ({ onSendMessage, disabled }) => {
     onSendMessage(message, selectedFile);
     setMessage("");
     setSelectedFile(null);
-    setShowEmojiPicker(false);
+    setShowStickerPicker(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleSelectSticker = (stickerEmoji) => {
+    if (disabled) return;
+    // Direct sticker sending
+    onSendMessage(stickerEmoji, null);
+    setShowStickerPicker(false);
   };
 
   const handleKeyDown = (e) => {
@@ -49,17 +58,11 @@ const MessageInput = ({ onSendMessage, disabled }) => {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
-  const quickEmojis = ["😊", "👍", "❤️", "🔥", "🎉", "🙌", "💡", "❓", "✅"];
-
-  const appendEmoji = (emoji) => {
-    setMessage((prev) => prev + emoji);
-  };
-
   return (
     <div className="p-3 border-t border-slate-800 bg-slate-900/90 relative shrink-0">
       {/* File Preview */}
       {selectedFile && (
-        <div className="mb-2 p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between">
+        <div className="mb-2 p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
             <span className="text-lg">📎</span>
             <div className="flex-1 min-w-0">
@@ -74,28 +77,20 @@ const MessageInput = ({ onSendMessage, disabled }) => {
           <button
             type="button"
             onClick={handleRemoveFile}
-            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
           >
             <X size={15} />
           </button>
         </div>
       )}
 
-      {/* Quick Emoji Bar */}
-      {showEmojiPicker && (
-        <div className="absolute bottom-16 left-4 bg-slate-900 border border-slate-800 rounded-xl shadow-xl p-2 flex items-center gap-1.5 z-20">
-          {quickEmojis.map((e) => (
-            <button
-              key={e}
-              type="button"
-              onClick={() => appendEmoji(e)}
-              className="text-base hover:scale-125 transition-transform p-1"
-            >
-              {e}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* WhatsApp-Style Sticker Picker */}
+      <StickerPicker
+        isOpen={showStickerPicker}
+        onClose={() => setShowStickerPicker(false)}
+        onSelectSticker={handleSelectSticker}
+        anchorRef={stickerButtonRef}
+      />
 
       {/* Form Input */}
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
@@ -129,13 +124,19 @@ const MessageInput = ({ onSendMessage, disabled }) => {
             className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-500/50 transition resize-none pr-9 min-h-[40px] max-h-28"
           />
 
+          {/* Sticker Button */}
           <button
+            ref={stickerButtonRef}
             type="button"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="absolute right-2.5 text-slate-400 hover:text-slate-200 transition p-1"
-            title="Emojis"
+            onClick={() => setShowStickerPicker((prev) => !prev)}
+            className={`absolute right-2.5 transition p-1 cursor-pointer rounded-lg ${
+              showStickerPicker
+                ? "text-sky-400 bg-sky-500/10"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+            }`}
+            title="Stickers"
           >
-            <Smile size={16} />
+            <Smile size={17} />
           </button>
         </div>
 
