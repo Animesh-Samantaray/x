@@ -15,6 +15,7 @@ import { getExpertProfile } from "../../services/expertApi";
 import { getMySessions, acceptLearner, rejectLearner, cancelSession, completeSession } from "../../services/sessionService";
 import { getMyCourses, deleteCourse } from "../../services/courseService";
 import { getMyResources, deleteResource } from "../../services/resourceService";
+import { getMyEarnings } from "../../services/paymentService";
 
 import {
   Video,
@@ -48,6 +49,7 @@ const ExpertDashboard = () => {
   const [sessions, setSessions] = useState([]);
   const [courses, setCourses] = useState([]);
   const [resources, setResources] = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState(0);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [createSessionOpen, setCreateSessionOpen] = useState(false);
@@ -58,11 +60,12 @@ const ExpertDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [profileRes, sessionsRes, coursesRes, resourcesRes] = await Promise.allSettled([
+      const [profileRes, sessionsRes, coursesRes, resourcesRes, earningsRes] = await Promise.allSettled([
         getExpertProfile(),
         getMySessions(),
         getMyCourses(),
         getMyResources(),
+        getMyEarnings(),
       ]);
 
       if (profileRes.status === "fulfilled" && profileRes.value?.profile) {
@@ -76,6 +79,9 @@ const ExpertDashboard = () => {
       }
       if (resourcesRes.status === "fulfilled" && resourcesRes.value?.resources) {
         setResources(resourcesRes.value.resources);
+      }
+      if (earningsRes.status === "fulfilled" && earningsRes.value?.data) {
+        setTotalEarnings(earningsRes.value.data.earnings || 0);
       }
     } catch (err) {
       console.error("Error fetching expert dashboard data:", err);
@@ -222,7 +228,14 @@ const ExpertDashboard = () => {
           </SpotlightCard>
 
           {/* STATS OVERVIEW GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <StatCard
+              title="Total Income"
+              value={`₹${totalEarnings.toLocaleString("en-IN")}`}
+              subtext="Total earnings accrued"
+              icon={DollarSign}
+              color="emerald"
+            />
             <StatCard
               title="Mentorship Sessions"
               value={totalSessions}

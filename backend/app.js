@@ -18,6 +18,8 @@ import reviewRoutes from "./routes/review.route.js";
 import sessionRoutes from "./routes/mentorshipSession.route.js";
 import convRoutes from "./routes/conversation.route.js";
 import messageRoutes from "./routes/message.route.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import earningRoutes from "./routes/earnings.route.js";
 const app = express();
 app.use(passport.initialize());
 
@@ -58,5 +60,8 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/api/conversation", convRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/pay", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/earnings", earningRoutes);
 
 export default app;

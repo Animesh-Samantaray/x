@@ -38,6 +38,7 @@ const SessionCard = ({
   onRejectLearner,
   loadingLearnerId,
   bookingLoadingId,
+  bookingStateLabel,
   actionLoadingId,
 }) => {
   if (!session) return null;
@@ -191,10 +192,10 @@ const SessionCard = ({
               <Button
                 onClick={() => onBook(session._id)}
                 loading={bookingLoadingId === session._id}
-                disabled={session.status !== "open" || isFull}
+                disabled={session.status !== "open" || isFull || bookingLoadingId === session._id}
                 className="w-full text-xs py-2 px-4 bg-gradient-to-r from-accent-purple to-accent-indigo shadow-lg flex items-center justify-center gap-1.5"
               >
-                <PlayCircle size={14} /> {isFull ? "Session Full" : `Book Session (${formattedPrice})`}
+                <PlayCircle size={14} /> {isFull ? "Session Full" : bookingLoadingId === session._id ? (bookingStateLabel || "Processing...") : `Book Session (${formattedPrice})`}
               </Button>
             ) : isPendingLearner ? (
               <div className="w-full flex items-center justify-between p-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">

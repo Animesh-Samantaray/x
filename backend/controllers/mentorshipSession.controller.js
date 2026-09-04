@@ -6,6 +6,7 @@ import {
   createSessionConversation as createSessionConvService,
   addParticipantToConversation,
 } from "../services/conversation.service.js";
+import { requestSessionService } from "../services/mentorshipSession.service.js";
 
 export const createSession = async (req, res) => {
   try {
@@ -73,7 +74,7 @@ export const createSession = async (req, res) => {
       status: "open",
     });
 
-    // Automatically create session conversation
+
     try {
       const expertProfile = await ExpertProfile.findById(session.expert).select("user");
       if (expertProfile && expertProfile.user) {
@@ -296,73 +297,19 @@ export const requestSession = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const session = await MentorshipSession.findById(id);
-
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: "Mentorship session not found",
-      });
-    }
-
-    if (session.status !== "open") {
-      return res.status(400).json({
-        success: false,
-        message: "This session is no longer open for requests",
-      });
-    }
-
-    const maxCapacity = session.maxParticipants || 100;
-    if (session.learners.length >= maxCapacity) {
-      return res.status(400).json({
-        success: false,
-        message: "This mentorship session has reached maximum capacity",
-      });
-    }
-
-    const alreadyRequested = session.learners.some(
-      (l) => l.user.toString() === req.user._id.toString()
-    );
-
-    if (alreadyRequested) {
-      return res.status(400).json({
-        success: false,
-        message: "You have already requested to join this session",
-      });
-    }
-
-    session.learners.push({
-      user: req.user._id,
-      status: "pending",
-      requestedAt: new Date(),
-    });
-
-    await session.save();
-
-    const updatedSession = await MentorshipSession.findById(id)
-      .populate({
-        path: "expert",
-        populate: {
-          path: "user",
-          select: "name email profilePicture",
-        },
-      })
-      .populate({
-        path: "learners.user",
-        select: "name email profilePicture",
-      });
+    const session = await requestSessionService(id, req.user._id);
 
     return res.status(200).json({
       success: true,
       message: "Session request sent successfully",
-      session: updatedSession,
+      session,
     });
   } catch (error) {
     console.error("Request session error:", error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: "Failed to request mentorship session",
+      message: error.message || "Failed to request mentorship session",
       error: error.message,
     });
   }

@@ -21,6 +21,7 @@ import {
   Share2,
   Menu,
   X,
+  CreditCard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -61,6 +62,7 @@ const Sidebar = ({ unreadCount = 0 }) => {
       { path: "/sessions", label: "Mentors & Sessions", icon: Video },
       { path: "/chat", label: "Chat", icon: MessageSquare, badge: unreadCount },
       { path: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+      { path: "/my-payments", label: "Payment History", icon: CreditCard },
       { path: "/profile", label: "Profile", icon: UserIcon },
     ],
     creator: [
@@ -71,6 +73,7 @@ const Sidebar = ({ unreadCount = 0 }) => {
       { path: "/courses", label: "Explore Courses", icon: Compass },
       { path: "/chat", label: "Chat", icon: MessageSquare, badge: unreadCount },
       { path: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+      { path: "/my-payments", label: "Payment History", icon: CreditCard },
       { path: "/profile", label: "Profile", icon: UserIcon },
     ],
     expert: [
@@ -81,6 +84,7 @@ const Sidebar = ({ unreadCount = 0 }) => {
       { path: "/categories", label: "Categories", icon: Layers },
       { path: "/chat", label: "Chat", icon: MessageSquare, badge: unreadCount },
       { path: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+      { path: "/my-payments", label: "Payment History", icon: CreditCard },
       { path: "/profile", label: "Profile", icon: UserIcon },
     ],
     admin: [
@@ -91,6 +95,7 @@ const Sidebar = ({ unreadCount = 0 }) => {
       { path: "/categories", label: "Categories", icon: Layers },
       { path: "/chat", label: "Chat", icon: MessageSquare, badge: unreadCount },
       { path: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+      { path: "/my-payments", label: "Payment History", icon: CreditCard },
       { path: "/profile", label: "Profile", icon: UserIcon },
     ],
   };

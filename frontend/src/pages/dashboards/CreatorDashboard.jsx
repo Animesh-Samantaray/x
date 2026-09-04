@@ -11,6 +11,7 @@ import Button from "../../components/Button";
 
 import { getMyCourses, deleteCourse } from "../../services/courseService";
 import { getMyResources, deleteResource, publishResource, archiveResource } from "../../services/resourceService";
+import { getMyEarnings } from "../../services/paymentService";
 
 import {
   BookOpen,
@@ -25,7 +26,8 @@ import {
   Settings,
   CheckCircle,
   Archive,
-  ArrowRight
+  ArrowRight,
+  DollarSign
 } from "lucide-react";
 
 const CreatorDashboard = () => {
@@ -37,6 +39,7 @@ const CreatorDashboard = () => {
 
   const [courses, setCourses] = useState([]);
   const [resources, setResources] = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
 
   const fetchData = async () => {
@@ -44,9 +47,10 @@ const CreatorDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [coursesRes, resourcesRes] = await Promise.allSettled([
+      const [coursesRes, resourcesRes, earningsRes] = await Promise.allSettled([
         getMyCourses(),
         getMyResources(),
+        getMyEarnings(),
       ]);
 
       if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
@@ -54,6 +58,9 @@ const CreatorDashboard = () => {
       }
       if (resourcesRes.status === "fulfilled" && resourcesRes.value?.resources) {
         setResources(resourcesRes.value.resources);
+      }
+      if (earningsRes.status === "fulfilled" && earningsRes.value?.data) {
+        setTotalEarnings(earningsRes.value.data.earnings || 0);
       }
     } catch (err) {
       console.error("Error fetching creator dashboard data:", err);
@@ -142,34 +149,20 @@ const CreatorDashboard = () => {
       ) : (
         <div className="space-y-8 text-left">
           {/* STATS OVERVIEW GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              title="Total Courses"
-              value={totalCourses}
-              subtext="Authored courses"
-              icon={BookOpen}
-              color="purple"
-            />
-            <StatCard
-              title="Published"
-              value={publishedCourses}
-              subtext="Live on platform"
-              icon={CheckCircle}
+              title="Total Income"
+              value={`₹${totalEarnings.toLocaleString("en-IN")}`}
+              subtext="Total course sales revenue"
+              icon={DollarSign}
               color="emerald"
             />
             <StatCard
-              title="Draft Courses"
-              value={draftCourses}
-              subtext="Work in progress"
-              icon={Layers}
-              color="orange"
-            />
-            <StatCard
-              title="Archived"
-              value={archivedCourses}
-              subtext="Inactive courses"
-              icon={Archive}
-              color="pink"
+              title="Total Courses"
+              value={totalCourses}
+              subtext={`${publishedCourses} live / ${draftCourses} draft`}
+              icon={BookOpen}
+              color="purple"
             />
             <StatCard
               title="Enrolled Learners"
@@ -181,7 +174,7 @@ const CreatorDashboard = () => {
             <StatCard
               title="Total Resources"
               value={totalResources}
-              subtext="Uploaded guides"
+              subtext="Uploaded guides & tools"
               icon={FileText}
               color="cyan"
             />
