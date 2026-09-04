@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getAllSessions, getMySessions, requestSession, acceptLearner, rejectLearner, cancelSession, completeSession } from "../../services/sessionService";
+import { getAllSessions, getMySessions, acceptLearner, rejectLearner, cancelSession, completeSession } from "../../services/sessionService";
+import { startPayment } from "../../services/paymentService";
 import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
 import SessionCard from "../../components/sessions/SessionCard";
@@ -10,6 +12,7 @@ import SessionDetailsModal from "../../components/sessions/SessionDetailsModal";
 import { Video, PlusCircle, Search, RefreshCw, AlertCircle, Info, Filter } from "lucide-react";
 
 const SessionsPage = ({ initialTab = "explore" }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isExpert = user?.role === "expert";
 
@@ -25,6 +28,7 @@ const SessionsPage = ({ initialTab = "explore" }) => {
   const [toastMessage, setToastMessage] = useState("");
 
   const [bookingLoadingId, setBookingLoadingId] = useState(null);
+  const [bookingStateMap, setBookingStateMap] = useState({});
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [loadingLearnerId, setLoadingLearnerId] = useState(null);
 
@@ -69,19 +73,40 @@ const SessionsPage = ({ initialTab = "explore" }) => {
   };
 
   const handleBookSession = async (sessionId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     try {
       setBookingLoadingId(sessionId);
-      const res = await requestSession(sessionId);
-      if (res && res.success) {
-        triggerToast("Mentorship session requested! Waiting for expert approval.");
-        fetchSessions();
-      } else {
-        triggerToast(res.message || "Failed to book session.");
-      }
+      setBookingStateMap((prev) => ({ ...prev, [sessionId]: "Processing..." }));
+
+      await startPayment({
+        type: "Session",
+        sessionId,
+        user,
+        onStateChange: (stateText) => {
+          setBookingStateMap((prev) => ({ ...prev, [sessionId]: stateText }));
+        },
+        onSuccess: async () => {
+          setBookingLoadingId(null);
+          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+          await fetchSessions();
+        },
+        onError: () => {
+          setBookingLoadingId(null);
+          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+        },
+        onCancel: () => {
+          setBookingLoadingId(null);
+          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+        },
+      });
     } catch (err) {
-      triggerToast(err.response?.data?.message || "Failed to book session.");
-    } finally {
+      console.error(err);
       setBookingLoadingId(null);
+      setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
     }
   };
 
@@ -346,6 +371,7 @@ const SessionsPage = ({ initialTab = "explore" }) => {
               onRejectLearner={handleRejectLearner}
               loadingLearnerId={loadingLearnerId}
               bookingLoadingId={bookingLoadingId}
+              bookingStateLabel={bookingStateMap[s._id]}
               actionLoadingId={actionLoadingId}
             />
           ))}

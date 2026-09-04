@@ -24,9 +24,10 @@ import MyBookmarks from "./pages/MyBookmarks";
 import LearnerMyLearning from "./pages/LearnerMyLearning";
 import SessionsPage from "./pages/sessions/SessionsPage";
 import Chat from "./pages/Chat";
+import PaymentHistory from "./pages/PaymentHistory";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Role-Based Dashboards
+
 import LearnerDashboard from "./pages/dashboards/LearnerDashboard";
 import CreatorDashboard from "./pages/dashboards/CreatorDashboard";
 import ExpertDashboard from "./pages/dashboards/ExpertDashboard";
@@ -235,6 +236,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-payments"
+              element={
+                <ProtectedRoute>
+                  <PaymentHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payments"
+              element={
+                <ProtectedRoute>
+                  <PaymentHistory />
                 </ProtectedRoute>
               }
             />

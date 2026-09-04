@@ -11,6 +11,7 @@ import {
   addParticipantToConversation,
   removeParticipantFromConversation,
 } from "../services/conversation.service.js";
+import { enrollInCourseService } from "../services/course.service.js";
 
  
 export const createCourse = async (req, res) => {
@@ -382,69 +383,13 @@ export const enrollInCourse = async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id;
 
-    const course = await Course.findById(id);
-
-    if (!course) {
-      return res.status(404).json({
-        success: false,
-        message: "Course not found",
-      });
-    }
-
-    if (course.status !== "published") {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot enroll in a non-published course",
-      });
-    }
-
-    let alreadyEnrolled = false;
-
-    for (const studentId of course.enrolledStudents || []) {
-      if (studentId.toString() === userId.toString()) {
-        alreadyEnrolled = true;
-        break;
-      }
-    }
+    const { progress, alreadyEnrolled } = await enrollInCourseService(id, userId);
 
     if (alreadyEnrolled) {
       return res.status(400).json({
         success: false,
         message: "You are already enrolled in this course",
       });
-    }
-
-    course.enrolledStudents.push(userId);
-
-    await course.save();
-
-    const existingProgress = await Progress.findOne({
-      user: userId,
-      course: course._id,
-    });
-
-    let progress = existingProgress;
-
-    if (!progress) {
-      progress = await Progress.create({
-        user: userId,
-        course: course._id,
-        completedUnits: [],
-        percentage: 0,
-      });
-    }
-
-    // Add learner User ID to Course Conversation participants
-    try {
-      let conv = await Conversation.findOne({ course: course._id });
-      if (conv) {
-        await addParticipantToConversation(conv._id, req.user._id);
-      } else {
-        conv = await createCourseConvService(course._id, course.createdBy);
-        await addParticipantToConversation(conv._id, req.user._id);
-      }
-    } catch (convErr) {
-      console.error("Add learner to course conversation error:", convErr);
     }
 
     return res.status(200).json({
@@ -455,9 +400,9 @@ export const enrollInCourse = async (req, res) => {
   } catch (error) {
     console.error("Enroll in course error:", error);
 
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: "Failed to enroll in course",
+      message: error.message || "Failed to enroll in course",
       error: error.message,
     });
   }

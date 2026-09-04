@@ -7,6 +7,7 @@ import {
   unenrollFromCourse,
   isCourseEnrolled
 } from "../../services/courseService";
+import { startPayment } from "../../services/paymentService";
 import { getCourseProgress } from "../../services/progressService";
 import { useAuth } from "../../context/AuthContext";
 import SpotlightCard from "../../components/SpotlightCard";
@@ -30,7 +31,8 @@ import {
   Settings,
   LogOut,
   CheckCircle,
-  Star
+  Star,
+  DollarSign
 } from "lucide-react";
 
 const CourseDetail = () => {
@@ -87,6 +89,8 @@ const CourseDetail = () => {
     }
   }, [id, user]);
 
+  const [paymentStateLabel, setPaymentStateLabel] = useState("");
+
   const handleReviewChange = ({ averageRating, reviewCount }) => {
     setCourse((prev) =>
       prev ? { ...prev, averageRating, reviewCount } : prev
@@ -94,17 +98,41 @@ const CourseDetail = () => {
   };
 
   const handleEnroll = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     try {
       setEnrolling(true);
       setError("");
-      const res = await enrollInCourse(id);
-      if (res && res.success) {
-        await fetchCourse();
-      }
+      setPaymentStateLabel("Processing...");
+
+      await startPayment({
+        type: "Course",
+        courseId: course._id,
+        user,
+        onStateChange: (stateText) => {
+          setPaymentStateLabel(stateText);
+        },
+        onSuccess: async () => {
+          setEnrolling(false);
+          setPaymentStateLabel("");
+          await fetchCourse();
+        },
+        onError: () => {
+          setEnrolling(false);
+          setPaymentStateLabel("");
+        },
+        onCancel: () => {
+          setEnrolling(false);
+          setPaymentStateLabel("");
+        },
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to enroll in course.");
-    } finally {
+      console.error(err);
       setEnrolling(false);
+      setPaymentStateLabel("");
     }
   };
 
@@ -238,9 +266,10 @@ const CourseDetail = () => {
             <Button
               onClick={handleEnroll}
               loading={enrolling}
+              disabled={enrolling}
               className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
             >
-              <GraduationCap size={16} /> Enroll in Course
+              <GraduationCap size={16} /> {enrolling ? (paymentStateLabel || "Processing...") : "Enroll"}
             </Button>
           ) : null}
         </div>
@@ -317,6 +346,10 @@ const CourseDetail = () => {
                 <span>Created by <strong className="text-text-title">{course.createdBy?.name || "Instructor"}</strong></span>
               </div>
               <div className="flex items-center gap-1.5">
+                <DollarSign size={14} className="text-emerald-400" />
+                <span>Price: <strong className="text-emerald-400 font-extrabold text-sm">₹{course.price || 0}</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5">
                 <Layers size={14} className="text-accent-purple" />
                 <span><strong className="text-text-title">{unitCount}</strong> Learning Units</span>
               </div>
@@ -371,9 +404,10 @@ const CourseDetail = () => {
                   <Button
                     onClick={handleEnroll}
                     loading={enrolling}
+                    disabled={enrolling}
                     className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
                   >
-                    <GraduationCap size={16} /> Enroll in Course
+                    <GraduationCap size={16} /> {enrolling ? (paymentStateLabel || "Processing...") : "Enroll"}
                   </Button>
                 ) : (isOwner || isAdmin) ? (
                   <Button
