@@ -6,6 +6,7 @@ import MessageInput from "./MessageInput";
 import chatService from "../../services/chatService";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
+import Sticker from "../ui/Sticker";
 import {
   getSocket,
   joinConversation,
@@ -22,7 +23,6 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
 
   const conversationId = conversation?._id;
   const currentConvIdStr = extractId(conversationId);
-
 
   const loadMessages = useCallback(async () => {
     if (!currentConvIdStr) return;
@@ -50,6 +50,7 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
     } finally {
       setLoading(false);
     }
+
   }, [currentConvIdStr]);
 
   useEffect(() => {
@@ -253,15 +254,16 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-slate-950 p-8 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sky-400 mb-3 shadow-md">
+      <div className="flex-1 flex flex-col items-center justify-center bg-slate-950 p-8 text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-1 text-indigo-400 shadow-inner">
           <MessageSquare size={28} />
         </div>
-        <h3 className="text-sm font-bold text-slate-200 mb-1">
-          Select a discussion workspace
+        <Sticker label="Real-time Workspace" variant="verified" />
+        <h3 className="text-base font-extrabold text-slate-100">
+          Your Conversations
         </h3>
-        <p className="text-xs text-slate-500 max-w-sm">
-          Select a course or mentorship discussion from the left column to interact with participants in real time.
+        <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+          Select a discussion workspace from the left panel to start chatting with creators, experts, and fellow learners in real time.
         </p>
       </div>
     );
@@ -292,7 +294,6 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
         onReact={handleReactToMessage}
         targetMessageId={targetMessageId}
       />
-
 
       <MessageInput
         onSendMessage={handleSendMessage}
