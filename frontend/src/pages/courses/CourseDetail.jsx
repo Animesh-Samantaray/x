@@ -34,6 +34,8 @@ import {
   Star,
   DollarSign
 } from "lucide-react";
+import PaymentCheckoutModal from "../../components/payments/PaymentCheckoutModal";
+import PaymentStatusModal from "../../components/payments/PaymentStatusModal";
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -90,6 +92,11 @@ const CourseDetail = () => {
   }, [id, user]);
 
   const [paymentStateLabel, setPaymentStateLabel] = useState("");
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusState, setStatusState] = useState("processing");
+  const [verifiedPaymentData, setVerifiedPaymentData] = useState(null);
+  const [statusErrorMsg, setStatusErrorMsg] = useState("");
 
   const handleReviewChange = ({ averageRating, reviewCount }) => {
     setCourse((prev) =>
@@ -97,42 +104,54 @@ const CourseDetail = () => {
     );
   };
 
-  const handleEnroll = async () => {
+  const handleEnrollClick = () => {
     if (!user) {
       navigate("/login");
       return;
     }
+    setCheckoutModalOpen(true);
+  };
+
+  const handleConfirmEnrollPayment = async () => {
+    setCheckoutModalOpen(false);
+    setStatusModalOpen(true);
+    setStatusState("processing");
+    setStatusErrorMsg("");
+    setVerifiedPaymentData(null);
+    setEnrolling(true);
 
     try {
-      setEnrolling(true);
-      setError("");
-      setPaymentStateLabel("Processing...");
-
       await startPayment({
         type: "Course",
         courseId: course._id,
         user,
         onStateChange: (stateText) => {
-          setPaymentStateLabel(stateText);
+          if (stateText.includes("Verifying")) {
+            setStatusState("processing");
+          }
         },
-        onSuccess: async () => {
+        onSuccess: async (data) => {
           setEnrolling(false);
-          setPaymentStateLabel("");
+          setVerifiedPaymentData(data);
+          setStatusState("success");
           await fetchCourse();
         },
-        onError: () => {
+        onError: (err) => {
           setEnrolling(false);
-          setPaymentStateLabel("");
+          setStatusErrorMsg(err?.message || "Payment verification failed.");
+          setStatusState("failed");
         },
         onCancel: () => {
           setEnrolling(false);
-          setPaymentStateLabel("");
+          setStatusErrorMsg("Payment was cancelled by user.");
+          setStatusState("failed");
         },
       });
     } catch (err) {
       console.error(err);
       setEnrolling(false);
-      setPaymentStateLabel("");
+      setStatusErrorMsg(err?.message || "Payment initiation failed.");
+      setStatusState("failed");
     }
   };
 
@@ -264,7 +283,7 @@ const CourseDetail = () => {
             </div>
           ) : isLearner ? (
             <Button
-              onClick={handleEnroll}
+              onClick={handleEnrollClick}
               loading={enrolling}
               disabled={enrolling}
               className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
@@ -402,7 +421,7 @@ const CourseDetail = () => {
                   </div>
                 ) : isLearner ? (
                   <Button
-                    onClick={handleEnroll}
+                    onClick={handleEnrollClick}
                     loading={enrolling}
                     disabled={enrolling}
                     className="text-xs py-2.5 px-6 shadow-lg flex items-center gap-2 bg-gradient-to-r from-accent-purple to-accent-indigo"
@@ -496,6 +515,27 @@ const CourseDetail = () => {
           onClose={() => setStudentsModalOpen(false)}
         />
       )}
+
+      {/* Fintech Payment Checkout Confirmation Modal */}
+      <PaymentCheckoutModal
+        isOpen={checkoutModalOpen}
+        onClose={() => setCheckoutModalOpen(false)}
+        onConfirm={handleConfirmEnrollPayment}
+        item={course}
+        type="Course"
+        loading={enrolling}
+      />
+
+      {/* Payment Status / Processing / Success Modal */}
+      <PaymentStatusModal
+        isOpen={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
+        state={statusState}
+        paymentData={verifiedPaymentData}
+        item={course}
+        type="Course"
+        errorMessage={statusErrorMsg}
+      />
     </div>
   );
 };

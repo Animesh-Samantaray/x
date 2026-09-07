@@ -9,10 +9,12 @@ const MessageList = ({
   onDelete,
   onReact,
   loading,
+  targetMessageId,
 }) => {
   const containerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [highlightedId, setHighlightedId] = useState(null);
 
   const isNearBottom = () => {
     if (!containerRef.current) return true;
@@ -36,7 +38,30 @@ const MessageList = ({
     }
   };
 
+  // Target message auto-scroll & highlight effect
   useEffect(() => {
+    if (!targetMessageId || !messages || messages.length === 0) return;
+
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`message-${targetMessageId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedId(targetMessageId);
+
+        const clearTimer = setTimeout(() => {
+          setHighlightedId(null);
+        }, 3000);
+
+        return () => clearTimeout(clearTimer);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [targetMessageId, messages]);
+
+  useEffect(() => {
+    if (targetMessageId) return;
+
     if (isNearBottom()) {
       scrollToBottom(false);
     } else {
@@ -58,7 +83,7 @@ const MessageList = ({
         }
       });
     }
-  }, [messages, currentUserId]);
+  }, [messages, currentUserId, targetMessageId]);
 
   const groupMessagesByDate = (messagesList) => {
     const groups = {};
@@ -145,17 +170,28 @@ const MessageList = ({
                 const prevSenderId =
                   prevMessage?.sender?._id || prevMessage?.sender;
                 const showSenderInfo = senderId !== prevSenderId;
+                const msgIdStr = (message._id || message.id)?.toString();
+                const isTargetHighlighted = highlightedId && msgIdStr === highlightedId;
 
                 return (
-                  <MessageBubble
+                  <div
                     key={message._id}
-                    message={message}
-                    isOwn={senderId === currentUserId}
-                    currentUserId={currentUserId}
-                    showSenderInfo={showSenderInfo}
-                    onDelete={onDelete}
-                    onReact={onReact}
-                  />
+                    id={`message-${msgIdStr}`}
+                    className={`transition-all duration-500 rounded-xl p-1 ${
+                      isTargetHighlighted
+                        ? "bg-amber-500/20 ring-2 ring-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.3)] animate-pulse"
+                        : ""
+                    }`}
+                  >
+                    <MessageBubble
+                      message={message}
+                      isOwn={senderId === currentUserId}
+                      currentUserId={currentUserId}
+                      showSenderInfo={showSenderInfo}
+                      onDelete={onDelete}
+                      onReact={onReact}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -179,3 +215,4 @@ const MessageList = ({
 };
 
 export default MessageList;
+

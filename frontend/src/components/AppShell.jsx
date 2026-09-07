@@ -79,6 +79,36 @@ const AppShell = () => {
     setNotifPermission(perm);
   };
 
+  // Fetch initial notifications from DB
+  useEffect(() => {
+    if (!user) return;
+    const fetchNotifications = async () => {
+      try {
+        const res = await chatService.getNotifications();
+        if (res.success) {
+          const mapped = (res.notifications || []).map((n) => ({
+            id: n._id || Date.now() + Math.random(),
+            title: n.title || "Notification",
+            message: n.message || "",
+            type: n.type,
+            reaction: n.reaction,
+            conversationId: extractId(n.conversation),
+            targetMessageId: extractId(n.targetMessage),
+            senderName: n.sender?.name || "User",
+            senderPic: n.sender?.profilePicture,
+            createdAt: n.createdAt || new Date().toISOString(),
+            read: n.isRead,
+          }));
+          setNotifications(mapped);
+          setUnreadCount(res.unreadCount || 0);
+        }
+      } catch (err) {
+        console.error("Error loading notifications:", err);
+      }
+    };
+    fetchNotifications();
+  }, [user]);
+
   // Redirect root '/' to role dashboard
   useEffect(() => {
     if (location.pathname === "/") {
@@ -102,19 +132,29 @@ const AppShell = () => {
 
         playNotificationChime();
 
+        const convId = extractId(data.conversation || data.conversationId);
+        const targetMsgId = extractId(data.targetMessage || data.targetMessageId);
+
         const notifObj = {
-          id: Date.now() + Math.random(),
+          id: data._id || Date.now() + Math.random(),
           title: data.title || "New Notification",
           message: data.message || "",
-          conversationId: extractId(data.conversationId),
+          type: data.type || "message",
+          reaction: data.reaction,
+          conversationId: convId,
+          targetMessageId: targetMsgId,
           senderName: data.sender?.name || "Participant",
           senderPic: data.sender?.profilePicture,
           createdAt: data.createdAt || new Date().toISOString(),
           read: false,
         };
 
-        setNotifications((prev) => [notifObj, ...prev.slice(0, 19)]);
+        setNotifications((prev) => [notifObj, ...prev.slice(0, 29)]);
         setUnreadCount((prev) => prev + 1);
+
+        const navTarget = convId
+          ? `/chat?conversation=${convId}${targetMsgId ? `&message=${targetMsgId}` : ""}`
+          : "/chat";
 
         // Show compact in-app toast using react-hot-toast
         toast(
@@ -123,18 +163,19 @@ const AppShell = () => {
               className="flex items-center gap-3 cursor-pointer select-none"
               onClick={() => {
                 toast.dismiss(t.id);
-                if (notifObj.conversationId) {
-                  navigate(`/chat?conversation=${notifObj.conversationId}`);
-                } else {
-                  navigate("/chat");
-                }
+                navigate(navTarget);
               }}
             >
-              <div className="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden relative">
                 {notifObj.senderPic ? (
                   <img src={notifObj.senderPic} alt="" className="w-full h-full object-cover" />
                 ) : (
                   notifObj.senderName?.[0] || "💬"
+                )}
+                {notifObj.type === "message_reaction" && notifObj.reaction && (
+                  <span className="absolute -bottom-1 -right-1 text-[10px]">
+                    {notifObj.reaction}
+                  </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -163,11 +204,7 @@ const AppShell = () => {
           icon: notifObj.senderPic || "/favicon.ico",
           tag: notifObj.conversationId || "general",
           onClick: () => {
-            if (notifObj.conversationId) {
-              navigate(`/chat?conversation=${notifObj.conversationId}`);
-            } else {
-              navigate("/chat");
-            }
+            navigate(navTarget);
           },
         });
       };
@@ -198,10 +235,16 @@ const AppShell = () => {
     navigate("/");
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setUnreadCount(0);
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await chatService.markNotificationsAsRead();
+    } catch (err) {
+      console.error("Error marking notifications as read:", err);
+    }
   };
+
 
   const getRoleColors = (roleName) => {
     switch (roleName) {
@@ -350,18 +393,26 @@ const AppShell = () => {
                         onClick={() => {
                           setNotificationsOpen(false);
                           if (n.conversationId) {
-                            navigate(`/chat?conversation=${n.conversationId}`);
+                            const query = `/chat?conversation=${n.conversationId}${
+                              n.targetMessageId ? `&message=${n.targetMessageId}` : ""
+                            }`;
+                            navigate(query);
                           } else {
                             navigate("/chat");
                           }
                         }}
                         className="p-2 rounded-xl hover:bg-glass-border cursor-pointer transition flex items-start gap-2.5 border border-transparent hover:border-glass-border"
                       >
-                        <div className="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                        <div className="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 relative">
                           {n.senderPic ? (
                             <img src={n.senderPic} alt="" className="w-full h-full rounded-full object-cover" />
                           ) : (
                             n.senderName?.[0] || "💬"
+                          )}
+                          {n.type === "message_reaction" && n.reaction && (
+                            <span className="absolute -bottom-1 -right-1 text-[10px] bg-slate-900 rounded-full px-0.5">
+                              {n.reaction}
+                            </span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -370,6 +421,7 @@ const AppShell = () => {
                         </div>
                       </div>
                     ))
+
                   )}
                 </div>
               </div>

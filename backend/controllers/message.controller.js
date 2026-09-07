@@ -332,7 +332,7 @@ export const reactToMessage = async (req, res) => {
       });
     }
 
-    const message = await Message.findById(messageId);
+    const message = await Message.findById(messageId).populate("sender", "name email profilePicture");
 
     if (!message) {
       return res.status(404).json({
@@ -361,34 +361,71 @@ export const reactToMessage = async (req, res) => {
       });
     }
 
+    const requestedEmoji = emoji.trim();
     const existingReaction = message.reactions.find(
       (reaction) => reaction.user.toString() === userId.toString()
     );
 
+    let isNewReaction = false;
+    let isRemovedReaction = false;
+
     if (existingReaction) {
-      if (existingReaction.emoji === emoji.trim()) {
-        // Same emoji -> remove reaction
+      if (existingReaction.emoji === requestedEmoji) {
+        // Same emoji -> remove reaction (no notification)
         message.reactions = message.reactions.filter(
           (reaction) => reaction.user.toString() !== userId.toString()
         );
+        isRemovedReaction = true;
       } else {
-        // Different emoji -> replace reaction
-        existingReaction.emoji = emoji.trim();
+        // Different emoji -> replace reaction (trigger notification for new reaction)
+        existingReaction.emoji = requestedEmoji;
+        isNewReaction = true;
       }
     } else {
       // New reaction
       message.reactions.push({
         user: userId,
-        emoji: emoji.trim(),
+        emoji: requestedEmoji,
       });
+      isNewReaction = true;
     }
 
     await message.save();
 
     const updatedMessage = await populateMessage(messageId);
 
-    // Emit reaction update event
+    // Emit reaction update event to conversation room
     emitMessageReaction(message.conversation, updatedMessage);
+
+    // Send in-app real-time notification to message sender if it's a new/updated reaction from another user
+    const messageSenderId = (message.sender?._id || message.sender)?.toString();
+    const reactorId = userId.toString();
+
+    if (isNewReaction && messageSenderId && messageSenderId !== reactorId) {
+      try {
+        const reactorName = req.user.name || "Someone";
+        const title = `${reactorName} reacted ${requestedEmoji}`;
+        const notificationContent = `${reactorName} reacted ${requestedEmoji} to your message.`;
+
+        createAndSendNotification({
+          recipient: messageSenderId,
+          sender: {
+            _id: req.user._id || req.user.id,
+            name: req.user.name,
+            email: req.user.email,
+            profilePicture: req.user.profilePicture,
+          },
+          type: "message_reaction",
+          title,
+          message: notificationContent,
+          conversationId: message.conversation,
+          targetMessageId: message._id,
+          reaction: requestedEmoji,
+        });
+      } catch (notifErr) {
+        console.error("Failed to create reaction notification:", notifErr);
+      }
+    }
 
     return res.status(200).json({
       success: true,

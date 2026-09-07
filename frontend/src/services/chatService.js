@@ -67,6 +67,16 @@ export const deleteConversation = async (conversationId) => {
   return response.data;
 };
 
+export const getNotifications = async () => {
+  const response = await api.get("/notifications");
+  return response.data;
+};
+
+export const markNotificationsAsRead = async () => {
+  const response = await api.put("/notifications/read-all");
+  return response.data;
+};
+
 export default {
   getMyConversations,
   getCourseConversation,
@@ -79,4 +89,7 @@ export default {
   deleteMessage,
   reactToMessage,
   deleteConversation,
+  getNotifications,
+  markNotificationsAsRead,
 };
+

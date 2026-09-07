@@ -190,3 +190,89 @@ export const getMyPayments = async (req, res) => {
     });
   }
 };
+
+
+export const getAdminPayments = async (req, res) => {
+  try {
+    const { status, type, search } = req.query;
+
+    let filter = {};
+
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    if (type && type !== "all") {
+      filter.type = type;
+    }
+
+    let payments = await Payment.find(filter)
+      .populate("learner", "name email profilePicture role")
+      .populate("recipient", "name email profilePicture role")
+      .populate("course", "title")
+      .populate("session", "title")
+      .sort({ createdAt: -1 });
+
+    if (search) {
+      const q = search.toLowerCase().trim();
+      payments = payments.filter((p) => {
+        const learnerName = (p.learner?.name || "").toLowerCase();
+        const learnerEmail = (p.learner?.email || "").toLowerCase();
+        const recipientName = (p.recipient?.name || "").toLowerCase();
+        const recipientEmail = (p.recipient?.email || "").toLowerCase();
+        const paymentId = (p._id || "").toString().toLowerCase();
+        const razorpayPaymentId = (p.razorpayPaymentId || "").toLowerCase();
+        const courseTitle = (p.course?.title || "").toLowerCase();
+        const sessionTitle = (p.session?.title || "").toLowerCase();
+
+        return (
+          learnerName.includes(q) ||
+          learnerEmail.includes(q) ||
+          recipientName.includes(q) ||
+          recipientEmail.includes(q) ||
+          paymentId.includes(q) ||
+          razorpayPaymentId.includes(q) ||
+          courseTitle.includes(q) ||
+          sessionTitle.includes(q)
+        );
+      });
+    }
+
+    const allPayments = await Payment.find({});
+    const totalPayments = allPayments.length;
+    const totalPaid = allPayments.filter((p) => p.status === "Paid").length;
+    const totalPending = allPayments.filter((p) => p.status === "Pending").length;
+    const totalFailed = allPayments.filter((p) => p.status === "Failed").length;
+
+    const paidPayments = allPayments.filter((p) => p.status === "Paid");
+    const totalRevenue = paidPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const courseRevenue = paidPayments
+      .filter((p) => p.type === "Course")
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
+    const sessionRevenue = paidPayments
+      .filter((p) => p.type === "Session")
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
+
+    return res.status(200).json({
+      success: true,
+      count: payments.length,
+      summary: {
+        totalPayments,
+        totalPaid,
+        totalPending,
+        totalFailed,
+        totalRevenue,
+        courseRevenue,
+        sessionRevenue,
+      },
+      data: payments,
+    });
+  } catch (error) {
+    console.error("Get Admin Payments Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch admin payments",
+    });
+  }
+};

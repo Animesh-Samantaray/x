@@ -3,7 +3,7 @@ import { getCategories } from "../../services/categoryService";
 import SpotlightCard from "../SpotlightCard";
 import Button from "../Button";
 import CourseTopics from "./CourseTopics";
-import { BookOpen, Layers, Image, AlertCircle, Save } from "lucide-react";
+import { BookOpen, Layers, Image, AlertCircle, Save, DollarSign } from "lucide-react";
 
 const CourseForm = ({
   initialData = null,
@@ -14,6 +14,7 @@ const CourseForm = ({
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || "");
+  const [price, setPrice] = useState(initialData?.price || 499);
   const [category, setCategory] = useState(
     initialData?.category
       ? typeof initialData.category === "object"
@@ -64,10 +65,16 @@ const CourseForm = ({
       return;
     }
 
+    if (!price || Number(price) < 1) {
+      setFormError("Course price is required and must be at least ₹1 INR");
+      return;
+    }
+
     const payload = {
       title: title.trim(),
       description: description.trim(),
       thumbnail: thumbnail.trim(),
+      price: Number(price),
       category,
       topics,
       status,
@@ -124,7 +131,7 @@ const CourseForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="font-bold text-text-muted uppercase flex items-center gap-1.5">
                 <Layers size={12} className="text-accent-indigo" /> Category *
@@ -142,6 +149,21 @@ const CourseForm = ({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-text-muted uppercase flex items-center gap-1.5">
+                <DollarSign size={12} className="text-emerald-400" /> Price (INR ₹) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                placeholder="499"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full form-input rounded-xl p-3 bg-bg-dark text-text-title border-glass-border focus:border-accent-purple/50 focus:outline-none"
+                required
+              />
             </div>
 
             <div className="space-y-1">

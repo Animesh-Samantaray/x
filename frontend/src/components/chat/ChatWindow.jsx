@@ -13,7 +13,7 @@ import {
   extractId,
 } from "../../services/socket";
 
-const ChatWindow = ({ conversation, currentUserId, onBackToList }) => {
+const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,7 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList }) => {
 
   const conversationId = conversation?._id;
   const currentConvIdStr = extractId(conversationId);
+
 
   const loadMessages = useCallback(async () => {
     if (!currentConvIdStr) return;
@@ -289,7 +290,9 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList }) => {
         loading={loading}
         onDelete={handleDeleteMessage}
         onReact={handleReactToMessage}
+        targetMessageId={targetMessageId}
       />
+
 
       <MessageInput
         onSendMessage={handleSendMessage}

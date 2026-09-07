@@ -9,6 +9,8 @@ import SessionCard from "../../components/sessions/SessionCard";
 import CreateSessionModal from "../../components/sessions/CreateSessionModal";
 import ManageSessionModal from "../../components/sessions/ManageSessionModal";
 import SessionDetailsModal from "../../components/sessions/SessionDetailsModal";
+import PaymentCheckoutModal from "../../components/payments/PaymentCheckoutModal";
+import PaymentStatusModal from "../../components/payments/PaymentStatusModal";
 import { Video, PlusCircle, Search, RefreshCw, AlertCircle, Info, Filter } from "lucide-react";
 
 const SessionsPage = ({ initialTab = "explore" }) => {
@@ -38,6 +40,14 @@ const SessionsPage = ({ initialTab = "explore" }) => {
 
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+
+  const [selectedBookingSession, setSelectedBookingSession] = useState(null);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusState, setStatusState] = useState("processing");
+  const [verifiedPaymentData, setVerifiedPaymentData] = useState(null);
+  const [statusErrorMsg, setStatusErrorMsg] = useState("");
+  const [bookingPaymentLoading, setBookingPaymentLoading] = useState(false);
 
   const fetchSessions = async () => {
     try {
@@ -72,41 +82,59 @@ const SessionsPage = ({ initialTab = "explore" }) => {
     setTimeout(() => setToastMessage(""), 4000);
   };
 
-  const handleBookSession = async (sessionId) => {
+  const handleBookSession = (sessionId) => {
     if (!user) {
       navigate("/login");
       return;
     }
+    const sessionObj = openSessions.find((s) => s._id === sessionId) || mySessions.find((s) => s._id === sessionId);
+    if (sessionObj) {
+      setSelectedBookingSession(sessionObj);
+      setCheckoutModalOpen(true);
+    }
+  };
+
+  const handleConfirmSessionPayment = async () => {
+    if (!selectedBookingSession) return;
+    setCheckoutModalOpen(false);
+    setStatusModalOpen(true);
+    setStatusState("processing");
+    setStatusErrorMsg("");
+    setVerifiedPaymentData(null);
+    setBookingPaymentLoading(true);
 
     try {
-      setBookingLoadingId(sessionId);
-      setBookingStateMap((prev) => ({ ...prev, [sessionId]: "Processing..." }));
-
       await startPayment({
         type: "Session",
-        sessionId,
+        sessionId: selectedBookingSession._id,
         user,
         onStateChange: (stateText) => {
-          setBookingStateMap((prev) => ({ ...prev, [sessionId]: stateText }));
+          if (stateText.includes("Verifying")) {
+            setStatusState("processing");
+          }
         },
-        onSuccess: async () => {
-          setBookingLoadingId(null);
-          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+        onSuccess: async (data) => {
+          setBookingPaymentLoading(false);
+          setVerifiedPaymentData(data);
+          setStatusState("success");
           await fetchSessions();
         },
-        onError: () => {
-          setBookingLoadingId(null);
-          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+        onError: (err) => {
+          setBookingPaymentLoading(false);
+          setStatusErrorMsg(err?.message || "Payment verification failed.");
+          setStatusState("failed");
         },
         onCancel: () => {
-          setBookingLoadingId(null);
-          setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+          setBookingPaymentLoading(false);
+          setStatusErrorMsg("Payment was cancelled by user.");
+          setStatusState("failed");
         },
       });
     } catch (err) {
       console.error(err);
-      setBookingLoadingId(null);
-      setBookingStateMap((prev) => ({ ...prev, [sessionId]: "" }));
+      setBookingPaymentLoading(false);
+      setStatusErrorMsg(err?.message || "Payment initiation failed.");
+      setStatusState("failed");
     }
   };
 
@@ -409,6 +437,27 @@ const SessionsPage = ({ initialTab = "explore" }) => {
         }}
         currentUser={user}
         onSessionUpdated={fetchSessions}
+      />
+
+      {/* Payment Checkout Modal for Mentorship Session */}
+      <PaymentCheckoutModal
+        isOpen={checkoutModalOpen}
+        onClose={() => setCheckoutModalOpen(false)}
+        onConfirm={handleConfirmSessionPayment}
+        item={selectedBookingSession}
+        type="Session"
+        loading={bookingPaymentLoading}
+      />
+
+      {/* Payment Status Modal */}
+      <PaymentStatusModal
+        isOpen={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
+        state={statusState}
+        paymentData={verifiedPaymentData}
+        item={selectedBookingSession}
+        type="Session"
+        errorMessage={statusErrorMsg}
       />
     </div>
   );

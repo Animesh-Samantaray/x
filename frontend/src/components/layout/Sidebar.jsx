@@ -89,6 +89,7 @@ const Sidebar = ({ unreadCount = 0 }) => {
     ],
     admin: [
       { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/admin/payments", label: "Payments Management", icon: CreditCard },
       { path: "/admin/dashboard?tab=users", label: "Users", icon: Users },
       { path: "/courses", label: "Course Management", icon: BookOpen },
       { path: "/resources", label: "Resource Management", icon: FileText },

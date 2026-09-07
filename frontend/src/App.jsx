@@ -32,6 +32,7 @@ import LearnerDashboard from "./pages/dashboards/LearnerDashboard";
 import CreatorDashboard from "./pages/dashboards/CreatorDashboard";
 import ExpertDashboard from "./pages/dashboards/ExpertDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import DashboardRedirect from "./pages/dashboards/DashboardRedirect";
 
 const App = () => {
@@ -83,6 +84,14 @@ const App = () => {
               element={
                 <ProtectedRoute role="admin">
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/payments"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminPaymentsPage />
                 </ProtectedRoute>
               }
             />

@@ -20,6 +20,7 @@ import convRoutes from "./routes/conversation.route.js";
 import messageRoutes from "./routes/message.route.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import earningRoutes from "./routes/earnings.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 const app = express();
 app.use(passport.initialize());
 
@@ -63,5 +64,7 @@ app.use("/api/message", messageRoutes);
 app.use("/api/pay", paymentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/earnings", earningRoutes);
+app.use("/api/notifications", notificationRoutes);
+
 
 export default app;
