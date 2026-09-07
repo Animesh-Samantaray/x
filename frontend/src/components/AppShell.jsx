@@ -28,6 +28,41 @@ import {
   X,
   BellRing,
 } from "lucide-react";
+import learnerBg from "../assets/images/roles/learner.jpg";
+import creatorBg from "../assets/images/roles/creator.jpg";
+import expertBg from "../assets/images/roles/expert.jpg";
+import adminBg from "../assets/images/roles/admin.jpg";
+
+const roleThemeStyles = {
+  learner: {
+    bgGrad: "dark:from-[#050914] dark:via-[#091124] dark:to-[#040710]",
+    glow1: "bg-cyan-500/20",
+    glow2: "bg-blue-500/20",
+    image: learnerBg,
+    badgeClass: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+  },
+  creator: {
+    bgGrad: "dark:from-[#12071B] dark:via-[#190926] dark:to-[#0A0410]",
+    glow1: "bg-fuchsia-500/20",
+    glow2: "bg-purple-500/20",
+    image: creatorBg,
+    badgeClass: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30",
+  },
+  expert: {
+    bgGrad: "dark:from-[#031410] dark:via-[#06211B] dark:to-[#020D0B]",
+    glow1: "bg-emerald-500/20",
+    glow2: "bg-teal-500/20",
+    image: expertBg,
+    badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  },
+  admin: {
+    bgGrad: "dark:from-[#180F03] dark:via-[#241606] dark:to-[#0E0902]",
+    glow1: "bg-amber-500/20",
+    glow2: "bg-yellow-500/20",
+    image: adminBg,
+    badgeClass: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  },
+};
 
 const playNotificationChime = () => {
   try {
@@ -296,18 +331,29 @@ const AppShell = () => {
   };
 
   const navItems = roleNavigations[user?.role || "learner"] || roleNavigations.learner;
+  const roleTheme = roleThemeStyles[user?.role || "learner"] || roleThemeStyles.learner;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#eee9ff] via-[#e7edff] to-[#f1eaff] dark:from-[#070817] dark:via-[#070817] dark:to-[#0B0B1F] text-text-main flex flex-col font-sans select-none relative pt-16">
-      <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
-      <div className="glow-orb w-[500px] h-[500px] bg-accent-blue/5 top-[-100px] left-[-100px]"></div>
-      <div className="glow-orb w-[500px] h-[500px] bg-accent-purple/5 bottom-[-100px] right-[-100px]"></div>
+    <div className="min-h-screen text-text-main flex flex-col font-sans select-none relative pt-16">
+      {/* RBAC AI Role-Based Fixed Background Layer */}
+      <div className="fixed inset-0 w-full h-full -z-10 overflow-hidden bg-slate-950">
+        <img
+          key={user?.role || "learner"}
+          src={roleTheme.image}
+          alt={`${user?.role || "learner"} background`}
+          className="w-full h-full object-cover opacity-60 dark:opacity-75 filter brightness-110 contrast-105 transition-all duration-700"
+        />
+        {/* Ambient Dark Overlay for Crisp Foreground Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80 pointer-events-none" />
+      </div>
+      <div className="fixed inset-0 dot-grid opacity-15 pointer-events-none -z-10"></div>
+      <div className={`glow-orb w-[600px] h-[600px] ${roleTheme.glow1} top-[-100px] left-[-100px] -z-10`}></div>
+      <div className={`glow-orb w-[600px] h-[600px] ${roleTheme.glow2} bottom-[-100px] right-[-100px] -z-10`}></div>
 
 
 
-      {/* FIXED TOP HEADER */}
       <header className="fixed top-0 left-0 right-0 h-16 border-b border-glass-border bg-bg-deep/80 backdrop-blur-xl z-40 flex items-center justify-between px-4 sm:px-6">
-        {/* Brand */}
+        
         <Link
           to={`/${user?.role || "learner"}/dashboard`}
           className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-text-title select-none shrink-0"

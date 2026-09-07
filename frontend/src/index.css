@@ -546,14 +546,44 @@
   border: 1px solid var(--app-input-border);
   color: var(--app-input-text);
   outline: none;
-  transition: all 150ms ease-out;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out;
 }
 .form-input::placeholder {
   color: var(--app-input-placeholder);
 }
+.form-input:hover {
+  border-color: rgba(139, 92, 246, 0.35);
+}
 .form-input:focus {
   border-color: #8B5CF6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
+}
+
+/* Interactive Table Row Utility */
+.interactive-table-row {
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+.interactive-table-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Subtle Interactive Link Underline */
+.interactive-link {
+  position: relative;
+  transition: color 150ms ease-out;
+}
+.interactive-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -1px;
+  left: 0;
+  background-color: currentColor;
+  transition: width 200ms ease-out;
+}
+.interactive-link:hover::after {
+  width: 100%;
 }
 
 .text-gradient-cyan {

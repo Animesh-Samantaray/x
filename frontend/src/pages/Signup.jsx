@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useAuth } from "../context/AuthContext";
+import Sticker from "../components/ui/Sticker";
 import {
   User,
   Mail,
@@ -14,7 +16,8 @@ import {
   UserCheck,
   Settings,
   ShieldAlert,
-  Check
+  Check,
+  Sparkles,
 } from "lucide-react";
 import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
@@ -41,7 +44,6 @@ const Signup = () => {
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
-
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -147,7 +149,8 @@ const Signup = () => {
     <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 md:grid-cols-12 overflow-hidden relative select-none">
       <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
       
-      <div className="hidden md:flex md:col-span-5 bg-bg-dark border-r border-glass-border/30 flex-col justify-between p-10 relative overflow-hidden">
+      {/* Left Column: Branding, Lottie Animation, and Stickers */}
+      <div className="hidden md:flex md:col-span-5 bg-bg-dark border-r border-glass-border/30 flex-col justify-between p-8 relative overflow-hidden">
         <div className="absolute inset-0 line-grid opacity-15 pointer-events-none"></div>
         <div className="glow-orb w-[300px] h-[300px] bg-accent-blue/5 top-[-50px] left-[-50px]"></div>
         <div className="glow-orb w-[280px] h-[280px] bg-accent-purple/5 bottom-[10%] right-[-50px]"></div>
@@ -161,37 +164,54 @@ const Signup = () => {
           <span className="font-extrabold tracking-widest text-text-title text-base">CKM</span>
         </Link>
 
-        {/* Copywriting */}
-        <div className="my-auto space-y-6 z-10 text-left relative max-w-sm">
-          <div className="space-y-2">
-            <h1 className="hero-heading text-3xl font-extrabold text-text-title leading-tight">
+        {/* Lottie Animation & Multiple Stickers Container */}
+        <div className="my-auto space-y-4 z-10 text-left relative max-w-sm">
+          {/* Holographic Sticker Badges Row */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Sticker type="new" text="Interactive EdTech" />
+            <Sticker type="trending" text="Fast Track" />
+            <Sticker type="verified" text="Vetted Platform" />
+          </div>
+
+          {/* DotLottie Animation Player */}
+          <div className="w-full h-56 rounded-2xl bg-bg-panel/60 border border-glass-border p-2 flex items-center justify-center shadow-2xl relative overflow-hidden backdrop-blur-md">
+            <DotLottieReact
+              src="https://lottie.host/dcb83a0e-79bb-4c7b-a8a8-3a1627457f2e/UA127YHGJr.lottie"
+              loop
+              autoplay
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          <div className="space-y-2 pt-1">
+            <h1 className="hero-heading text-2xl font-extrabold text-text-title leading-tight">
               Join the marketplace
             </h1>
-            <p className="text-xs text-accent-purple font-bold tracking-wider uppercase">
-              Configure your workspace path.
+            <p className="text-xs text-accent-cyan font-bold tracking-wider uppercase flex items-center gap-1.5">
+              <Sparkles size={12} /> Configure your workspace path.
             </p>
           </div>
           
-          <p className="text-xs text-text-main leading-relaxed">
-            Create an account to start sharing templates, reading production masterclasses, booking specialists, or auditing system activities.
+          <p className="text-xs text-text-muted leading-relaxed">
+            Create an account to share templates, read production masterclasses, book specialists, or audit system activities.
           </p>
 
-          <div className="space-y-3.5 border-t border-glass-border/30 pt-5">
-            <div className="flex items-start gap-2.5">
-              <div className="h-5 w-5 rounded-md bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0 mt-0.5">
-                <Check size={11} strokeWidth={3} />
+          <div className="space-y-2 border-t border-glass-border/30 pt-3">
+            <div className="flex items-start gap-2">
+              <div className="h-4 w-4 rounded bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0 mt-0.5">
+                <Check size={10} strokeWidth={3} />
               </div>
               <p className="text-[11px] text-text-muted leading-snug">
                 <strong className="text-text-main font-bold">Vetted technical assets:</strong> Access zero-trust setups, Raft consensuses, and Next.js guides.
               </p>
             </div>
             
-            <div className="flex items-start gap-2.5">
-              <div className="h-5 w-5 rounded-md bg-accent-purple/15 text-accent-purple flex items-center justify-center shrink-0 mt-0.5">
-                <Check size={11} strokeWidth={3} />
+            <div className="flex items-start gap-2">
+              <div className="h-4 w-4 rounded bg-accent-purple/15 text-accent-purple flex items-center justify-center shrink-0 mt-0.5">
+                <Check size={10} strokeWidth={3} />
               </div>
               <p className="text-[11px] text-text-muted leading-snug">
-                <strong className="text-text-main font-bold">Monetize experience:</strong> Publish guides or offer scheduled 1:1 consultation availability as a Creator or Expert.
+                <strong className="text-text-main font-bold">Monetize experience:</strong> Publish guides or offer scheduled 1:1 consultation availability.
               </p>
             </div>
           </div>
