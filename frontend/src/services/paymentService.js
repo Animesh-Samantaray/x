@@ -27,6 +27,11 @@ export const getMyEarnings = async () => {
   return response.data;
 };
 
+export const getAdminPayments = async (params = {}) => {
+  const response = await api.get("/payments/admin", { params });
+  return response.data;
+};
+
 export const startPayment = async ({
   type,
   courseId,
@@ -140,6 +145,8 @@ export default {
   verifyPayment,
   getMyPayments,
   getPaymentById,
+  getAdminPayments,
   getMyEarnings,
   startPayment,
 };
+

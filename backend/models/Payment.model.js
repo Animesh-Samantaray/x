@@ -74,6 +74,22 @@ const paymentSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    reason: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    learnerEmailSent: {
+      type: Boolean,
+      default: false,
+    },
+
+    recipientEmailSent: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -309,6 +309,12 @@ const PaymentHistory = () => {
 
                 <div className="space-y-2">
                   <div className="flex justify-between py-1 border-b border-glass-border/20">
+                    <span className="text-text-muted">Reason</span>
+                    <span className="font-bold text-text-title">
+                      {selectedPayment.reason || (selectedPayment.type === "Course" ? "Course Enrollment" : "Mentorship Session Booking")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-glass-border/20">
                     <span className="text-text-muted">Item Type</span>
                     <span className="font-bold text-text-title">{selectedPayment.type}</span>
                   </div>

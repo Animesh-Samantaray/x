@@ -1,5 +1,4 @@
 import crypto from "crypto";
-
 import razorpay from "../configs/razorpay.js";
 
 import Payment from "../models/Payment.model.js";
@@ -7,9 +6,11 @@ import Earnings from "../models/Earnings.model.js";
 import Course from "../models/Course.model.js";
 import MentorshipSession from "../models/MentorshipSession.model.js";
 import ExpertProfile from "../models/ExpertProfile.model.js";
+import User from "../models/User.model.js";
+
 import { enrollInCourseService } from "./course.service.js";
 import { requestSessionService } from "./mentorshipSession.service.js";
-
+import { sendPaymentEmails } from "./email.service.js";
 
 export const createPaymentOrderService = async ({
   learnerId,
@@ -19,6 +20,7 @@ export const createPaymentOrderService = async ({
 }) => {
   let amount;
   let recipient;
+  let reason;
   let course = null;
   let session = null;
 
@@ -40,8 +42,8 @@ export const createPaymentOrderService = async ({
     }
 
     amount = course.price;
+    reason = "Course Enrollment";
   }
-
 
   if (type === "Session") {
     session = await MentorshipSession.findById(sessionId);
@@ -67,9 +69,8 @@ export const createPaymentOrderService = async ({
     }
 
     amount = session.price;
+    reason = "Mentorship Session Booking";
   }
-
-
 
   const receipt = `${type.toLowerCase()}_${Date.now()}`;
 
@@ -79,24 +80,16 @@ export const createPaymentOrderService = async ({
     receipt,
   });
 
-
   const payment = await Payment.create({
     learner: learnerId,
-
     course: course ? course._id : undefined,
-
     session: session ? session._id : undefined,
-
     recipient,
-
     amount,
-
     currency: "INR",
-
     type,
-
+    reason,
     status: "Pending",
-
     razorpayOrderId: razorpayOrder.id,
   });
 
@@ -109,15 +102,12 @@ export const createPaymentOrderService = async ({
   };
 };
 
-
 export const verifyPaymentService = async ({
   learnerId,
   razorpay_order_id,
   razorpay_payment_id,
   razorpay_signature,
 }) => {
-
-
   const payment = await Payment.findOne({
     razorpayOrderId: razorpay_order_id,
   });
@@ -130,20 +120,15 @@ export const verifyPaymentService = async ({
     throw new Error("You are not authorized to verify this payment");
   }
 
-
+  // Idempotency check: If payment is already Paid, return without repeating operations
   if (payment.status === "Paid") {
     return payment;
   }
 
-
+  // Signature verification
   const generatedSignature = crypto
-    .createHmac(
-      "sha256",
-      process.env.RAZORPAY_KEY_SECRET
-    )
-    .update(
-      `${razorpay_order_id}|${razorpay_payment_id}`
-    )
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest("hex");
 
   if (generatedSignature !== razorpay_signature) {
@@ -153,7 +138,7 @@ export const verifyPaymentService = async ({
     throw new Error("Invalid Razorpay payment signature");
   }
 
-
+  // Mark Payment as Paid
   payment.status = "Paid";
   payment.razorpayPaymentId = razorpay_payment_id;
   payment.razorpaySignature = razorpay_signature;
@@ -161,37 +146,49 @@ export const verifyPaymentService = async ({
 
   await payment.save();
 
-
-
+  // 1. Credit recipient earnings
   await Earnings.findOneAndUpdate(
-    {
-      user: payment.recipient,
-    },
-    {
-      $inc: {
-        earnings: payment.amount,
-      },
-    },
+    { user: payment.recipient },
+    { $inc: { earnings: payment.amount } },
     {
       upsert: true,
-      new: true,
+      returnDocument: "after",
       setDefaultsOnInsert: true,
     }
   );
 
+  // 2. Perform Course enrollment or Session booking
+  let itemDoc = null;
+
   if (payment.type === "Course" && payment.course) {
     try {
       await enrollInCourseService(payment.course, payment.learner);
+      itemDoc = await Course.findById(payment.course);
     } catch (enrollErr) {
       console.error("Course enrollment error post payment verification:", enrollErr.message);
     }
   } else if (payment.type === "Session" && payment.session) {
     try {
       await requestSessionService(payment.session, payment.learner);
+      itemDoc = await MentorshipSession.findById(payment.session);
     } catch (sessionErr) {
       console.error("Session request error post payment verification:", sessionErr.message);
     }
   }
 
+  // 3. Dispatch Email Notifications safely
+  try {
+    const learnerUser = await User.findById(payment.learner);
+    const recipientUser = await User.findById(payment.recipient);
+    await sendPaymentEmails(payment, learnerUser, recipientUser, itemDoc);
+  } catch (emailErr) {
+    console.error("Email notification error post payment verification:", emailErr.message);
+  }
+
   return payment;
+};
+
+export default {
+  createPaymentOrderService,
+  verifyPaymentService,
 };
