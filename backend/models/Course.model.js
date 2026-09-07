@@ -57,6 +57,12 @@ const courseSchema = new mongoose.Schema(
       enum: ["draft", "published", "archived"],
       default: "draft",
     },
+
+    price: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
   },
   {
     timestamps: true,

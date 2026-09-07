@@ -5,6 +5,7 @@ import {
   verifyPayment,
   getPaymentById,
   getMyPayments,
+  getAdminPayments,
 } from "../controllers/payment.controller.js";
 
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -31,6 +32,13 @@ router.get(
   authMiddleware,
   authorizeRoles("learner", "creator", "expert", "admin"),
   getMyPayments
+);
+
+router.get(
+  "/admin",
+  authMiddleware,
+  authorizeRoles("admin"),
+  getAdminPayments
 );
 
 router.get(

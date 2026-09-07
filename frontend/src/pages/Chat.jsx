@@ -53,11 +53,13 @@ const Chat = () => {
   const targetConvUrlParam = searchParams.get("conversation");
   const targetSessionUrlParam = searchParams.get("session");
   const targetCourseUrlParam = searchParams.get("course");
+  const targetMessageUrlParam = searchParams.get("message");
 
   const handleRequestNotifPermission = async () => {
     const perm = await requestNotificationPermission();
     setNotifPermission(perm);
   };
+
 
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
@@ -301,7 +303,9 @@ const Chat = () => {
           conversation={selectedConversation}
           currentUserId={currentUserId}
           onBackToList={handleBackToList}
+          targetMessageId={targetMessageUrlParam}
         />
+
       </div>
     </div>
   );

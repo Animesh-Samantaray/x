@@ -186,58 +186,64 @@ const CourseCard = ({
 
         {/* Action Controls */}
         <div className="flex items-center justify-between gap-1.5 pt-0.5">
-          {/* Enrollment controls shown strictly for Learners or when user is enrolled */}
-          {isEnrolled ? (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
-                <CheckCircle size={10} /> Enrolled
+          {/* Price & Enrollment controls shown strictly for Learners or when user is enrolled */}
+          <div className="flex items-center gap-2">
+            {!isEnrolled && (
+              <span className="text-[11px] font-extrabold text-accent-emerald bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                ₹{course.price || 499}
               </span>
-              <Link
-                to={`/courses/${course._id}/learn`}
-                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-              >
-                <PlayCircle size={10} /> Go to Course
-              </Link>
-            </div>
-          ) : isOwner || isAdmin ? (
-            <div className="flex items-center gap-1.5">
-              <Link
-                to={`/courses/${course._id}/learn`}
-                className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-              >
-                <PlayCircle size={10} /> Preview Workspace
-              </Link>
+            )}
+            {isEnrolled ? (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                  <CheckCircle size={10} /> Enrolled
+                </span>
+                <Link
+                  to={`/courses/${course._id}/learn`}
+                  className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <PlayCircle size={10} /> Go to Course
+                </Link>
+              </div>
+            ) : isOwner || isAdmin ? (
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to={`/courses/${course._id}/learn`}
+                  className="text-[9px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <PlayCircle size={10} /> Preview Workspace
+                </Link>
+                <Link
+                  to={`/courses/${course._id}`}
+                  className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <Eye size={10} /> Details
+                </Link>
+              </div>
+            ) : isLearner || !user ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => navigate(`/courses/${course._id}`)}
+                  className="text-[9px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs"
+                >
+                  <GraduationCap size={10} /> Enroll Now
+                </button>
+                <Link
+                  to={`/courses/${course._id}`}
+                  className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <Eye size={10} /> Details
+                </Link>
+              </div>
+            ) : (
               <Link
                 to={`/courses/${course._id}`}
                 className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
               >
-                <Eye size={10} /> Details
+                <Eye size={10} /> View Course
               </Link>
-            </div>
-          ) : isLearner || !user ? (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleQuickEnroll}
-                disabled={enrolling}
-                className="text-[9px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95 shadow-xs"
-              >
-                <GraduationCap size={10} /> {enrolling ? "Enrolling..." : "Enroll"}
-              </button>
-              <Link
-                to={`/courses/${course._id}`}
-                className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-              >
-                <Eye size={10} /> Details
-              </Link>
-            </div>
-          ) : (
-            <Link
-              to={`/courses/${course._id}`}
-              className="text-[9px] border border-glass-border hover:bg-glass-border hover:text-text-title px-2 py-0.5 rounded-md font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-            >
-              <Eye size={10} /> View Course
-            </Link>
-          )}
+            )}
+          </div>
 
           {isOwnerOrAdmin && (
             <div className="flex items-center gap-1">

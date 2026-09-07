@@ -6,6 +6,7 @@ import Review from "../models/Review.model.js";
 import Unit from "../models/Unit.model.js";
 import Conversation from "../models/Conversation.model.js";
 import User from "../models/User.model.js";
+import Payment from "../models/Payment.model.js";
 import {
   createCourseConversation as createCourseConvService,
   addParticipantToConversation,
@@ -22,6 +23,7 @@ export const createCourse = async (req, res) => {
       thumbnail,
       category,
       topics,
+      price,
       status,
     } = req.body;
 
@@ -32,12 +34,21 @@ export const createCourse = async (req, res) => {
       });
     }
 
+    const coursePrice = Number(price);
+    if (isNaN(coursePrice) || coursePrice < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Course price is required and must be at least ₹1 INR",
+      });
+    }
+
     const course = await Course.create({
       title,
       description,
       thumbnail,
       category,
       topics,
+      price: coursePrice,
       status: status || "published",
       createdBy: req.user._id,
       enrolledStudents: [],
@@ -237,6 +248,7 @@ export const updateCourse = async (req, res) => {
       thumbnail,
       category,
       topics,
+      price,
       status,
     } = req.body;
 
@@ -258,6 +270,17 @@ export const updateCourse = async (req, res) => {
 
     if (topics !== undefined) {
       course.topics = topics;
+    }
+
+    if (price !== undefined) {
+      const coursePrice = Number(price);
+      if (isNaN(coursePrice) || coursePrice < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Course price must be at least ₹1 INR",
+        });
+      }
+      course.price = coursePrice;
     }
 
     if (status !== undefined) {
@@ -382,6 +405,33 @@ export const enrollInCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    const isCreatorOrAdmin =
+      req.user.role === "admin" ||
+      course.createdBy.toString() === userId.toString();
+
+    if (!isCreatorOrAdmin) {
+      const paidRecord = await Payment.findOne({
+        learner: userId,
+        course: id,
+        status: "Paid",
+      });
+
+      if (!paidRecord) {
+        return res.status(400).json({
+          success: false,
+          message: "Payment verification required before enrolling in this course",
+        });
+      }
+    }
 
     const { progress, alreadyEnrolled } = await enrollInCourseService(id, userId);
 
