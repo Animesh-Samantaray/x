@@ -4,24 +4,37 @@ import { getLearnerProfile, updateLearnerProfile } from "../services/learnerApi"
 import { getCreatorProfile, updateCreatorProfile } from "../services/creatorApi";
 import { getExpertProfile, updateExpertProfile } from "../services/expertApi";
 import { getAdminProfile, updateAdminProfile } from "../services/adminApi";
+import { update2FA } from "../services/authService";
+import ReportDialog from "../components/reports/ReportDialog";
+import { PageTransition, StaggerContainer, StaggerItem } from "../components/motion/MotionPrimitives";
+
 import {
   Calendar,
   Mail,
   Shield,
+  ShieldCheck,
   User as UserIcon,
   BookOpen,
-  Heart,
-  Settings,
-  Info,
   Edit2,
   Save,
   X,
   Link as LinkIcon,
-  Globe
+  Globe,
+  Flag,
+  CheckCircle2,
+  Sparkles,
+  MapPin,
+  GraduationCap,
+  Award,
+  Code2,
+  Languages,
+  DollarSign,
+  Briefcase,
+  Key,
+  Info
 } from "lucide-react";
-import SpotlightCard from "../components/SpotlightCard";
 
-// Brand icons defined inline since lucide-react version lacks them
+// Branded SVGs
 const LinkedinIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -32,7 +45,7 @@ const LinkedinIcon = (props) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={props.className}
-    style={{ width: props.size || 24, height: props.size || 24 }}
+    style={{ width: props.size || 18, height: props.size || 18 }}
   >
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
     <rect width="4" height="12" x="2" y="9" />
@@ -50,7 +63,7 @@ const GithubIcon = (props) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={props.className}
-    style={{ width: props.size || 24, height: props.size || 24 }}
+    style={{ width: props.size || 18, height: props.size || 18 }}
   >
     <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
     <path d="M9 18c-4.51 2-5-2-7-2" />
@@ -67,19 +80,45 @@ const TwitterIcon = (props) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={props.className}
-    style={{ width: props.size || 24, height: props.size || 24 }}
+    style={{ width: props.size || 18, height: props.size || 18 }}
   >
     <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
   </svg>
 );
-import Button from "../components/Button";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, getCurrentUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user?.twoFactorEnabled || false);
+  const [updating2FA, setUpdating2FA] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setTwoFactorEnabled(!!user.twoFactorEnabled);
+    }
+  }, [user]);
+
+  const handleToggle2FA = async (newVal) => {
+    try {
+      setUpdating2FA(true);
+      const res = await update2FA(newVal);
+      if (res && res.success) {
+        setTwoFactorEnabled(res.twoFactorEnabled);
+        await getCurrentUser();
+        triggerToast(res.message || (newVal ? "Two-factor authentication enabled" : "Two-factor authentication disabled"));
+      } else {
+        triggerToast("Failed to update 2FA status.");
+      }
+    } catch (err) {
+      triggerToast(err.response?.data?.message || "Failed to update 2FA status.");
+    } finally {
+      setUpdating2FA(false);
+    }
+  };
 
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState("");
@@ -167,61 +206,6 @@ const Profile = () => {
   useEffect(() => {
     loadProfile();
   }, [role]);
-
-  const checkCompletion = () => {
-    if (!profile) return false;
-    if (role === "learner") {
-      return (
-        profile.bio &&
-        profile.bio.trim().length > 0 &&
-        Array.isArray(profile.skills) &&
-        profile.skills.length > 0 &&
-        Array.isArray(profile.interests) &&
-        profile.interests.length > 0
-      );
-    }
-    if (role === "creator") {
-      return (
-        profile.bio &&
-        profile.bio.trim().length > 0 &&
-        Array.isArray(profile.skills) &&
-        profile.skills.length > 0 &&
-        profile.headline &&
-        profile.headline.trim().length > 0 &&
-        Array.isArray(profile.expertise) &&
-        profile.expertise.length > 0
-      );
-    }
-    if (role === "expert") {
-      return (
-        profile.bio &&
-        profile.bio.trim().length > 0 &&
-        Array.isArray(profile.skills) &&
-        profile.skills.length > 0 &&
-        profile.headline &&
-        profile.headline.trim().length > 0 &&
-        Array.isArray(profile.expertise) &&
-        profile.expertise.length > 0 &&
-        profile.hourlyRate > 0
-      );
-    }
-    return true; // Admin/Default
-  };
-
-  const getCompletionMessage = () => {
-    if (role === "learner") {
-      return "Please click \"Edit Profile\" and fill in your biography, skills, and interests to complete your listing.";
-    }
-    if (role === "creator") {
-      return "Please click \"Edit Profile\" and fill in your biography, skills, headline, and expertise areas to complete your listing.";
-    }
-    if (role === "expert") {
-      return "Please click \"Edit Profile\" and fill in your biography, skills, headline, expertise areas, and hourly rate to complete your listing.";
-    }
-    return "Please click \"Edit Profile\" and complete all required fields.";
-  };
-
-  const isComplete = checkCompletion();
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -311,23 +295,10 @@ const Profile = () => {
   const formattedDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
       })
     : "Recently Joined";
-
-  const getRoleColors = (roleName) => {
-    switch (roleName) {
-      case "admin":
-        return "bg-accent-emerald/10 text-accent-emerald border-accent-emerald/25";
-      case "expert":
-        return "bg-accent-orange/10 text-accent-orange border-accent-orange/25";
-      case "creator":
-        return "bg-accent-purple/10 text-accent-purple border-accent-purple/25";
-      default:
-        return "bg-accent-blue/10 text-accent-blue border-accent-blue/25";
-    }
-  };
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -337,667 +308,424 @@ const Profile = () => {
   if (loadingProfile) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-blue"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="relative z-10 space-y-6 text-left">
-      
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-300">
-          <Info className="text-accent-blue shrink-0 animate-pulse" size={18} />
-          <p className="text-xs font-semibold text-text-title">{toastMessage}</p>
-        </div>
-      )}
-
-      {/* Completion Check Notification */}
-      {!isComplete && role !== "admin" && (
-        <div className="flex items-center gap-3 p-4 border border-rose-500/20 bg-rose-500/5 rounded-2xl text-left">
-          <Info className="text-rose-400 shrink-0 animate-bounce" size={18} />
-          <div>
-            <h4 className="text-xs font-bold text-text-title">Your Profile is Incomplete</h4>
-            <p className="text-[10px] text-text-muted mt-0.5">
-              {getCompletionMessage()}
-            </p>
+    <PageTransition>
+      <div className="relative z-10 space-y-6 text-left">
+        
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-panel-futuristic border-cyan-500/40 bg-slate-950/95 px-5 py-4 rounded-2xl shadow-2xl">
+            <Info className="text-cyan-400 shrink-0 animate-pulse" size={18} />
+            <p className="text-xs font-semibold text-white">{toastMessage}</p>
           </div>
-        </div>
-      )}
+        )}
 
-      {isComplete && role !== "admin" && (
-        <div className="flex items-center gap-3 p-4 border border-accent-emerald/20 bg-accent-emerald/5 rounded-2xl text-left">
-          <Info className="text-accent-emerald shrink-0" size={18} />
-          <div>
-            <h4 className="text-xs font-bold text-text-title text-accent-emerald">Profile Completed</h4>
-            <p className="text-[10px] text-text-muted mt-0.5">
-              Your profile has all required details and is discoverable!
-            </p>
-          </div>
-        </div>
-      )}
-
-      <SpotlightCard className="border border-glass-border/70 p-6 sm:p-8 bg-gradient-to-br from-purple-600/10 via-indigo-600/5 to-transparent dark:from-[#1E114A] dark:via-[#0F072D] dark:to-[#020512] dark:border-purple-500/20 shadow-2xl relative overflow-hidden" glowColor="rgba(124, 58, 237, 0.12)">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
-            {/* Avatar */}
-            <div className="group/avatar h-20 w-20 rounded-2xl bg-gradient-accent p-[1.5px] shadow-lg overflow-hidden shrink-0 transition-all duration-300">
-              {user?.profilePicture ? (
-                 <img src={user.profilePicture} alt={user.name} className="h-full w-full rounded-2xl object-cover" />
-              ) : (
-                <div className={`flex h-full w-full items-center justify-center rounded-2xl text-2xl font-extrabold text-white uppercase bg-gradient-to-br ${
-                  role === "admin" ? "from-accent-emerald to-accent-cyan" :
-                  role === "creator" ? "from-accent-purple to-accent-magenta" :
-                  role === "expert" ? "from-accent-orange to-accent-amber" :
-                  "from-accent-blue to-accent-indigo"
-                }`}>
-                  {user?.name ? user.name[0] : <UserIcon size={24} />}
+        {/* Dynamic Enterprise Header / Hero Container */}
+        <div className="relative rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl overflow-hidden shadow-2xl">
+          {/* Top Multi-Color Gradient Banner Accent */}
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              
+              {/* Avatar Pill with Live Status Indicator */}
+              <div className="relative shrink-0">
+                <div className="h-24 w-24 rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-500 to-pink-500 p-[1.5px] shadow-xl overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img src={user.profilePicture} alt={user.name} className="h-full w-full rounded-[14px] object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-slate-950 text-2xl font-black text-white uppercase font-display">
+                      {user?.name ? user.name[0] : <UserIcon size={28} />}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Core info */}
-            <div className="text-center sm:text-left space-y-3 flex-grow">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                <h1 className="text-2xl font-extrabold text-text-title leading-none">{user?.name || "Member"}</h1>
-                <span className={`inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${getRoleColors(role)}`}>
-                  {role}
+                {/* Live Status Badge */}
+                <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 border border-white/20">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 </span>
               </div>
-              
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-text-muted font-semibold">
-                <div className="flex items-center gap-1.5">
-                  <Mail size={13} className="text-text-muted" />
-                  <span>{user?.email}</span>
+
+              {/* Core Account Details */}
+              <div className="text-center sm:text-left space-y-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-display tracking-tight leading-none">
+                    {user?.name || "Member"}
+                  </h1>
+                  
+                  {/* Verified Badge */}
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 size={12} className="text-cyan-400" />
+                    <span>Verified {role}</span>
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={13} className="text-text-muted" />
-                  <span>Member since {formattedDate}</span>
+
+                {headline && (
+                  <p className="text-xs text-purple-300 font-medium">{headline}</p>
+                )}
+                
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-300 font-medium font-mono pt-1">
+                  <div className="flex items-center gap-1.5">
+                    <Mail size={13} className="text-cyan-400" />
+                    <span>{user?.email}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={13} className="text-purple-400" />
+                    <span>Member since {formattedDate}</span>
+                  </div>
+                  {location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={13} className="text-pink-400" />
+                      <span>{location}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Action Trigger Buttons */}
+            <div className="flex items-center space-x-3 shrink-0">
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+              >
+                {editMode ? <X size={14} /> : <Edit2 size={14} />}
+                <span>{editMode ? "Cancel Editing" : "Edit Profile"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setReportDialogOpen(true)}
+                className="px-3 py-2.5 rounded-xl text-xs font-bold border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 transition cursor-pointer flex items-center space-x-1.5 active:scale-95"
+              >
+                <Flag size={13} />
+                <span>Report</span>
+              </button>
+            </div>
           </div>
-
-          <Button onClick={() => {
-            if (editMode) {
-              handleCancelEdit();
-            } else {
-              setEditMode(true);
-            }
-          }} className="flex items-center gap-2 text-xs py-2 px-4 shrink-0">
-            {editMode ? (
-              <>
-                <X size={13} /> Cancel
-              </>
-            ) : (
-              <>
-                <Edit2 size={13} /> Edit Profile
-              </>
-            )}
-          </Button>
         </div>
-      </SpotlightCard>
 
-      {/* Profile forms Split view */}
-      {editMode ? (
-        <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-          <SpotlightCard className="md:col-span-12 p-6 bg-glass-card border border-glass-border rounded-2xl space-y-6 text-left" glowColor="rgba(59, 130, 246, 0.04)">
-            <h3 className="text-md font-bold text-text-title border-b border-glass-border/30 pb-3 mb-4">
-              Edit Your Profile Details
-            </h3>
+        {/* Profile Edit Mode Form */}
+        {editMode ? (
+          <form onSubmit={handleSave} className="space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-6">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center space-x-2">
+                  <Edit2 size={16} className="text-cyan-400" />
+                  <span>Edit Account & Professional Credentials</span>
+                </h3>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
-              
-              {role !== "admin" && (
-                <>
-                  {/* Biography */}
-                  <div className="sm:col-span-2 space-y-2">
-                    <label className="font-bold text-text-muted uppercase tracking-wider">Biography</label>
-                    <textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      placeholder="Tell us about yourself, your background, and goals..."
-                      rows={4}
-                      className="w-full form-input rounded-xl p-3"
-                    />
-                  </div>
-
-                  {role === "creator" || role === "expert" ? (
-                    <div className="space-y-2">
-                      <label className="font-bold text-text-muted uppercase tracking-wider">Headline</label>
-                      <input
-                        type="text"
-                        value={headline}
-                        onChange={(e) => setHeadline(e.target.value)}
-                        placeholder="e.g. Senior Frontend Instructor"
-                        className="w-full form-input rounded-xl p-3"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+                {role !== "admin" && (
+                  <>
+                    <div className="sm:col-span-2 space-y-2">
+                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Professional Biography</label>
+                      <textarea
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell the community about your background, experience, and projects..."
+                        rows={4}
+                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
                       />
                     </div>
-                  ) : null}
 
-                  <div className="space-y-2">
-                    <label className="font-bold text-text-muted uppercase tracking-wider">Skills (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={skills}
-                      onChange={(e) => setSkills(e.target.value)}
-                      placeholder="e.g. React, Node.js, Mongoose"
-                      className="w-full form-input rounded-xl p-3"
-                    />
-                  </div>
-
-                  {role === "learner" && (
-                    <>
+                    {(role === "creator" || role === "expert") && (
                       <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Interests (comma-separated)</label>
+                        <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Headline Title</label>
                         <input
                           type="text"
-                          value={interests}
-                          onChange={(e) => setInterests(e.target.value)}
-                          placeholder="e.g. Machine Learning, Cloud Systems"
-                          className="w-full form-input rounded-xl p-3"
+                          value={headline}
+                          onChange={(e) => setHeadline(e.target.value)}
+                          placeholder="e.g. Senior Full-Stack Engineer"
+                          className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Learning Goals (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={learningGoals}
-                          onChange={(e) => setLearningGoals(e.target.value)}
-                          placeholder="e.g. Deploy React to production"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {role === "creator" || role === "expert" ? (
-                    <>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Expertise Areas (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={expertise}
-                          onChange={(e) => setExpertise(e.target.value)}
-                          placeholder="e.g. Backend Architecture, DevOps"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Years of Experience</label>
-                        <input
-                          type="number"
-                          value={experience}
-                          onChange={(e) => setExperience(e.target.value)}
-                          min="0"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                    </>
-                  ) : null}
-
-                  <div className="space-y-2">
-                    <label className="font-bold text-text-muted uppercase tracking-wider">Education</label>
-                    <input
-                      type="text"
-                      value={education}
-                      onChange={(e) => setEducation(e.target.value)}
-                      placeholder="e.g. University of Computer Science"
-                      className="w-full form-input rounded-xl p-3"
-                    />
-                  </div>
-
-                  {role === "learner" && (
-                    <div className="space-y-2">
-                      <label className="font-bold text-text-muted uppercase tracking-wider">Location</label>
-                      <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="e.g. San Francisco, CA"
-                        className="w-full form-input rounded-xl p-3"
-                      />
-                    </div>
-                  )}
-
-                  {role === "creator" && (
-                    <div className="space-y-2">
-                      <label className="font-bold text-text-muted uppercase tracking-wider">Website URL</label>
-                      <input
-                        type="text"
-                        value={website}
-                        onChange={(e) => setWebsite(e.target.value)}
-                        placeholder="https://mycreatorwebsite.com"
-                        className="w-full form-input rounded-xl p-3"
-                      />
-                    </div>
-                  )}
-
-                  {role === "expert" && (
-                    <>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Qualifications (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={qualifications}
-                          onChange={(e) => setQualifications(e.target.value)}
-                          placeholder="e.g. AWS Solutions Architect"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Languages (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={languages}
-                          onChange={(e) => setLanguages(e.target.value)}
-                          placeholder="e.g. English, Spanish"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-bold text-text-muted uppercase tracking-wider">Hourly Consultation Rate ($)</label>
-                        <input
-                          type="number"
-                          value={hourlyRate}
-                          onChange={(e) => setHourlyRate(e.target.value)}
-                          min="0"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="flex items-center space-x-3 pt-6">
-                        <input
-                          type="checkbox"
-                          id="isAvailable"
-                          checked={isAvailable}
-                          onChange={(e) => setIsAvailable(e.target.checked)}
-                          className="h-4 w-4 rounded border-glass-border bg-bg-darker"
-                        />
-                        <label htmlFor="isAvailable" className="font-bold text-text-muted uppercase tracking-wider cursor-pointer">
-                          Available for mentorship calls
-                        </label>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Social Links Sub-section */}
-                  <div className="sm:col-span-2 border-t border-glass-border/30 pt-4 mt-2">
-                    <h4 className="font-bold text-text-title uppercase tracking-wider mb-3">Social Links</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="font-semibold text-text-muted">LinkedIn URL</label>
-                        <input
-                          type="text"
-                          value={linkedinLink}
-                          onChange={(e) => setLinkedinLink(e.target.value)}
-                          placeholder="https://linkedin.com/in/username"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="font-semibold text-text-muted">GitHub URL</label>
-                        <input
-                          type="text"
-                          value={githubLink}
-                          onChange={(e) => setGithubLink(e.target.value)}
-                          placeholder="https://github.com/username"
-                          className="w-full form-input rounded-xl p-3"
-                        />
-                      </div>
-                      {role === "creator" && (
-                        <div className="space-y-2">
-                          <label className="font-semibold text-text-muted">Twitter URL</label>
-                          <input
-                            type="text"
-                            value={twitterLink}
-                            onChange={(e) => setTwitterLink(e.target.value)}
-                            placeholder="https://twitter.com/username"
-                            className="w-full form-input rounded-xl p-3"
-                          />
-                        </div>
-                      )}
-                      {(role === "learner" || role === "expert") && (
-                        <div className="space-y-2">
-                          <label className="font-semibold text-text-muted">Website URL</label>
-                          <input
-                            type="text"
-                            value={websiteLink}
-                            onChange={(e) => setWebsiteLink(e.target.value)}
-                            placeholder="https://mywebsite.com"
-                            className="w-full form-input rounded-xl p-3"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Admin configuration */}
-              {role === "admin" && (
-                <>
-                  <div className="space-y-2">
-                    <label className="font-bold text-text-muted uppercase tracking-wider">Department</label>
-                    <input
-                      type="text"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      placeholder="e.g. Administration"
-                      className="w-full form-input rounded-xl p-3"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-bold text-text-muted uppercase tracking-wider">Permissions (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={permissions}
-                      onChange={(e) => setPermissions(e.target.value)}
-                      placeholder="e.g. manage_users, view_analytics"
-                      className="w-full form-input rounded-xl p-3"
-                    />
-                  </div>
-                </>
-              )}
-
-            </div>
-
-            <div className="flex items-center justify-end gap-3 border-t border-glass-border/30 pt-4 mt-6">
-              <Button type="button" variant="secondary" onClick={handleCancelEdit} className="text-xs py-2 px-4">
-                Cancel
-              </Button>
-              <Button type="submit" className="flex items-center gap-2 text-xs py-2.5 px-6">
-                <Save size={13} /> Save Profile
-              </Button>
-            </div>
-          </SpotlightCard>
-        </form>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (Bio, Skills) (lg:4) */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {role !== "admin" && (
-              <>
-                {/* Biography */}
-                <SpotlightCard className="p-6 card-tint-purple rounded-2xl text-left" glowColor="rgba(124, 58, 237, 0.12)">
-                  <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                    <BookOpen size={14} className="text-accent-purple" />
-                    <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Biography</h3>
-                  </div>
-                  {profile?.bio ? (
-                    <p className="text-xs text-text-main leading-relaxed font-medium">
-                      {profile.bio}
-                    </p>
-                  ) : (
-                    <div className="text-center py-4 space-y-3">
-                      <p className="text-xs text-text-muted italic">No biography added yet.</p>
-                      <Button onClick={() => setEditMode(true)} className="text-[10px] py-1.5 px-3">
-                        Add Bio
-                      </Button>
-                    </div>
-                  )}
-                </SpotlightCard>
-
-                {/* Skills & Focus */}
-                <SpotlightCard className="p-6 card-tint-blue rounded-2xl text-left" glowColor="rgba(59, 130, 246, 0.12)">
-                  <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                    <Heart size={14} className="text-accent-blue" />
-                    <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Skills & Focus</h3>
-                  </div>
-
-                  <div className="space-y-4 text-xs font-semibold">
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Expertise / Skills</h4>
-                      {profile?.skills && profile.skills.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {profile.skills.map((s, idx) => (
-                            <span key={idx} className="bg-bg-dark border border-glass-border px-2.5 py-1 rounded-lg text-text-main">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-text-muted italic">No skills listed.</p>
-                      )}
-                    </div>
-                    
-                    {role === "learner" && (
-                      <div className="space-y-2">
-                        <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Focus Interests</h4>
-                        {profile?.interests && profile.interests.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5">
-                            {profile.interests.map((int, idx) => (
-                              <span key={idx} className="bg-bg-darker border border-glass-border px-2.5 py-1 rounded-lg text-text-muted">
-                                {int}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-text-muted italic">No focus interests listed.</p>
-                        )}
                       </div>
                     )}
-                  </div>
-                </SpotlightCard>
 
-                {/* Social Links Panel */}
-                {profile?.socialLinks && (linkedinLink || githubLink || twitterLink || websiteLink) && (
-                  <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl text-left" glowColor="rgba(59, 130, 246, 0.05)">
-                    <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                      <LinkIcon size={14} className="text-accent-blue" />
-                      <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Social Links</h3>
+                    <div className="space-y-2">
+                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Tech Stack & Skills (Comma-separated)</label>
+                      <input
+                        type="text"
+                        value={skills}
+                        onChange={(e) => setSkills(e.target.value)}
+                        placeholder="e.g. React, Node.js, TypeScript, Docker"
+                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                      />
                     </div>
 
-                    <div className="space-y-3.5 text-xs font-semibold text-text-muted">
-                      {linkedinLink && (
-                        <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-text-title transition duration-150 py-1">
-                          <LinkedinIcon size={14} className="text-accent-blue shrink-0" />
-                          <span className="truncate">{linkedinLink}</span>
-                        </a>
-                      )}
-                      {githubLink && (
-                        <a href={githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-text-title transition duration-150 py-1">
-                          <GithubIcon size={14} className="text-text-title dark:text-white shrink-0" />
-                          <span className="truncate">{githubLink}</span>
-                        </a>
-                      )}
-                      {twitterLink && (
-                        <a href={twitterLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-text-title transition duration-150 py-1">
-                          <TwitterIcon size={14} className="text-accent-cyan shrink-0" />
-                          <span className="truncate">{twitterLink}</span>
-                        </a>
-                      )}
-                      {websiteLink && (
-                        <a href={websiteLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-text-title transition duration-150 py-1">
-                          <Globe size={14} className="text-accent-purple shrink-0" />
-                          <span className="truncate">{websiteLink}</span>
-                        </a>
-                      )}
+                    {role === "learner" && (
+                      <>
+                        <div className="space-y-2">
+                          <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Focus Interests (Comma-separated)</label>
+                          <input
+                            type="text"
+                            value={interests}
+                            onChange={(e) => setInterests(e.target.value)}
+                            placeholder="e.g. System Design, Distributed Systems"
+                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Learning Goals (Comma-separated)</label>
+                          <input
+                            type="text"
+                            value={learningGoals}
+                            onChange={(e) => setLearningGoals(e.target.value)}
+                            placeholder="e.g. Master Microservices, Deploy Next.js App"
+                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-2">
+                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Education & Credentials</label>
+                      <input
+                        type="text"
+                        value={education}
+                        onChange={(e) => setEducation(e.target.value)}
+                        placeholder="e.g. B.S. Computer Science"
+                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                      />
                     </div>
-                  </SpotlightCard>
+
+                    {role === "learner" && (
+                      <div className="space-y-2">
+                        <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Location</label>
+                        <input
+                          type="text"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          placeholder="e.g. San Francisco, CA"
+                          className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                        />
+                      </div>
+                    )}
+
+                    {/* Social Links Form Inputs */}
+                    <div className="sm:col-span-2 border-t border-white/10 pt-4 mt-2">
+                      <h4 className="font-mono font-bold text-white uppercase text-xs mb-3">Connected Developer Profiles</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-slate-400 text-[11px]">LinkedIn URL</label>
+                          <input
+                            type="text"
+                            value={linkedinLink}
+                            onChange={(e) => setLinkedinLink(e.target.value)}
+                            placeholder="https://linkedin.com/in/username"
+                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-slate-400 text-[11px]">GitHub URL</label>
+                          <input
+                            type="text"
+                            value={githubLink}
+                            onChange={(e) => setGithubLink(e.target.value)}
+                            placeholder="https://github.com/username"
+                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
-              </>
-            )}
+              </div>
 
-            {role === "admin" && (
-              <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl text-left" glowColor="rgba(16, 185, 129, 0.06)">
-                <div className="flex items-center gap-2 border-b border-glass-border/30 pb-3 mb-4">
-                  <Shield size={14} className="text-accent-emerald" />
-                  <h3 className="text-[10px] font-bold tracking-wider text-text-title uppercase">Admin Authorization</h3>
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 border border-white/10 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-futuristic-primary px-6 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95"
+                >
+                  <Save size={14} />
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          /* Enterprise Bento Display Grid */
+          <StaggerContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left Bento Column (Span 4) */}
+            <StaggerItem className="lg:col-span-4 space-y-6">
+              
+              {/* Bio Card */}
+              <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-3 hover:border-purple-400/40 transition">
+                <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
+                  <UserIcon size={16} className="text-purple-400" />
+                  <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Biography</h3>
                 </div>
-                <div className="space-y-2 text-xs font-semibold text-text-muted">
-                  <div>Department: <span className="text-text-title">{profile?.department || "Administration"}</span></div>
-                  <div>Permissions:</div>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {profile?.permissions?.map((p, idx) => (
-                      <span key={idx} className="bg-bg-dark border border-glass-border px-2 py-0.5 rounded text-[10px]">
-                        {p}
+                <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                  {profile?.bio || "No professional biography added yet. Click 'Edit Profile' to add your bio."}
+                </p>
+              </div>
+
+              {/* Skills & Tech Stack Card */}
+              <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4 hover:border-cyan-400/40 transition">
+                <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
+                  <Code2 size={16} className="text-cyan-400" />
+                  <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Skills & Tech Stack</h3>
+                </div>
+
+                {profile?.skills && profile.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-xl text-xs font-mono font-semibold bg-slate-950/80 border border-white/10 text-cyan-300 hover:border-cyan-400/50 transition"
+                      >
+                        {skill}
                       </span>
                     ))}
                   </div>
-                </div>
-              </SpotlightCard>
-            )}
+                ) : (
+                  <p className="text-xs text-slate-400 italic">No skills listed yet.</p>
+                )}
+              </div>
 
-          </div>
-
-          {/* Right Column (lg:8) */}
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* 1. LEARNER VIEW */}
-            {role === "learner" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <SpotlightCard className="p-5 card-tint-mint rounded-xl text-center py-8">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Education</h4>
-                    <p className="text-sm text-text-title mt-2 font-semibold">
-                      {profile?.education || "Not specified"}
-                    </p>
-                  </SpotlightCard>
-                  
-                  <SpotlightCard className="p-5 card-tint-pink rounded-xl text-center py-8">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Location</h4>
-                    <p className="text-sm text-text-title mt-2 font-semibold">
-                      {profile?.location || "Not specified"}
-                    </p>
-                  </SpotlightCard>
-                </div>
-
-                <SpotlightCard className="p-6 card-tint-peach rounded-2xl">
-                  <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
-                    <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest font-display">Learning Goals</h3>
+              {/* Connected Social & Developer Links */}
+              {(linkedinLink || githubLink || twitterLink || websiteLink) && (
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-3.5 hover:border-pink-400/40 transition">
+                  <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
+                    <Globe size={16} className="text-pink-400" />
+                    <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Connected Profiles</h3>
                   </div>
+
+                  <div className="space-y-2.5 text-xs font-mono text-slate-300">
+                    {linkedinLink && (
+                      <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-cyan-300 transition py-1">
+                        <LinkedinIcon size={15} className="text-cyan-400" />
+                        <span className="truncate">{linkedinLink}</span>
+                      </a>
+                    )}
+                    {githubLink && (
+                      <a href={githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-purple-300 transition py-1">
+                        <GithubIcon size={15} className="text-purple-400" />
+                        <span className="truncate">{githubLink}</span>
+                      </a>
+                    )}
+                    {twitterLink && (
+                      <a href={twitterLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-pink-300 transition py-1">
+                        <TwitterIcon size={15} className="text-pink-400" />
+                        <span className="truncate">{twitterLink}</span>
+                      </a>
+                    )}
+                    {websiteLink && (
+                      <a href={websiteLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-emerald-300 transition py-1">
+                        <Globe size={15} className="text-emerald-400" />
+                        <span className="truncate">{websiteLink}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+            </StaggerItem>
+
+            {/* Right Bento Column (Span 8) */}
+            <StaggerItem className="lg:col-span-8 space-y-6">
+              
+              {/* Credentials & Goals Bento Box */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-2">
+                  <div className="flex items-center space-x-2 text-slate-400">
+                    <GraduationCap size={16} className="text-cyan-400" />
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Education</span>
+                  </div>
+                  <p className="text-sm font-bold text-white">{profile?.education || "Not specified"}</p>
+                </div>
+
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-2">
+                  <div className="flex items-center space-x-2 text-slate-400">
+                    <MapPin size={16} className="text-pink-400" />
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Location</span>
+                  </div>
+                  <p className="text-sm font-bold text-white">{profile?.location || "Not specified"}</p>
+                </div>
+
+              </div>
+
+              {/* Learning Goals / Expertise Areas Card */}
+              {role === "learner" && (
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <Sparkles size={16} className="text-purple-400" />
+                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Learning Goals</h3>
+                    </div>
+                  </div>
+
                   {profile?.learningGoals && profile.learningGoals.length > 0 ? (
-                    <ul className="list-disc pl-5 text-xs text-text-main space-y-2 font-semibold">
-                      {profile.learningGoals.map((g, idx) => (
-                        <li key={idx}>{g}</li>
+                    <ul className="space-y-2 text-xs font-medium text-slate-200">
+                      {profile.learningGoals.map((goal, idx) => (
+                        <li key={idx} className="flex items-center space-x-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5">
+                          <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
+                          <span>{goal}</span>
+                        </li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="py-6 text-center text-xs text-text-muted">
-                      No learning goals listed.
-                    </div>
+                    <p className="text-xs text-slate-400 italic">No custom learning goals specified yet.</p>
                   )}
-                </SpotlightCard>
-              </div>
-            )}
-
-            {/* 2. CREATOR VIEW */}
-            {role === "creator" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <SpotlightCard className="p-5 card-tint-mint text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Experience</h4>
-                    <p className="text-lg font-extrabold text-accent-emerald mt-1">
-                      {profile?.experience || 0} years
-                    </p>
-                  </SpotlightCard>
-                  <SpotlightCard className="p-5 card-tint-pink text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Education</h4>
-                    <p className="text-sm font-semibold text-text-title mt-2 truncate">
-                      {profile?.education || "Not specified"}
-                    </p>
-                  </SpotlightCard>
-                  <SpotlightCard className="p-5 card-tint-blue text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Website</h4>
-                    <p className="text-sm font-semibold text-text-title mt-2 truncate">
-                      {profile?.website ? (
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-accent-blue">
-                          Link
-                        </a>
-                      ) : "None"}
-                    </p>
-                  </SpotlightCard>
                 </div>
+              )}
 
-                <SpotlightCard className="p-6 card-tint-peach rounded-2xl">
-                  <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
-                    <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Expertise Areas</h3>
+              {/* Role Credentials (Creator / Expert / Admin) */}
+              {(role === "creator" || role === "expert") && (
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <Award size={16} className="text-amber-400" />
+                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Expertise Areas</h3>
+                    </div>
                   </div>
+
                   {profile?.expertise && profile.expertise.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {profile.expertise.map((exp, idx) => (
-                        <span key={idx} className="bg-bg-dark/40 border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main font-semibold">
+                        <span key={idx} className="px-3 py-1 rounded-xl text-xs font-mono bg-slate-950/60 border border-white/10 text-amber-300">
                           {exp}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <div className="py-6 text-center text-xs text-text-muted">
-                      No expertise areas listed.
-                    </div>
+                    <p className="text-xs text-slate-400 italic">No expertise areas listed.</p>
                   )}
-                </SpotlightCard>
-              </div>
-            )}
-
-            {/* 3. EXPERT VIEW */}
-            {role === "expert" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <SpotlightCard className="p-5 card-tint-pink text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Hourly Rate</h4>
-                    <p className="text-lg font-extrabold text-accent-pink mt-1">
-                      ${profile?.hourlyRate || 0} / hr
-                    </p>
-                  </SpotlightCard>
-                  <SpotlightCard className="p-5 card-tint-mint text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Experience</h4>
-                    <p className="text-lg font-extrabold text-accent-emerald mt-1">
-                      {profile?.experience || 0} years
-                    </p>
-                  </SpotlightCard>
-                  <SpotlightCard className="p-5 card-tint-peach text-center">
-                    <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Availability</h4>
-                    <p className="text-sm font-semibold mt-2">
-                      {profile?.isAvailable ? (
-                        <span className="text-accent-emerald">Available</span>
-                      ) : (
-                        <span className="text-rose-500 font-bold">Unavailable</span>
-                      )}
-                    </p>
-                  </SpotlightCard>
                 </div>
+              )}
 
-                <SpotlightCard className="p-6 card-tint-purple rounded-2xl">
-                  <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
-                    <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">Qualifications</h3>
-                  </div>
-                  {profile?.qualifications && profile.qualifications.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {profile.qualifications.map((q, idx) => (
-                        <span key={idx} className="bg-bg-dark/40 border border-glass-border px-2.5 py-1 rounded-lg text-xs text-text-main font-semibold">
-                          {q}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-6 text-center text-xs text-text-muted">
-                      No qualifications listed.
-                    </div>
-                  )}
-                </SpotlightCard>
-              </div>
-            )}
+            </StaggerItem>
 
-            {/* 4. ADMIN VIEW */}
-            {role === "admin" && (
-              <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl">
-                <div className="flex items-center justify-between pb-3 border-b border-glass-border/30 mb-4">
-                  <h3 className="text-[10px] font-bold text-text-title uppercase tracking-widest">System Administrator</h3>
-                </div>
-                <div className="py-6 text-center text-xs text-text-muted">
-                  Department permissions active. Manage platform configurations directly from your dashboard.
-                </div>
-              </SpotlightCard>
-            )}
+          </StaggerContainer>
+        )}
 
-          </div>
-        </div>
-      )}
-
-    </div>
+        {/* Report User Profile Modal */}
+        {user && (
+          <ReportDialog
+            isOpen={reportDialogOpen}
+            onClose={() => setReportDialogOpen(false)}
+            targetType="user"
+            targetId={user._id}
+            targetTitle={user.name}
+          />
+        )}
+      </div>
+    </PageTransition>
   );
 };
 

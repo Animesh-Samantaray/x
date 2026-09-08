@@ -334,25 +334,8 @@ const AppShell = () => {
   const roleTheme = roleThemeStyles[user?.role || "learner"] || roleThemeStyles.learner;
 
   return (
-    <div className="min-h-screen text-text-main flex flex-col font-sans select-none relative pt-16">
-      {/* RBAC AI Role-Based Fixed Background Layer */}
-      <div className="fixed inset-0 w-full h-full -z-10 overflow-hidden bg-slate-950">
-        <img
-          key={user?.role || "learner"}
-          src={roleTheme.image}
-          alt={`${user?.role || "learner"} background`}
-          className="w-full h-full object-cover opacity-60 dark:opacity-75 filter brightness-110 contrast-105 transition-all duration-700"
-        />
-        {/* Ambient Dark Overlay for Crisp Foreground Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80 pointer-events-none" />
-      </div>
-      <div className="fixed inset-0 dot-grid opacity-15 pointer-events-none -z-10"></div>
-      <div className={`glow-orb w-[600px] h-[600px] ${roleTheme.glow1} top-[-100px] left-[-100px] -z-10`}></div>
-      <div className={`glow-orb w-[600px] h-[600px] ${roleTheme.glow2} bottom-[-100px] right-[-100px] -z-10`}></div>
-
-
-
-      <header className="fixed top-0 left-0 right-0 h-16 border-b border-glass-border bg-bg-deep/80 backdrop-blur-xl z-40 flex items-center justify-between px-4 sm:px-6">
+    <div className="min-h-screen text-text-main flex flex-col font-sans select-none relative pt-16 bg-transparent">
+      <header className="fixed top-0 left-0 right-0 h-16 border-b border-glass-border bg-bg-panel/70 backdrop-blur-xl z-40 flex items-center justify-between px-4 sm:px-6">
         
         <Link
           to={`/${user?.role || "learner"}/dashboard`}

@@ -60,6 +60,20 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+
+    twoFactorOTP: {
+      type: String,
+      select: false,
+    },
+
+    twoFactorOTPExpire: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,

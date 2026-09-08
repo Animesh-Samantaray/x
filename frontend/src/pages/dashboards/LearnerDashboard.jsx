@@ -15,6 +15,7 @@ import Sticker from "../../components/ui/Sticker";
 import LottieAnimation from "../../components/ui/LottieAnimation";
 import { PageTransition, FadeIn, StaggerContainer, StaggerItem } from "../../components/motion/MotionPrimitives";
 import heroBg from "../../assets/images/hero-bg.jpg";
+import learnerImg from "../../assets/images/roles/learner.jpg";
 
 
 import { getMyEnrolledCourses } from "../../services/courseService";
@@ -39,6 +40,7 @@ import {
   PlusCircle,
   Play,
   Sparkles,
+  Eye,
 } from "lucide-react";
 
 const LearnerDashboard = () => {
@@ -199,105 +201,209 @@ const LearnerDashboard = () => {
         ) : error ? (
           <ErrorState message={error} onRetry={fetchData} />
         ) : (
-          <div className="space-y-8 text-left">
-            {/* HERO HERO BANNER WITH REMOTE LOTTIE URL */}
-            <FadeIn>
+          <div className="space-y-6 text-left">
+            {/* ENTERPRISE SAAS ASYMMETRIC BENTO DATA GRID */}
+            <StaggerContainer className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              
+              {/* Bento Cell 1: Enterprise Hero Console & Telemetry Control (Span 7) */}
+              <StaggerItem className="md:col-span-7">
+                <div className="h-full relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl flex flex-col justify-between space-y-6">
+                  {/* Ultra-thin Cyan/Purple Gradient Accent Bar */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500" />
+                  
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Enterprise Pulse Status Pills */}
+                      <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[11px] font-mono font-semibold">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                        </span>
+                        <span>LIVE TELEMETRY SYNCED</span>
+                      </span>
 
-              <div className="relative overflow-hidden rounded-3xl border border-glass-border bg-gradient-to-r from-[#181824]/80 via-[#12132D]/80 to-[#1A1333]/80 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
-                <div className="absolute top-[-50px] right-[-50px] w-80 h-80 bg-accent-purple/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-[-50px] left-[30%] w-60 h-60 bg-accent-cyan/10 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                  <div className="space-y-2 max-w-xl">
-                    <div className="flex items-center gap-2">
-                      <Sticker type="new" text="SaaS EdTech Hub" />
-                      <Sticker type="fast" text="Active Workspace" />
+                      <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
+                        <span>v2.4.0-prod</span>
+                      </span>
                     </div>
-                    <h1 className="hero-heading text-2xl sm:text-3xl font-extrabold tracking-tight">
-                      Ready to master software engineering?
+
+                    <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                      Enterprise Workspace: <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">{user?.name || "Learner"}</span>
                     </h1>
-                    <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-                      Access interactive course units, book 1-on-1 expert mentorship calls, and track your learning progress in real-time.
+
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
+                      High-density operational telemetry. Monitor course progress fractions, manage 1-on-1 expert sessions, and inspect real-time platform activity log.
                     </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Button onClick={() => navigate("/courses")} className="py-2.5 px-5 text-xs font-extrabold shadow-xl bg-gradient-to-r from-accent-purple to-accent-indigo">
-                        Explore Catalog &rarr;
-                      </Button>
-                      <Button onClick={() => navigate("/sessions")} variant="secondary" className="py-2.5 px-4 text-xs font-bold border-accent-cyan/30 text-accent-cyan">
-                        Book Mentor Call
-                      </Button>
-                    </div>
                   </div>
 
-                  {/* Remote Lottie Asset Animation */}
-                  <div className="w-full md:w-56 h-40 shrink-0 flex items-center justify-center bg-bg-panel/40 border border-glass-border rounded-2xl p-2 backdrop-blur-md">
-                    <LottieAnimation
-                      src="https://lottie.host/59435280-e2c0-4333-8725-7a22689304f9/SIoDQHbSAb.lottie"
-                      width="100%"
-                      height="100%"
-                    />
+                  <div className="flex flex-wrap items-center gap-3 pt-2 relative z-10">
+                    <button
+                      onClick={() => navigate("/courses")}
+                      className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+                    >
+                      <Compass size={15} />
+                      <span>Explore Catalog</span>
+                      <ArrowRight size={14} />
+                    </button>
+                    <button
+                      onClick={() => navigate("/sessions")}
+                      className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-900/80 border border-white/10 hover:border-cyan-400/40 backdrop-blur-xl transition-all duration-200 flex items-center space-x-2 cursor-pointer active:scale-95"
+                    >
+                      <Video size={15} className="text-cyan-400" />
+                      <span>Schedule Expert Call</span>
+                    </button>
                   </div>
                 </div>
-              </div>
-            </FadeIn>
+              </StaggerItem>
 
+              {/* Bento Cell 2: System Telemetry & Progress Fraction (Span 5) */}
+              <StaggerItem className="md:col-span-5">
+                <div className="h-full p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-2xl flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400">Completion Fraction</span>
+                    </div>
+                    <span className="text-2xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">{overallProgressPct}%</span>
+                  </div>
 
-            {/* STATS OVERVIEW GRID WITH STAGGER REVEAL */}
-            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-              <StaggerItem>
-                <StatCard
-                  title="Enrolled Courses"
-                  value={totalEnrolled}
-                  subtext={`${totalEnrolled} total courses enrolled`}
-                  icon={BookOpen}
-                  color="blue"
-                />
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold text-slate-300">
+                      <span>Curriculum Rate</span>
+                      <span className="font-mono text-cyan-300">{completedCoursesCount} / {totalEnrolled} Units</span>
+                    </div>
+                    <div className="w-full h-3 bg-slate-950/90 rounded-full overflow-hidden border border-white/10 p-0.5">
+                      <div
+                        className="h-full glowing-progress-track rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${Math.max(overallProgressPct, 5)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                    <div className="p-3 rounded-2xl bg-slate-950/60 border border-white/5">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                        <span>IN PROGRESS</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                      </div>
+                      <div className="text-lg font-bold text-white mt-1">{inProgressCount} Active</div>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-950/60 border border-white/5">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                        <span>SAVED UNITS</span>
+                        <Bookmark size={10} className="text-cyan-400" />
+                      </div>
+                      <div className="text-lg font-bold text-cyan-400 mt-1">{totalBookmarks} Bookmarks</div>
+                    </div>
+                  </div>
+                </div>
               </StaggerItem>
-              <StaggerItem>
-                <StatCard
-                  title="In Progress"
-                  value={inProgressCount}
-                  subtext="Active learning modules"
-                  icon={Clock}
-                  color="purple"
-                />
+
+              {/* Bento Cell 3: Actionable Active Course Module (Span 7) */}
+              <StaggerItem className="md:col-span-7">
+                <div className="h-full p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-2xl flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400">
+                        <BookOpen size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Primary Active Work Item</h3>
+                        <p className="text-[10px] text-slate-400">Continue course execution</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setActiveTab("courses")}
+                      className="text-xs font-mono text-purple-400 hover:text-purple-300 flex items-center space-x-1"
+                    >
+                      <span>View All ({enrolledCourses.length})</span>
+                      <ArrowRight size={12} />
+                    </button>
+                  </div>
+
+                  {activeCoursesToContinue.length > 0 ? (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-950/70 border border-white/10">
+                      <div className="flex items-center space-x-3.5 min-w-0">
+                        <div className="h-12 w-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold shrink-0 shadow-inner">
+                          <Play size={20} className="fill-purple-400/30 text-purple-400 ml-0.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">{activeCoursesToContinue[0].title}</h4>
+                          <p className="text-[11px] text-slate-400 flex items-center space-x-2 mt-1">
+                            <span>Author: {activeCoursesToContinue[0].instructor?.name || "Instructor"}</span>
+                            <span>•</span>
+                            <span className="text-cyan-400 font-mono font-semibold">
+                              {progressMap[activeCoursesToContinue[0]._id]?.percentage || 0}% Complete
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/learn/${activeCoursesToContinue[0]._id}`)}
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:opacity-95 text-white text-xs font-bold transition duration-200 shadow-md shrink-0 cursor-pointer active:scale-95"
+                      >
+                        Resume Execution
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-2xl bg-slate-950/50 border border-dashed border-white/10 text-center">
+                      <p className="text-xs text-slate-400 font-medium">All enrolled masterclasses completed!</p>
+                      <button onClick={() => navigate("/courses")} className="mt-2 text-xs font-bold text-cyan-400 hover:underline">
+                        Explore Catalog →
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5 font-mono">
+                    <span className="flex items-center space-x-1.5">
+                      <CheckCircle size={13} className="text-emerald-400" />
+                      <span>Verified Certificates Enabled</span>
+                    </span>
+                    <span className="text-slate-500">ID: {user?._id?.substring(0, 8) || "CKM-001"}</span>
+                  </div>
+                </div>
               </StaggerItem>
-              <StaggerItem>
-                <StatCard
-                  title="Completed"
-                  value={completedCoursesCount}
-                  subtext="Mastered courses"
-                  icon={Award}
-                  color="emerald"
-                />
+
+              {/* Bento Cell 4: Enterprise Mentorship Telemetry (Span 5) */}
+              <StaggerItem className="md:col-span-5">
+                <div className="h-full p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-pink-400/40 transition duration-300 backdrop-blur-2xl flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="p-2 rounded-xl bg-pink-500/10 border border-pink-500/30 text-pink-400">
+                        <Video size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Mentorship Telemetry</h3>
+                        <p className="text-[10px] text-slate-400">Scheduled 1-on-1 calls</p>
+                      </div>
+                    </div>
+
+                    <span className="text-xs font-mono font-bold text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded-full border border-pink-500/30">
+                      {upcomingSessionsCount} Active
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-300 font-semibold">Available Expert Slots</span>
+                      <span className="text-emerald-400 font-mono text-[11px]">● Operational</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Connect with domain leads for code reviews, architectural advice, and career guidance.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => navigate("/sessions")}
+                    className="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-white/10 text-white text-xs font-bold transition duration-200 cursor-pointer flex items-center justify-center space-x-2 active:scale-95"
+                  >
+                    <PlusCircle size={14} className="text-pink-400" />
+                    <span>Schedule Mentorship Call</span>
+                  </button>
+                </div>
               </StaggerItem>
-              <StaggerItem>
-                <StatCard
-                  title="Overall Progress"
-                  value={`${overallProgressPct}%`}
-                  subtext="Average completion"
-                  icon={TrendingUp}
-                  color="cyan"
-                />
-              </StaggerItem>
-              <StaggerItem>
-                <StatCard
-                  title="Bookmarks"
-                  value={totalBookmarks}
-                  subtext="Saved resources & units"
-                  icon={Bookmark}
-                  color="pink"
-                />
-              </StaggerItem>
-              <StaggerItem>
-                <StatCard
-                  title="Mentorship"
-                  value={upcomingSessionsCount}
-                  subtext="Upcoming & pending calls"
-                  icon={Video}
-                  color="orange"
-                />
-              </StaggerItem>
+
             </StaggerContainer>
 
             {/* DASHBOARD TAB SUB-NAV */}
@@ -403,12 +509,21 @@ const LearnerDashboard = () => {
                                       {completedCount} / {totalUnits} units completed
                                     </p>
                                   )}
-                                  <Button
-                                    onClick={() => navigate(`/courses/${course._id}/learn`)}
-                                    className="w-full text-xs py-1.5 px-3 mt-2 flex items-center justify-center gap-1.5 bg-gradient-to-r from-accent-purple to-accent-indigo"
-                                  >
-                                    Continue <ArrowRight size={12} />
-                                  </Button>
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <Button
+                                      onClick={() => navigate(`/courses/${course._id}`)}
+                                      variant="secondary"
+                                      className="flex-1 text-[11px] py-1.5 px-2 flex items-center justify-center gap-1 border-glass-border hover:bg-glass-border"
+                                    >
+                                      <Eye size={12} /> View
+                                    </Button>
+                                    <Button
+                                      onClick={() => navigate(`/courses/${course._id}/learn`)}
+                                      className="flex-1 text-[11px] py-1.5 px-2 flex items-center justify-center gap-1 bg-gradient-to-r from-accent-purple to-accent-indigo"
+                                    >
+                                      Continue <ArrowRight size={12} />
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                             </SpotlightCard>

@@ -6,6 +6,7 @@ import MainLayout from "./layouts/MainLayout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Verify2FA from "./pages/Verify2FA";
 import Profile from "./pages/Profile";
 import Resources from "./pages/Resources";
 import MyResources from "./pages/MyResources";
@@ -34,6 +35,8 @@ import ExpertDashboard from "./pages/dashboards/ExpertDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import DashboardRedirect from "./pages/dashboards/DashboardRedirect";
+import MyReports from "./pages/MyReports";
+import ReportsManagement from "./pages/admin/ReportsManagement";
 
 const App = () => {
   return (
@@ -45,6 +48,7 @@ const App = () => {
             <Route index element={<Landing />} />
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
+            <Route path="verify-2fa" element={<Verify2FA />} />
 
             {/* General & Role-Based Dashboard Routes */}
             <Route
@@ -92,6 +96,22 @@ const App = () => {
               element={
                 <ProtectedRoute role="admin">
                   <AdminPaymentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/reports"
+              element={
+                <ProtectedRoute role="admin">
+                  <ReportsManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports"
+              element={
+                <ProtectedRoute>
+                  <MyReports />
                 </ProtectedRoute>
               }
             />

@@ -40,6 +40,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await authService.login(email, password);
+      if (data.success && data.requires2FA) {
+        return { success: true, requires2FA: true, message: data.message };
+      }
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
@@ -48,11 +51,31 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem("token", data.token);
         }
         initSocket(token);
-        return { success: true };
+        return { success: true, requires2FA: false };
       }
       return { success: false, message: data.message || "Login failed" };
     } catch (error) {
       const message = error.response?.data?.message || "Invalid credentials or network error";
+      return { success: false, message };
+    }
+  };
+
+  const verify2FA = async (email, otp) => {
+    try {
+      const data = await authService.verify2FA(email, otp);
+      if (data.success && data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        const token = data.token || localStorage.getItem("token");
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        initSocket(token);
+        return { success: true, user: data.user };
+      }
+      return { success: false, message: data.message || "2FA verification failed" };
+    } catch (error) {
+      const message = error.response?.data?.message || "Verification failed. Please try again.";
       return { success: false, message };
     }
   };
@@ -99,6 +122,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAuthenticated,
         login,
+        verify2FA,
         signup,
         logout,
         getCurrentUser,

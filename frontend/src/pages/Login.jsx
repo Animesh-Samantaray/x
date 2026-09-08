@@ -116,7 +116,9 @@ const Login = () => {
       setError("");
       
       const result = await login(formData.email.trim(), formData.password);
-      if (result.success) {
+      if (result.success && result.requires2FA) {
+        navigate("/verify-2fa", { state: { email: formData.email.trim() } });
+      } else if (result.success) {
         navigate("/dashboard");
       } else {
         setError(result.message);

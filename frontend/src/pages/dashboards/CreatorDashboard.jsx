@@ -30,6 +30,8 @@ import {
   DollarSign
 } from "lucide-react";
 
+import creatorImg from "../../assets/images/roles/creator.jpg";
+
 const CreatorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -129,7 +131,7 @@ const CreatorDashboard = () => {
 
   return (
     <DashboardLayout
-      title={`Creator Control Center — ${user?.name || "Creator"}`}
+      title={`Creator Studio — ${user?.name || "Creator"}`}
       subtitle="Publish masterclasses, release developer tools, and manage enrolled learners."
       actions={
         <div className="flex items-center gap-2">
@@ -147,41 +149,95 @@ const CreatorDashboard = () => {
       ) : error ? (
         <ErrorState message={error} onRetry={fetchData} />
       ) : (
-        <div className="space-y-8 text-left">
-          {/* STATS OVERVIEW GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Total Income"
-              value={`₹${totalEarnings.toLocaleString("en-IN")}`}
-              subtext="Total course sales revenue"
-              icon={DollarSign}
-              color="emerald"
-            />
-            <StatCard
-              title="Total Courses"
-              value={totalCourses}
-              subtext={`${publishedCourses} live / ${draftCourses} draft`}
-              icon={BookOpen}
-              color="purple"
-            />
-            <StatCard
-              title="Enrolled Learners"
-              value={totalEnrolledLearners}
-              subtext="Across all courses"
-              icon={Users}
-              color="blue"
-            />
-            <StatCard
-              title="Total Resources"
-              value={totalResources}
-              subtext="Uploaded guides & tools"
-              icon={FileText}
-              color="cyan"
-            />
+        <div className="space-y-6 text-left">
+          {/* ENTERPRISE CREATOR STUDIO HERO WORKSPACE CONSOLE */}
+          <div className="relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
+            {/* Top Accent Gradient Bar */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-3 max-w-2xl">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-400/30 text-purple-300 text-[11px] font-mono font-semibold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
+                    </span>
+                    <span>AUTHORING STUDIO LIVE</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
+                    <span>Monetization Active</span>
+                  </span>
+                </div>
+
+                <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                  Creator Studio: <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">{user?.name || "Creator"}</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
+                  Author masterclasses, track course sales revenue, publish developer resources, and manage learner analytics.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => navigate("/courses/new")}
+                  className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+                >
+                  <PlusCircle size={15} />
+                  <span>Create Masterclass</span>
+                </button>
+                <button
+                  onClick={() => navigate("/resources/new")}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-900/80 border border-white/10 hover:border-cyan-400/40 backdrop-blur-xl transition-all duration-200 flex items-center space-x-2 cursor-pointer active:scale-95"
+                >
+                  <PlusCircle size={15} className="text-cyan-400" />
+                  <span>Upload Resource</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* HIGH-DENSITY ENTERPRISE CREATOR METRICS BENTO STRIP */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-emerald-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Accrued Revenue</span>
+                <DollarSign size={16} className="text-emerald-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-emerald-400 font-mono">₹{totalEarnings.toLocaleString("en-IN")}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Platform sales payouts</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Authoring Units</span>
+                <BookOpen size={16} className="text-purple-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{totalCourses}</div>
+              <p className="text-[10px] text-slate-400 font-medium">{publishedCourses} published • {draftCourses} draft</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Enrolled Community</span>
+                <Users size={16} className="text-cyan-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-cyan-300 font-mono">{totalEnrolledLearners}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Active enrolled students</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-pink-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Developer Tools</span>
+                <FileText size={16} className="text-pink-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{totalResources}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Code packages & guides</p>
+            </div>
           </div>
 
           {/* DASHBOARD TAB SUB-NAV */}
-          <div className="flex items-center space-x-2 border-b border-glass-border/40 pb-2">
+          <div className="flex items-center space-x-2 border-b border-white/10 pb-2">
             {[
               { id: "overview", label: "Overview" },
               { id: "courses", label: `Course Catalog (${totalCourses})` },
@@ -192,8 +248,8 @@ const CreatorDashboard = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 text-xs font-bold rounded-xl transition duration-150 cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-accent-purple text-white shadow-md shadow-purple-900/30"
-                    : "text-text-muted hover:text-text-title hover:bg-glass-border/40"
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-950/40 border border-purple-500/30"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {tab.label}
