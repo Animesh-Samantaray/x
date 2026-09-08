@@ -10,6 +10,7 @@ import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
 import UserManagement from "../../components/UserManagement";
 import Categories from "../Categories";
+import ReportsManagement from "../admin/ReportsManagement";
 
 import { getAllUsers } from "../../services/adminApi";
 import { getAllCourses, deleteCourse } from "../../services/courseService";
@@ -33,6 +34,7 @@ import {
   PlusCircle,
   AlertCircle
 } from "lucide-react";
+import adminImg from "../../assets/images/roles/admin.jpg";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -168,47 +170,94 @@ const AdminDashboard = () => {
       ) : error ? (
         <ErrorState message={error} onRetry={fetchData} />
       ) : (
-        <div className="space-y-8 text-left">
-          {/* STATS OVERVIEW GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Total Platform Users"
-              value={totalUsers}
-              subtext={`${statLearners} Learners • ${statCreators} Creators • ${statExperts} Experts`}
-              icon={Users}
-              color="emerald"
-            />
-            <StatCard
-              title="Total Masterclasses"
-              value={totalCourses}
-              subtext={`${totalEnrollments} total student enrollments`}
-              icon={BookOpen}
-              color="purple"
-            />
-            <StatCard
-              title="Total Resources"
-              value={totalResources}
-              subtext="Platform technical packages"
-              icon={FileText}
-              color="cyan"
-            />
-            <StatCard
-              title="Active Categories"
-              value={totalCategories}
-              subtext="Content taxonomy tags"
-              icon={Layers}
-              color="orange"
-            />
+        <div className="space-y-6 text-left">
+          {/* ENTERPRISE ADMIN OPERATIONS CONSOLE */}
+          <div className="relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
+            {/* Top Accent Gradient Bar */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-400 via-cyan-400 to-indigo-500" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-3 max-w-2xl">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-[11px] font-mono font-semibold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                    </span>
+                    <span>PLATFORM DIAGNOSTICS OPERATIONAL</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
+                    <span>Admin Controls Active</span>
+                  </span>
+                </div>
+
+                <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                  System Health & Moderation Console.
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
+                  Manage user directory permissions, moderate reported platform content, audit transactions, and manage platform taxonomy.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => setActiveTab("moderation")}
+                  className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+                >
+                  <Shield size={15} />
+                  <span>Moderation Queue</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* HIGH-DENSITY ENTERPRISE ADMIN METRICS STRIP */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-emerald-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">User Directory</span>
+                <Users size={16} className="text-emerald-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white font-mono">{totalUsers}</div>
+              <p className="text-[10px] text-slate-400 font-medium">{statLearners} Learners • {statCreators} Creators • {statExperts} Experts</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Catalog Masterclasses</span>
+                <BookOpen size={16} className="text-purple-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{totalCourses}</div>
+              <p className="text-[10px] text-slate-400 font-medium">{totalEnrollments} student enrollments</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Technical Resources</span>
+                <FileText size={16} className="text-cyan-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-cyan-300 font-mono">{totalResources}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Platform resource units</p>
+            </div>
+
+            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-amber-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Taxonomy Categories</span>
+                <Layers size={16} className="text-amber-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{totalCategories}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Active tags</p>
+            </div>
           </div>
 
           {/* DASHBOARD TAB SUB-NAV */}
-          <div className="flex items-center space-x-2 border-b border-glass-border/40 pb-2 overflow-x-auto">
+          <div className="flex items-center space-x-2 border-b border-white/10 pb-2 overflow-x-auto">
             {[
-              { id: "overview", label: "System Overview" },
-              { id: "users", label: `User Management (${totalUsers})` },
+              { id: "overview", label: "Analytics & System Health" },
+              { id: "users", label: `User Directory (${totalUsers})` },
               { id: "courses", label: `Course Catalog (${totalCourses})` },
-              { id: "content", label: `Resource Catalog (${totalResources})` },
-              { id: "categories", label: `Taxonomy Categories (${totalCategories})` },
+              { id: "content", label: `Resource Units (${totalResources})` },
+              { id: "categories", label: `Taxonomy (${totalCategories})` },
               { id: "moderation", label: "Moderation Queue" },
             ].map((tab) => (
               <button
@@ -216,8 +265,8 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 text-xs font-bold rounded-xl transition duration-150 whitespace-nowrap cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-accent-emerald text-white shadow-md shadow-emerald-900/30"
-                    : "text-text-muted hover:text-text-title hover:bg-glass-border/40"
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-950/40 border border-emerald-500/30"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {tab.label}
@@ -225,67 +274,164 @@ const AdminDashboard = () => {
             ))}
           </div>
 
-          {/* SYSTEM OVERVIEW TAB */}
+          {/* HIGH-PERFORMANCE ANALYTICS & SYSTEM OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* User Breakdown */}
+              
+              {/* Analytics Section (Span 8) */}
               <div className="lg:col-span-8 space-y-6">
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(16, 185, 129, 0.08)">
-                  <h3 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/30 pb-3 mb-4">
-                    User Role Breakdown
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                    <div className="p-4 bg-bg-darker border border-glass-border rounded-xl">
-                      <span className="text-[10px] font-bold text-accent-blue uppercase">Learners</span>
-                      <div className="text-xl font-extrabold text-text-title mt-1">{statLearners}</div>
+                
+                {/* User Role Distribution Telemetry */}
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <BarChart3 size={16} className="text-emerald-400" />
+                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                        Platform User Demographics Telemetry
+                      </h3>
                     </div>
-                    <div className="p-4 bg-bg-darker border border-glass-border rounded-xl">
-                      <span className="text-[10px] font-bold text-accent-emerald uppercase">Creators</span>
-                      <div className="text-xl font-extrabold text-text-title mt-1">{statCreators}</div>
-                    </div>
-                    <div className="p-4 bg-bg-darker border border-glass-border rounded-xl">
-                      <span className="text-[10px] font-bold text-accent-pink uppercase">Experts</span>
-                      <div className="text-xl font-extrabold text-text-title mt-1">{statExperts}</div>
-                    </div>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      {totalUsers} Accounts Total
+                    </span>
                   </div>
-                </SpotlightCard>
 
-                {/* Platform Diagnostics Log */}
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(16, 185, 129, 0.06)">
-                  <h3 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/30 pb-3 mb-4">
-                    System Health & API Status
-                  </h3>
-                  <div className="font-mono text-[11px] text-text-muted space-y-2 max-h-48 overflow-y-auto bg-bg-darker p-4 rounded-xl border border-glass-border/40">
-                    <p className="text-accent-emerald">[OK] MongoDB Database Connection: Active</p>
-                    <p className="text-accent-cyan">[OK] Express API Services: Running on port 5000</p>
-                    <p className="text-accent-purple">[OK] Authentication JWT Secret: Verified</p>
-                    <p className="text-accent-orange">[OK] File Storage Subsystem: Ready</p>
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                      <span className="text-[10px] font-mono font-bold text-blue-400 uppercase">Learners</span>
+                      <div className="text-2xl font-black text-white font-mono">{statLearners}</div>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {totalUsers > 0 ? Math.round((statLearners / totalUsers) * 100) : 0}% of platform
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                      <span className="text-[10px] font-mono font-bold text-purple-400 uppercase">Creators</span>
+                      <div className="text-2xl font-black text-white font-mono">{statCreators}</div>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {totalUsers > 0 ? Math.round((statCreators / totalUsers) * 100) : 0}% of platform
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                      <span className="text-[10px] font-mono font-bold text-pink-400 uppercase">Experts</span>
+                      <div className="text-2xl font-black text-white font-mono">{statExperts}</div>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {totalUsers > 0 ? Math.round((statExperts / totalUsers) * 100) : 0}% of platform
+                      </p>
+                    </div>
                   </div>
-                </SpotlightCard>
+
+                  {/* Multi-Color Percentage Visual Bar */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                      <span>ROLE DISTRIBUTION BREAKDOWN</span>
+                      <span>100% ACCOUNT POOL</span>
+                    </div>
+                    <div className="w-full h-3 rounded-full bg-slate-950 border border-white/10 overflow-hidden flex">
+                      <div
+                        className="h-full bg-blue-500 transition-all duration-500"
+                        style={{ width: `${totalUsers > 0 ? (statLearners / totalUsers) * 100 : 0}%` }}
+                        title="Learners"
+                      />
+                      <div
+                        className="h-full bg-purple-500 transition-all duration-500"
+                        style={{ width: `${totalUsers > 0 ? (statCreators / totalUsers) * 100 : 0}%` }}
+                        title="Creators"
+                      />
+                      <div
+                        className="h-full bg-pink-500 transition-all duration-500"
+                        style={{ width: `${totalUsers > 0 ? (statExperts / totalUsers) * 100 : 0}%` }}
+                        title="Experts"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content & Ecosystem Analytics */}
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp size={16} className="text-cyan-400" />
+                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                        Ecosystem Throughput Analytics
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-cyan-400">Real-time DB Telemetry</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase">Avg Enrollments / Course</span>
+                      <div className="text-xl font-bold text-white font-mono">
+                        {totalCourses > 0 ? (totalEnrollments / totalCourses).toFixed(1) : 0}
+                      </div>
+                      <p className="text-[10px] text-emerald-400">Active engagement rate</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase">Content Units per Category</span>
+                      <div className="text-xl font-bold text-white font-mono">
+                        {totalCategories > 0 ? ((totalCourses + totalResources) / totalCategories).toFixed(1) : 0}
+                      </div>
+                      <p className="text-[10px] text-cyan-400">Taxonomy density</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Server Stats */}
+              {/* Quick Admin Actions & Operations (Span 4) */}
               <div className="lg:col-span-4 space-y-6">
-                <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl" glowColor="rgba(16, 185, 129, 0.04)">
-                  <h3 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/30 pb-3 mb-4">
-                    Quick Admin Actions
+                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
+                  <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider border-b border-white/10 pb-3">
+                    Administrative Command Suite
                   </h3>
                   <div className="space-y-2.5">
-                    <Button onClick={() => setActiveTab("users")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <Users size={14} className="text-accent-emerald" />
-                      Manage Platform Users
-                    </Button>
-                    <Button onClick={() => setActiveTab("courses")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <BookOpen size={14} className="text-accent-purple" />
-                      Moderate Courses
-                    </Button>
-                    <Button onClick={() => setActiveTab("content")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <FileText size={14} className="text-accent-cyan" />
-                      Moderate Technical Resources
-                    </Button>
+                    <button
+                      onClick={() => setActiveTab("users")}
+                      className="w-full text-xs font-semibold py-2.5 px-3.5 rounded-xl bg-slate-950/60 hover:bg-white/10 border border-white/10 text-white flex items-center justify-between transition cursor-pointer"
+                    >
+                      <span className="flex items-center space-x-2">
+                        <Users size={14} className="text-emerald-400" />
+                        <span>Manage User Directory</span>
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400">{totalUsers}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("courses")}
+                      className="w-full text-xs font-semibold py-2.5 px-3.5 rounded-xl bg-slate-950/60 hover:bg-white/10 border border-white/10 text-white flex items-center justify-between transition cursor-pointer"
+                    >
+                      <span className="flex items-center space-x-2">
+                        <BookOpen size={14} className="text-purple-400" />
+                        <span>Moderate Masterclasses</span>
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400">{totalCourses}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("content")}
+                      className="w-full text-xs font-semibold py-2.5 px-3.5 rounded-xl bg-slate-950/60 hover:bg-white/10 border border-white/10 text-white flex items-center justify-between transition cursor-pointer"
+                    >
+                      <span className="flex items-center space-x-2">
+                        <FileText size={14} className="text-cyan-400" />
+                        <span>Technical Resources</span>
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400">{totalResources}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("moderation")}
+                      className="w-full text-xs font-semibold py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 flex items-center justify-between transition cursor-pointer"
+                    >
+                      <span className="flex items-center space-x-2">
+                        <Shield size={14} className="text-emerald-400" />
+                        <span>Audit Reports Queue</span>
+                      </span>
+                      <span className="font-mono text-[10px] text-emerald-300">Active</span>
+                    </button>
                   </div>
-                </SpotlightCard>
+                </div>
               </div>
+
             </div>
           )}
 
@@ -297,38 +443,38 @@ const AdminDashboard = () => {
           {/* COURSE CATALOG TAB */}
           {activeTab === "courses" && (
             <div className="space-y-6">
-              <div className="overflow-x-auto border border-glass-border rounded-2xl bg-glass-card">
-                <table className="w-full text-left text-xs border-collapse">
+              <div className="overflow-x-auto rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl shadow-xl">
+                <table className="w-full text-left text-xs border-collapse font-sans">
                   <thead>
-                    <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">
-                      <th className="px-6 py-4">Course</th>
-                      <th className="px-6 py-4">Creator</th>
-                      <th className="px-6 py-4">Category</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Enrolled</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
+                    <tr className="border-b border-white/10 bg-slate-950/80 font-mono font-bold uppercase text-[10px] tracking-wider text-slate-400">
+                      <th className="px-6 py-4">Course Unit</th>
+                      <th className="px-6 py-4">Author</th>
+                      <th className="px-6 py-4">Category Tag</th>
+                      <th className="px-6 py-4">Status Telemetry</th>
+                      <th className="px-6 py-4">Enrolled Students</th>
+                      <th className="px-6 py-4 text-right">Moderation Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-glass-border/30">
+                  <tbody className="divide-y divide-white/5 font-medium">
                     {courses.map((course) => (
-                      <tr key={course._id} className="hover:bg-glass-border/20 transition duration-150">
-                        <td className="px-6 py-4 font-bold text-text-title">{course.title}</td>
-                        <td className="px-6 py-4 text-text-main">{course.creator?.name || "System"}</td>
-                        <td className="px-6 py-4 text-accent-purple font-semibold">{course.category?.name || "Uncategorized"}</td>
+                      <tr key={course._id} className="hover:bg-white/5 transition duration-150">
+                        <td className="px-6 py-4 font-bold text-white">{course.title}</td>
+                        <td className="px-6 py-4 text-slate-300">{course.creator?.name || "System"}</td>
+                        <td className="px-6 py-4 text-purple-400 font-mono font-semibold">{course.category?.name || "Uncategorized"}</td>
                         <td className="px-6 py-4">
-                          <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border ${
-                            course.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                          <span className={`text-[9px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                            course.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"
                           }`}>
-                            {course.status || "draft"}
+                            ● {course.status || "draft"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-text-main font-bold">{course.enrolledStudents?.length || 0}</td>
+                        <td className="px-6 py-4 text-cyan-300 font-mono font-bold">{course.enrolledStudents?.length || 0}</td>
                         <td className="px-6 py-4 text-right space-x-2">
-                          <button onClick={() => navigate(`/courses/${course._id}`)} className="text-[10px] border border-glass-border hover:bg-glass-border px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                            View
+                          <button onClick={() => navigate(`/courses/${course._id}`)} className="text-[10px] font-mono border border-white/10 hover:border-cyan-400/40 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl font-bold uppercase transition cursor-pointer active:scale-95">
+                            Inspect
                           </button>
-                          <button onClick={() => handleDeleteCourse(course._id)} className="text-[10px] border border-rose-500/30 bg-rose-500/5 text-rose-400 px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                            Delete
+                          <button onClick={() => handleDeleteCourse(course._id)} className="text-[10px] font-mono border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl font-bold uppercase transition cursor-pointer active:scale-95">
+                            Purge
                           </button>
                         </td>
                       </tr>
@@ -342,22 +488,22 @@ const AdminDashboard = () => {
           {/* RESOURCE CATALOG TAB */}
           {activeTab === "content" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-bg-darker border border-glass-border p-4 rounded-2xl">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-4 backdrop-blur-2xl">
                 <div className="md:col-span-8 relative">
                   <input
                     type="text"
-                    placeholder="Search resources by title, author..."
+                    placeholder="Search technical packages by title, author..."
                     value={resourceSearchQuery}
                     onChange={(e) => setResourceSearchQuery(e.target.value)}
-                    className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5"
+                    className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2.5 bg-slate-950/70 border-white/10 text-white placeholder-slate-500"
                   />
-                  <Search size={14} className="absolute left-3 top-3.5 text-text-muted" />
+                  <Search size={14} className="absolute left-3 top-3.5 text-cyan-400" />
                 </div>
                 <div className="md:col-span-4 text-xs">
                   <select
                     value={resourceStatusFilter}
                     onChange={(e) => setResourceStatusFilter(e.target.value)}
-                    className="w-full form-input rounded-xl p-2.5 bg-bg-dark cursor-pointer text-text-title border-glass-border"
+                    className="w-full rounded-xl p-2.5 bg-slate-950/90 cursor-pointer text-white border border-white/10 outline-none"
                   >
                     <option value="all">All Statuses</option>
                     <option value="draft">Drafts</option>
@@ -367,46 +513,46 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-glass-border rounded-2xl bg-glass-card">
-                <table className="w-full border-collapse text-xs text-left">
+              <div className="overflow-x-auto rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl shadow-xl">
+                <table className="w-full border-collapse text-xs text-left font-sans">
                   <thead>
-                    <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">
-                      <th className="px-6 py-4">Resource</th>
+                    <tr className="border-b border-white/10 bg-slate-950/80 font-mono font-bold uppercase text-[10px] tracking-wider text-slate-400">
+                      <th className="px-6 py-4">Resource Package</th>
                       <th className="px-6 py-4">Creator</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Files</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
+                      <th className="px-6 py-4">Status Telemetry</th>
+                      <th className="px-6 py-4">Files Payload</th>
+                      <th className="px-6 py-4 text-right">Moderation Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-glass-border/30">
+                  <tbody className="divide-y divide-white/5 font-medium">
                     {filteredAdminResources.map((item) => (
-                      <tr key={item._id} className="hover:bg-glass-border/20 transition duration-150">
-                        <td className="px-6 py-4 font-bold text-text-title">{item.title}</td>
-                        <td className="px-6 py-4 text-text-main">{item.createdBy?.name || "System"}</td>
+                      <tr key={item._id} className="hover:bg-white/5 transition duration-150">
+                        <td className="px-6 py-4 font-bold text-white">{item.title}</td>
+                        <td className="px-6 py-4 text-slate-300">{item.createdBy?.name || "System"}</td>
                         <td className="px-6 py-4">
-                          <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border ${
-                            item.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                          <span className={`text-[9px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                            item.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" : "bg-amber-500/10 text-amber-400 border-amber-500/30"
                           }`}>
-                            {item.status}
+                            ● {item.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-text-muted">{item.documents?.length || 0} Docs</td>
+                        <td className="px-6 py-4 text-slate-400 font-mono">{item.documents?.length || 0} Docs</td>
                         <td className="px-6 py-4 text-right space-x-2">
-                          <button onClick={() => navigate(`/resources/${item._id}`)} className="text-[10px] border border-glass-border hover:bg-glass-border px-2.5 py-1 rounded font-bold uppercase cursor-pointer">
-                            View
+                          <button onClick={() => navigate(`/resources/${item._id}`)} className="text-[10px] font-mono border border-white/10 hover:border-cyan-400/40 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl font-bold uppercase cursor-pointer active:scale-95">
+                            Inspect
                           </button>
                           {item.status !== "published" && (
-                            <button onClick={() => handlePublishResource(item._id)} className="text-[10px] border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded font-bold uppercase cursor-pointer">
+                            <button onClick={() => handlePublishResource(item._id)} className="text-[10px] font-mono border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 px-3 py-1.5 rounded-xl font-bold uppercase cursor-pointer active:scale-95">
                               Publish
                             </button>
                           )}
                           {item.status !== "archived" && (
-                            <button onClick={() => handleArchiveResource(item._id)} className="text-[10px] border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded font-bold uppercase cursor-pointer">
+                            <button onClick={() => handleArchiveResource(item._id)} className="text-[10px] font-mono border border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 px-3 py-1.5 rounded-xl font-bold uppercase cursor-pointer active:scale-95">
                               Archive
                             </button>
                           )}
-                          <button onClick={() => handleDeleteResource(item._id)} className="text-[10px] border border-rose-500/30 text-rose-400 px-2.5 py-1 rounded font-bold uppercase cursor-pointer">
-                            Delete
+                          <button onClick={() => handleDeleteResource(item._id)} className="text-[10px] font-mono border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl font-bold uppercase cursor-pointer active:scale-95">
+                            Purge
                           </button>
                         </td>
                       </tr>
@@ -421,14 +567,7 @@ const AdminDashboard = () => {
           {activeTab === "categories" && <Categories />}
 
           {/* MODERATION QUEUE TAB */}
-          {activeTab === "moderation" && (
-            <EmptyState
-              icon={Shield}
-              title="Moderation queue is clean"
-              description="There are currently no reported comments, flagged reviews, or disputes requiring admin moderation."
-              glowColor="rgba(16, 185, 129, 0.08)"
-            />
-          )}
+          {activeTab === "moderation" && <ReportsManagement />}
         </div>
       )}
     </DashboardLayout>

@@ -11,6 +11,7 @@ import SpotlightCard from "../SpotlightCard";
 import Button from "../Button";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
+import ReportDialog from "../reports/ReportDialog";
 import {
   Star,
   MessageSquare,
@@ -39,6 +40,7 @@ const ReviewList = ({
   const [myReview, setMyReview] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
+  const [reportingReview, setReportingReview] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -381,6 +383,7 @@ const ReviewList = ({
                   isAdmin={isAdmin}
                   onEdit={() => setEditingReview(rev)}
                   onDelete={(id) => setConfirmDeleteId(id)}
+                  onReport={(r) => setReportingReview(r)}
                   deleting={deletingId === rev._id}
                 />
               );
@@ -388,6 +391,17 @@ const ReviewList = ({
           </div>
         )}
       </div>
+
+      {/* Report Review Modal */}
+      {reportingReview && (
+        <ReportDialog
+          isOpen={Boolean(reportingReview)}
+          onClose={() => setReportingReview(null)}
+          targetType="review"
+          targetId={reportingReview._id}
+          targetTitle={`Review by ${reportingReview.user?.name || "Learner"}`}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       {confirmDeleteId && (

@@ -30,6 +30,11 @@ import SpotlightCard from "../components/SpotlightCard";
 import ProgressRing from "../components/ProgressRing";
 import Button from "../components/Button";
 
+import learnerImg from "../assets/images/roles/learner.jpg";
+import creatorImg from "../assets/images/roles/creator.jpg";
+import expertImg from "../assets/images/roles/expert.jpg";
+import adminImg from "../assets/images/roles/admin.jpg";
+
 const Landing = () => {
   const { isAuthenticated } = useAuth();
   const [toastMessage, setToastMessage] = useState("");
@@ -463,6 +468,109 @@ const Landing = () => {
 
         </div>
       </section>
+      </div>
+
+      {/* 4-ROLE ECOSYSTEM ASYMMETRIC SECTION */}
+      <div className="w-full bg-bg-panel/40 border-b border-glass-border">
+        <section className="mx-auto max-w-7xl px-6 py-24 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+            <div className="sticker sticker-purple rotate-[-1.5deg]">
+              <span>THE KNOWLEDGE ECOSYSTEM</span>
+            </div>
+            <h2 className="section-heading text-3xl sm:text-5xl leading-tight">
+              One platform, four specialized roles.
+            </h2>
+            <p className="text-xs sm:text-sm text-text-muted max-w-lg mx-auto leading-relaxed">
+              Whether you come to learn new engineering skills, publish courses, provide 1-on-1 expert mentorship, or manage the platform.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+            {/* LEARN Role Card - Large */}
+            <div className="md:col-span-7 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-cyan/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img
+                  src={learnerImg}
+                  alt="Learner"
+                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
+              </div>
+              <div className="relative z-10 space-y-2 text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2.5 py-1 rounded-md">
+                  ● LEARN
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-text-title">Interactive Learning Workspace</h3>
+                <p className="text-xs text-text-muted max-w-md leading-relaxed">
+                  Track unit progress, save code attachments, book expert calls, and earn verifiable masterclass completion badges.
+                </p>
+              </div>
+            </div>
+
+            {/* CREATE Role Card */}
+            <div className="md:col-span-5 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-purple/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img
+                  src={creatorImg}
+                  alt="Creator"
+                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
+              </div>
+              <div className="relative z-10 space-y-2 text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-purple bg-accent-purple/10 border border-accent-purple/20 px-2.5 py-1 rounded-md">
+                  ● CREATE
+                </span>
+                <h3 className="text-xl font-extrabold text-text-title">Author & Monetize Masterclasses</h3>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Publish interactive units, set custom pricing, track earnings, and manage your learner community.
+                </p>
+              </div>
+            </div>
+
+            {/* GUIDE Role Card */}
+            <div className="md:col-span-5 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-orange/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img
+                  src={expertImg}
+                  alt="Expert Mentor"
+                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
+              </div>
+              <div className="relative z-10 space-y-2 text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-orange bg-accent-orange/10 border border-accent-orange/20 px-2.5 py-1 rounded-md">
+                  ● GUIDE
+                </span>
+                <h3 className="text-xl font-extrabold text-text-title">Host 1-on-1 Mentorship Sessions</h3>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  Set live availability slots, accept session requests, answer technical queries, and conduct live video sessions.
+                </p>
+              </div>
+            </div>
+
+            {/* OPERATE Role Card - Large */}
+            <div className="md:col-span-7 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-emerald/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img
+                  src={adminImg}
+                  alt="Administrator"
+                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
+              </div>
+              <div className="relative z-10 space-y-2 text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-emerald bg-accent-emerald/10 border border-accent-emerald/20 px-2.5 py-1 rounded-md">
+                  ● OPERATE
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-text-title">Admin Moderation & Operations</h3>
+                <p className="text-xs text-text-muted max-w-md leading-relaxed">
+                  Platform oversight, moderation queue resolution, user permissions management, financial audits, and report actions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* LEARNING VISUALIZATION */}

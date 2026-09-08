@@ -9,7 +9,10 @@ import {
   googleCallback,
   sendPasswordOTP,
   updatePassword,
-  verifyResetPasswordOTP
+  verifyResetPasswordOTP,
+  verify2FA,
+  resend2FA,
+  update2FA
 } from "../controllers/auth.controller.js";
 
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -38,6 +41,25 @@ router.post(
   "/change-password",
   updatePassword
 );
+
+router.post(
+  "/verify-2fa",
+  verify2FA
+);
+
+router.post(
+  "/resend-2fa",
+  resend2FA
+);
+
+
+router.put(
+  "/2fa",
+  authMiddleware,
+  update2FA
+);
+
+
 
 
 router.get(

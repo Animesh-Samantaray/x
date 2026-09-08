@@ -182,88 +182,93 @@ const ExpertDashboard = () => {
       ) : error ? (
         <ErrorState message={error} onRetry={fetchData} />
       ) : (
-        <div className="space-y-8 text-left">
-          {/* EXPERT PROFILE SUMMARY CARD */}
-          <SpotlightCard className="p-6 card-tint-peach border border-glass-border rounded-2xl" glowColor="rgba(249, 115, 22, 0.12)">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-accent p-[2px] shrink-0">
-                  {user?.profilePicture ? (
-                    <img src={user.profilePicture} alt={user.name} className="h-full w-full rounded-2xl object-cover" />
-                  ) : (
-                    <div className="h-full w-full rounded-2xl bg-bg-dark flex items-center justify-center font-extrabold text-white text-lg uppercase">
-                      {user?.name ? user.name[0] : "E"}
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-extrabold text-text-title">{user?.name}</h3>
-                    {profile?.isVerified && (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        <ShieldCheck size={10} /> Verified Expert
-                      </span>
-                    )}
-                    <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${
-                      profile?.isAvailable ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-slate-500/10 text-slate-400 border-slate-500/20"
-                    }`}>
-                      {profile?.isAvailable ? "Available for Calls" : "Unavailable"}
+        <div className="space-y-6 text-left">
+          {/* ENTERPRISE EXPERT MENTORSHIP CONSOLE */}
+          <div className="relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
+            {/* Top Accent Gradient Bar */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-pink-500 to-cyan-400" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-3 max-w-2xl">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-mono font-semibold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                     </span>
-                  </div>
-                  <p className="text-xs text-accent-orange font-semibold">
-                    {profile?.headline || "Expert Consultant & Educator"}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-text-muted">
-                    {profile?.expertise?.length > 0 && <span><strong>Domain:</strong> {profile.expertise.join(", ")}</span>}
-                    {profile?.experienceYears && <span><strong>Experience:</strong> {profile.experienceYears} Years</span>}
-                    {profile?.hourlyRate !== undefined && <span><strong>Rate:</strong> ${profile.hourlyRate}/hr</span>}
-                  </div>
+                    <span>EXPERT HUB OPERATIONAL</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
+                    <span>Direct Consultation</span>
+                  </span>
                 </div>
+
+                <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                  Expert Workspace: <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-400 to-cyan-400">{user?.name || "Expert"}</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
+                  Host live 1-on-1 mentorship sessions, accept incoming consultation requests, and track consultation earnings.
+                </p>
               </div>
 
-              <Button onClick={() => navigate("/profile")} className="text-xs py-2 px-4 bg-bg-darker hover:bg-glass-border">
-                Manage Expert Profile
-              </Button>
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => setCreateSessionOpen(true)}
+                  className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+                >
+                  <PlusCircle size={15} />
+                  <span>Host Mentorship Call</span>
+                </button>
+              </div>
             </div>
-          </SpotlightCard>
+          </div>
 
-          {/* STATS OVERVIEW GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <StatCard
-              title="Total Income"
-              value={`₹${totalEarnings.toLocaleString("en-IN")}`}
-              subtext="Total earnings accrued"
-              icon={DollarSign}
-              color="emerald"
-            />
-            <StatCard
-              title="Mentorship Sessions"
-              value={totalSessions}
-              subtext={`${upcomingSessionsCount} upcoming / ${completedSessionsCount} completed`}
-              icon={Video}
-              color="orange"
-            />
-            <StatCard
-              title="Pending Requests"
-              value={pendingRequestsCount}
-              subtext="Learner join requests awaiting decision"
-              icon={Clock}
-              color="pink"
-            />
-            <StatCard
-              title="Published Courses"
-              value={publishedCourses}
-              subtext={`${totalLearners} total enrolled students`}
-              icon={BookOpen}
-              color="purple"
-            />
-            <StatCard
-              title="Technical Resources"
-              value={totalResources}
-              subtext="Uploaded reference packages"
-              icon={FileText}
-              color="cyan"
-            />
+          {/* HIGH-DENSITY ENTERPRISE EXPERT METRICS STRIP */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-emerald-400/40 transition duration-300 backdrop-blur-xl space-y-1">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Earnings</span>
+                <DollarSign size={15} className="text-emerald-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-emerald-400 font-mono">₹{totalEarnings.toLocaleString("en-IN")}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Payout accrued</p>
+            </div>
+
+            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-amber-400/40 transition duration-300 backdrop-blur-xl space-y-1">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Sessions</span>
+                <Video size={15} className="text-amber-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{totalSessions}</div>
+              <p className="text-[10px] text-slate-400 font-medium">{upcomingSessionsCount} upcoming • {completedSessionsCount} done</p>
+            </div>
+
+            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-pink-400/40 transition duration-300 backdrop-blur-xl space-y-1">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Pending</span>
+                <Clock size={15} className="text-pink-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-pink-300 font-mono">{pendingRequestsCount}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Awaiting response</p>
+            </div>
+
+            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-xl space-y-1">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Courses</span>
+                <BookOpen size={15} className="text-purple-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-white">{courses.length}</div>
+              <p className="text-[10px] text-slate-400 font-medium">{publishedCourses} active</p>
+            </div>
+
+            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-xl space-y-1">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Learners</span>
+                <Users size={15} className="text-cyan-400" />
+              </div>
+              <div className="text-2xl font-extrabold text-cyan-300 font-mono">{totalLearners}</div>
+              <p className="text-[10px] text-slate-400 font-medium">Mentored students</p>
+            </div>
           </div>
 
           {/* DASHBOARD TAB SUB-NAV */}

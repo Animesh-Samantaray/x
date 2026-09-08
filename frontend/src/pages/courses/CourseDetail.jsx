@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import PaymentCheckoutModal from "../../components/payments/PaymentCheckoutModal";
 import PaymentStatusModal from "../../components/payments/PaymentStatusModal";
+import ReportDialog from "../../components/reports/ReportDialog";
+import { Flag } from "lucide-react";
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -46,6 +48,7 @@ const CourseDetail = () => {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   const [enrolling, setEnrolling] = useState(false);
   const [unenrolling, setUnenrolling] = useState(false);
@@ -291,6 +294,14 @@ const CourseDetail = () => {
               <GraduationCap size={16} /> {enrolling ? (paymentStateLabel || "Processing...") : "Enroll"}
             </Button>
           ) : null}
+
+          {/* Report Button */}
+          <button
+            onClick={() => setReportDialogOpen(true)}
+            className="text-xs border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-2 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5"
+          >
+            <Flag size={13} /> Report Course
+          </button>
         </div>
       </div>
 
@@ -535,6 +546,15 @@ const CourseDetail = () => {
         item={course}
         type="Course"
         errorMessage={statusErrorMsg}
+      />
+
+      {/* Report Modal */}
+      <ReportDialog
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        targetType="course"
+        targetId={course._id}
+        targetTitle={course.title}
       />
     </div>
   );

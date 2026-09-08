@@ -1,7 +1,6 @@
 import React from "react";
-import { Star, User, Edit2, Trash2, Calendar } from "lucide-react";
+import { Star, User, Edit2, Trash2, Calendar, Flag } from "lucide-react";
 import SpotlightCard from "../SpotlightCard";
-
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -32,6 +31,7 @@ const ReviewCard = ({
   isAdmin = false,
   onEdit,
   onDelete,
+  onReport,
   deleting = false,
 }) => {
   if (!review) return null;
@@ -90,31 +90,44 @@ const ReviewCard = ({
             </span>
           </div>
 
-          {canModify && (
-            <div className="flex items-center gap-1 border-l border-glass-border/30 pl-2">
-              {onEdit && (
-                <button
-                  type="button"
-                  onClick={() => onEdit(review)}
-                  className="p-1.5 text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 rounded-lg transition cursor-pointer"
-                  title="Edit Review"
-                >
-                  <Edit2 size={13} />
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  type="button"
-                  onClick={() => onDelete(_id)}
-                  disabled={deleting}
-                  className="p-1.5 text-text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
-                  title="Delete Review"
-                >
-                  <Trash2 size={13} />
-                </button>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-1 border-l border-glass-border/30 pl-2">
+            {!isOwnReview && onReport && (
+              <button
+                type="button"
+                onClick={() => onReport(review)}
+                className="p-1.5 text-text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
+                title="Report Review"
+              >
+                <Flag size={13} />
+              </button>
+            )}
+
+            {canModify && (
+              <>
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(review)}
+                    className="p-1.5 text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 rounded-lg transition cursor-pointer"
+                    title="Edit Review"
+                  >
+                    <Edit2 size={13} />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(_id)}
+                    disabled={deleting}
+                    className="p-1.5 text-text-muted hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"
+                    title="Delete Review"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

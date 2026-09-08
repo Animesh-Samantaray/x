@@ -217,46 +217,38 @@ const CourseCard = ({
 
           {/* Action Controls & Price */}
           <div className="flex items-center justify-between gap-2 pt-1">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {!isEnrolled && (
                 <span className="text-sm font-extrabold text-accent-emerald tracking-tight">
                   ₹{(course.price || 999).toLocaleString("en-IN")}
                 </span>
               )}
-              {isEnrolled ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-                    <CheckCircle size={12} /> Enrolled
-                  </span>
-                  <Link
-                    to={`/courses/${course._id}/learn`}
-                    className="text-[10px] bg-accent-purple text-white hover:bg-purple-600 px-3 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 shadow-md active:scale-95"
-                  >
-                    <PlayCircle size={12} /> Start Learning
-                  </Link>
-                </div>
-              ) : isOwner || isAdmin ? (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to={`/courses/${course._id}/learn`}
-                    className="text-[10px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-                  >
-                    <PlayCircle size={12} /> Preview
-                  </Link>
-                  <Link
-                    to={`/courses/${course._id}`}
-                    className="text-[10px] border border-glass-border hover:bg-glass-border text-text-title px-2.5 py-1 rounded-lg font-bold transition cursor-pointer flex items-center gap-1"
-                  >
-                    <Eye size={12} /> Overview
-                  </Link>
-                </div>
-              ) : (
-                <button
-                  onClick={() => navigate(`/courses/${course._id}`)}
-                  className="text-[10px] bg-gradient-to-r from-accent-purple to-accent-indigo text-white px-3 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 shadow-md shadow-purple-950/20 active:scale-95"
+
+              {/* View Overview Button for ALL users */}
+              <Link
+                to={`/courses/${course._id}`}
+                className="text-[10px] border border-glass-border hover:bg-glass-border text-text-title px-2.5 py-1.5 rounded-lg font-bold transition cursor-pointer flex items-center gap-1 active:scale-95"
+                title="View Course Overview"
+              >
+                <Eye size={12} /> Overview
+              </Link>
+
+              {isEnrolled && (
+                <Link
+                  to={`/courses/${course._id}/learn`}
+                  className="text-[10px] bg-accent-purple text-white hover:bg-purple-600 px-3 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 shadow-md active:scale-95"
                 >
-                  <GraduationCap size={12} /> Enroll Now
-                </button>
+                  <PlayCircle size={12} /> Learn
+                </Link>
+              )}
+
+              {(isOwner || isAdmin) && (
+                <Link
+                  to={`/courses/${course._id}/learn`}
+                  className="text-[10px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <PlayCircle size={12} /> Preview
+                </Link>
               )}
             </div>
 

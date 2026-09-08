@@ -9,6 +9,7 @@ import LearnerProfile from "../models/LearnerProfile.model.js";
 import CreatorProfile from "../models/CreatorProfile.model.js";
 import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
+import generate2FAOTP from "../helper/generate2FAOTP.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -165,6 +166,15 @@ export const login = async (req, res) => {
         message: "Invalid email or password",
       });
     }
+    
+    if(user.twoFactorEnabled && user.role!=='admin' ){
+      await generate2FAOTP(user);
+      return res.status(200).json({
+        success: true,
+        requires2FA: true,
+        message: "OTP sent to your email",
+      });
+    }
 
     const token = await generateToken(user._id);
 
@@ -174,6 +184,7 @@ export const login = async (req, res) => {
       success: true,
       token,
       message: "Login successful",
+      requires2FA: false,
       user: {
         id: user._id,
         name: user.name,
@@ -235,7 +246,15 @@ export const googleCallback = async (req, res) => {
   try {
     const user = req.user;
 
-    const token = generateToken(user._id);
+    if (user.twoFactorEnabled) {
+      await generate2FAOTP(user);
+
+      return res.redirect(
+        `${process.env.CLIENT_URL || "http://localhost:5173"}/verify-2fa?email=${encodeURIComponent(user.email)}`
+      );
+    }
+
+    const token = await generateToken(user._id);
 
     res.cookie("token", token, cookieOptions);
 
@@ -482,6 +501,197 @@ export const verifyResetPasswordOTP = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+    });
+  }
+};
+
+
+export const resend2FA = async (req, res) => {
+  try {
+    let { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.twoFactorEnabled) {
+      return res.status(400).json({
+        success: false,
+        message: "Two-factor authentication is not enabled for this user",
+      });
+    }
+
+    if (user.role === "admin") {
+      return res.status(400).json({
+        success: false,
+        message: "Admin users do not require two-factor authentication",
+      });
+    }
+
+    await generate2FAOTP(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "New OTP sent to your email",
+    });
+  } catch (error) {
+    console.error("Resend 2FA Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while resending OTP",
+    });
+  }
+};
+
+export const verify2FA = async (req, res) => {
+  try {
+    let { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required",
+      });
+    }
+
+    email = email.trim().toLowerCase();
+    otp = otp.trim();
+
+    const user = await User.findOne({ email }).select(
+      "+twoFactorOTP +twoFactorOTPExpire"
+    );
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid verification request",
+      });
+    }
+
+    if (!user.twoFactorEnabled) {
+      return res.status(400).json({
+        success: false,
+        message: "Two-factor authentication is not enabled",
+      });
+    }
+
+    if (
+      !user.twoFactorOTP ||
+      !user.twoFactorOTPExpire
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "No OTP found. Please request a new OTP",
+      });
+    }
+
+    if (
+      Date.now() > user.twoFactorOTPExpire.getTime()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one",
+      });
+    }
+
+    if (user.twoFactorOTP !== otp) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+   
+    user.twoFactorOTP = undefined;
+    user.twoFactorOTPExpire = undefined;
+
+    await user.save();
+
+   
+    const token = await generateToken(user._id);
+
+    res.cookie("token", token, cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      requires2FA: false,
+      token,
+      message: "Two-factor authentication successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+  } catch (error) {
+    console.error("Verify 2FA Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error during 2FA verification",
+    });
+  }
+};
+
+export const update2FA = async (req, res) => {
+  try {
+    const { enabled } = req.body;
+
+    if (typeof enabled !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "enabled must be a boolean",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.twoFactorEnabled = enabled;
+
+    if (!enabled) {
+      user.twoFactorOTP = undefined;
+      user.twoFactorOTPExpire = undefined;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: enabled
+        ? "Two-factor authentication enabled"
+        : "Two-factor authentication disabled",
+      twoFactorEnabled: user.twoFactorEnabled,
+    });
+
+  } catch (error) {
+    console.error("Update 2FA Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update 2FA",
     });
   }
 };

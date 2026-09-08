@@ -4,7 +4,8 @@ import { getResourceById } from "../services/resourceService";
 import api from "../services/api";
 import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
-import { ArrowLeft, BookOpen, ExternalLink, Calendar, User, Folder, Tag, FileText, Link as LinkIcon, AlertCircle } from "lucide-react";
+import ReportDialog from "../components/reports/ReportDialog";
+import { ArrowLeft, BookOpen, ExternalLink, Calendar, User, Folder, Tag, FileText, Link as LinkIcon, AlertCircle, Flag } from "lucide-react";
 
 const ResourceDetail = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const ResourceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [downloadingDocId, setDownloadingDocId] = useState(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   const handleOpenDocument = async (docId, docName, docMimeType) => {
     try {
@@ -104,12 +106,21 @@ const ResourceDetail = () => {
 
   return (
     <div className="space-y-6 text-left max-w-4xl mx-auto">
-      <button
-        onClick={() => navigate("/")}
-        className="inline-flex items-center gap-2 text-xs font-bold text-text-muted hover:text-text-title transition duration-150 cursor-pointer active:scale-95 py-1 px-2 border border-transparent hover:border-glass-border hover:bg-glass-border/30 rounded-xl"
-      >
-        <ArrowLeft size={14} /> Back to Explorer
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate("/")}
+          className="inline-flex items-center gap-2 text-xs font-bold text-text-muted hover:text-text-title transition duration-150 cursor-pointer active:scale-95 py-1 px-2 border border-transparent hover:border-glass-border hover:bg-glass-border/30 rounded-xl"
+        >
+          <ArrowLeft size={14} /> Back to Explorer
+        </button>
+
+        <button
+          onClick={() => setReportDialogOpen(true)}
+          className="text-xs border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-xl font-bold transition cursor-pointer flex items-center gap-1.5"
+        >
+          <Flag size={13} /> Report Resource
+        </button>
+      </div>
 
       <SpotlightCard className="p-0 overflow-hidden" glowColor="rgba(6, 182, 212, 0.08)">
         <div className="h-64 sm:h-80 w-full bg-bg-dark border-b border-glass-border relative overflow-hidden">
@@ -251,6 +262,15 @@ const ResourceDetail = () => {
           </div>
         </SpotlightCard>
       </div>
+
+      {/* Report Modal */}
+      <ReportDialog
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        targetType="resource"
+        targetId={resource._id}
+        targetTitle={resource.title}
+      />
     </div>
   );
 };
