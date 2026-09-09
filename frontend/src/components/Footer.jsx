@@ -27,11 +27,12 @@ const Footer = () => {
           <div>
             <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase">Explore</h4>
             <ul className="mt-4 space-y-2.5 text-[12px] text-purple-200/60">
-              <li><a href="/#explore" className="hover:text-white transition">Guides & Notes</a></li>
-              <li><a href="/#courses" className="hover:text-white transition">Premium Courses</a></li>
-              <li><a href="/#experts" className="hover:text-white transition">Find Experts</a></li>
+              <li><Link to="/resources" className="hover:text-white transition">Guides & Resources</Link></li>
+              <li><Link to="/courses" className="hover:text-white transition">Premium Courses</Link></li>
+              <li><Link to="/sessions" className="hover:text-white transition">Find Experts</Link></li>
             </ul>
           </div>
+
 
           {/* Links Column 2: Resources */}
           <div>

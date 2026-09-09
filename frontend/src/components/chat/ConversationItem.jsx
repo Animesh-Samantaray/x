@@ -50,13 +50,13 @@ const ConversationItem = ({ conversation, isActive, onClick, lastMessage }) => {
       onClick={onClick}
       className={`p-3.5 rounded-xl cursor-pointer transition-all duration-150 border ${
         isActive
-          ? "bg-slate-800/90 border-sky-500/30 text-white"
-          : "hover:bg-slate-800/50 border-transparent text-slate-300"
+          ? "bg-sky-500/10 border-sky-500/30 text-text-title shadow-sm"
+          : "hover:bg-glass-card border-transparent text-text-muted hover:text-text-title"
       }`}
     >
       <div className="flex items-center gap-3">
         {/* Avatar/Thumbnail */}
-        <div className="relative shrink-0 w-11 h-11 rounded-xl overflow-hidden bg-slate-800 border border-slate-700/80 flex items-center justify-center">
+        <div className="relative shrink-0 w-11 h-11 rounded-xl overflow-hidden bg-bg-darker border border-glass-border flex items-center justify-center">
           {thumbnail ? (
             <img
               src={thumbnail}
@@ -66,7 +66,7 @@ const ConversationItem = ({ conversation, isActive, onClick, lastMessage }) => {
           ) : (
             <div
               className={`w-full h-full flex items-center justify-center ${
-                isCourse ? "bg-sky-600/20 text-sky-400" : "bg-emerald-600/20 text-emerald-400"
+                isCourse ? "bg-sky-500/10 text-sky-500" : "bg-emerald-500/10 text-emerald-500"
               }`}
             >
               {isCourse ? <BookOpen size={20} /> : <Video size={20} />}
@@ -77,11 +77,11 @@ const ConversationItem = ({ conversation, isActive, onClick, lastMessage }) => {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1 mb-0.5">
-            <h3 className="font-semibold text-sm text-slate-100 truncate">
+            <h3 className="font-semibold text-sm text-text-title truncate">
               {title || "Untitled Discussion"}
             </h3>
             {displayMessage && (
-              <span className="text-[11px] text-slate-400 shrink-0 font-medium">
+              <span className="text-[11px] text-text-muted shrink-0 font-medium">
                 {formatTime(displayMessage.createdAt || conversation.updatedAt)}
               </span>
             )}
@@ -91,17 +91,17 @@ const ConversationItem = ({ conversation, isActive, onClick, lastMessage }) => {
             <span
               className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
                 isCourse
-                  ? "bg-sky-950 text-sky-400 border border-sky-800/50"
-                  : "bg-emerald-950 text-emerald-400 border border-emerald-800/50"
+                  ? "bg-sky-500/10 text-sky-500 border border-sky-500/20"
+                  : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
               }`}
             >
               {isCourse ? "Course" : "Session"}
             </span>
-            <span className="text-xs text-slate-400 truncate">{subtitle}</span>
+            <span className="text-xs text-text-muted truncate">{subtitle}</span>
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-slate-400 truncate flex-1 leading-snug">
+            <p className="text-xs text-text-muted truncate flex-1 leading-snug">
               {getLastMessageText()}
             </p>
 
@@ -111,7 +111,7 @@ const ConversationItem = ({ conversation, isActive, onClick, lastMessage }) => {
                   {unreadCount}
                 </span>
               )}
-              <div className="flex items-center gap-0.5 text-[10px] text-slate-500 font-medium">
+              <div className="flex items-center gap-0.5 text-[10px] text-text-muted font-medium">
                 <Users size={11} />
                 <span>{participantCount}</span>
               </div>

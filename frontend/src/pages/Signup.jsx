@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useAuth } from "../context/AuthContext";
-import Sticker from "../components/ui/Sticker";
 import {
   User,
   Mail,
@@ -10,23 +8,19 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Share2,
   GraduationCap,
   Users,
   UserCheck,
   Settings,
   ShieldAlert,
-  Check,
-  Sparkles,
 } from "lucide-react";
-import SpotlightCard from "../components/SpotlightCard";
-import Button from "../components/Button";
+import CosmicArt from "../components/CosmicArt";
 
 const Signup = () => {
   const { signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRole, setSelectedRole] = useState("learner");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -145,313 +139,229 @@ const Signup = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?role=${selectedRole}`;
   };
 
+  const roles = [
+    { id: "learner", title: "Learner", icon: GraduationCap },
+    { id: "creator", title: "Creator", icon: Users },
+    { id: "expert", title: "Expert", icon: UserCheck },
+    { id: "admin", title: "Admin", icon: Settings },
+  ];
+
   return (
-    <div className="min-h-screen w-screen bg-transparent flex grid grid-cols-1 md:grid-cols-12 overflow-hidden relative select-none">
-      <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none z-0"></div>
+    <div className="w-screen min-h-screen bg-[#09061a] flex flex-col md:flex-row overflow-x-hidden text-white font-sans select-none">
       
-      {/* Left Column: Branding, Lottie Animation, and Stickers */}
-      <div className="hidden md:flex md:col-span-5 bg-bg-dark border-r border-glass-border/30 flex-col justify-between p-8 relative overflow-hidden">
-        <div className="absolute inset-0 line-grid opacity-15 pointer-events-none"></div>
-        <div className="glow-orb w-[300px] h-[300px] bg-accent-blue/5 top-[-50px] left-[-50px]"></div>
-        <div className="glow-orb w-[280px] h-[280px] bg-accent-purple/5 bottom-[10%] right-[-50px]"></div>
-        
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-text-title z-10 select-none hover:opacity-85 transition">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-            <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-deep">
-              <Share2 size={14} className="text-accent-blue" />
-            </div>
-          </div>
-          <span className="font-extrabold tracking-widest text-text-title text-base">CKM</span>
-        </Link>
-
-        {/* Lottie Animation & Multiple Stickers Container */}
-        <div className="my-auto space-y-4 z-10 text-left relative max-w-sm">
-          {/* Holographic Sticker Badges Row */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Sticker type="new" text="Interactive EdTech" />
-            <Sticker type="trending" text="Fast Track" />
-            <Sticker type="verified" text="Vetted Platform" />
-          </div>
-
-          {/* DotLottie Animation Player */}
-          <div className="w-full h-56 rounded-2xl bg-bg-panel/60 border border-glass-border p-2 flex items-center justify-center shadow-2xl relative overflow-hidden backdrop-blur-md">
-            <DotLottieReact
-              src="https://lottie.host/dcb83a0e-79bb-4c7b-a8a8-3a1627457f2e/UA127YHGJr.lottie"
-              loop
-              autoplay
-              className="w-full h-full object-contain"
-            />
-          </div>
-
-          <div className="space-y-2 pt-1">
-            <h1 className="hero-heading text-2xl font-extrabold text-text-title leading-tight">
-              Join the marketplace
-            </h1>
-            <p className="text-xs text-accent-cyan font-bold tracking-wider uppercase flex items-center gap-1.5">
-              <Sparkles size={12} /> Configure your workspace path.
-            </p>
-          </div>
-          
-          <p className="text-xs text-text-muted leading-relaxed">
-            Create an account to share templates, read production masterclasses, book specialists, or audit system activities.
-          </p>
-
-          <div className="space-y-2 border-t border-glass-border/30 pt-3">
-            <div className="flex items-start gap-2">
-              <div className="h-4 w-4 rounded bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0 mt-0.5">
-                <Check size={10} strokeWidth={3} />
-              </div>
-              <p className="text-[11px] text-text-muted leading-snug">
-                <strong className="text-text-main font-bold">Vetted technical assets:</strong> Access zero-trust setups, Raft consensuses, and Next.js guides.
-              </p>
-            </div>
-            
-            <div className="flex items-start gap-2">
-              <div className="h-4 w-4 rounded bg-accent-purple/15 text-accent-purple flex items-center justify-center shrink-0 mt-0.5">
-                <Check size={10} strokeWidth={3} />
-              </div>
-              <p className="text-[11px] text-text-muted leading-snug">
-                <strong className="text-text-main font-bold">Monetize experience:</strong> Publish guides or offer scheduled 1:1 consultation availability.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6 z-10 border-t border-glass-border/20 pt-4 text-left">
-          <div>
-            <span className="block text-md font-bold text-text-title">10K+</span>
-            <span className="text-[9px] uppercase tracking-wider text-text-muted">Builders</span>
-          </div>
-          <div>
-            <span className="block text-md font-bold text-text-title">500+</span>
-            <span className="text-[9px] uppercase tracking-wider text-text-muted">Guides</span>
-          </div>
-          <div>
-            <span className="block text-md font-bold text-text-title">99.9%</span>
-            <span className="text-[9px] uppercase tracking-wider text-text-muted">Uptime</span>
-          </div>
-        </div>
+      {/* Left Column: Cosmic Space Banner */}
+      <div className="w-full md:w-5/12 lg:w-1/2 shrink-0">
+        <CosmicArt
+          title="JOIN THE"
+          highlightText="ADVENTURE!"
+          navLinkText="HAVE AN ACCOUNT?"
+          navLinkPath="/login"
+          navActionText="SIGN IN"
+        />
       </div>
 
-      <div className="col-span-1 md:col-span-7 flex flex-col justify-center px-6 sm:px-12 py-12 z-10 h-full overflow-y-auto">
-        <div className="w-full max-w-4xl mx-auto space-y-6">
+      {/* Right Column: Dark Cosmic Auth Form */}
+      <div className="w-full md:w-7/12 lg:w-1/2 flex flex-col justify-between p-6 sm:p-12 lg:p-16 bg-[#09061a] relative min-h-[550px]">
+        
+        {/* Top Header Navigation for Desktop */}
+        <div className="hidden md:flex justify-end items-center text-xs tracking-wider uppercase font-semibold text-gray-400">
+          <span>HAVE AN ACCOUNT?</span>
+          <Link to="/login" className="ml-2 font-extrabold text-white hover:text-cyan-400 transition">
+            SIGN IN
+          </Link>
+        </div>
+
+        {/* Center Container */}
+        <div className="w-full max-w-md mx-auto my-auto space-y-5 pt-4 pb-6">
           
-          <div className="text-center md:text-left space-y-1">
-            <Link to="/" className="inline-flex md:hidden items-center gap-2 text-md font-bold text-text-title tracking-wider mb-2">
-              <span className="h-2 w-2 rounded bg-gradient-accent"></span>
-              CKM
-            </Link>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-title tracking-tight">Create account</h2>
-            <p className="text-xs sm:text-sm text-text-muted font-medium">
-              Choose your profile role to unlock specialized workspace layouts.
+          {/* Section Titles */}
+          <div className="space-y-1 text-left">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-wider text-white uppercase font-display">
+              SIGN UP
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 font-medium">
+              Create an account to start your learning path
             </p>
           </div>
 
-          <SpotlightCard className="p-6 bg-glass-card border border-glass-border rounded-2xl shadow-2xl relative" glowColor="rgba(59, 130, 246, 0.08)">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:divide-x lg:divide-glass-border">
-              <div className="lg:col-span-5 space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
-                  <h3 className="text-xs font-bold tracking-wider uppercase text-text-title">1. Account Role</h3>
-                </div>
-
-                <div className="grid grid-cols-1 gap-2.5">
-                  {[
-                    { id: "learner", title: "Learner", desc: "Access study masterclasses", icon: GraduationCap, color: "bg-accent-blue/15 text-accent-blue border-accent-blue/30" },
-                    { id: "creator", title: "Creator", desc: "Publish assets and guides", icon: Users, color: "bg-accent-purple/15 text-accent-purple border-accent-purple/30" },
-                    { id: "expert", title: "Expert", desc: "List schedules and consult", icon: UserCheck, color: "bg-accent-orange/15 text-accent-orange border-accent-orange/30" },
-                    { id: "admin", title: "Admin", desc: "Audit and moderation actions", icon: Settings, color: "bg-accent-emerald/15 text-accent-emerald border-accent-emerald/30" }
-                  ].map((role) => {
-                    const Icon = role.icon;
-                    const isActive = selectedRole === role.id;
-                    return (
-                      <div
-                        key={role.id}
-                        onClick={() => handleRoleSelect(role.id)}
-                        className={`group flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all duration-200 hover:-translate-y-0.5 ${
-                          isActive
-                            ? "bg-bg-darker/90 border-text-muted shadow-md"
-                            : "bg-bg-dark/40 border-glass-border hover:border-glass-border-hover"
-                        }`}
-                      >
-                        <div className={`p-2 rounded-xl transition duration-150 group-hover:scale-105 ${isActive ? role.color : "bg-bg-deep text-text-muted"}`}>
-                          <Icon size={14} />
-                        </div>
-                        <div className="flex-grow text-left leading-tight">
-                          <h4 className="text-xs font-extrabold text-text-title">{role.title}</h4>
-                          <p className="text-[10px] text-text-muted mt-0.5 leading-normal">{role.desc}</p>
-                        </div>
-                        {isActive && (
-                          <div className="h-4 w-4 rounded-full bg-accent-blue flex items-center justify-center text-white text-[8px] font-bold">
-                            ✓
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="lg:col-span-7 lg:pl-8 space-y-4 text-left">
-                <div className="flex items-center gap-2 pb-2 border-b border-glass-border/30">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-blue"></span>
-                  <h3 className="text-xs font-bold tracking-wider uppercase text-text-title">2. Details</h3>
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs px-3.5 py-2.5 rounded-xl">
-                    <AlertCircle size={14} className="shrink-0" />
-                    <span className="font-semibold text-left">{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-3.5">
-                  {selectedRole !== "admin" && (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Full name</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="name"
-                          required
-                          placeholder="John Doe"
-                          value={formData.name}
-                          onChange={handleChange}
-                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-4 py-2.5"
-                        />
-                        <User size={14} className="absolute left-3.5 top-3 text-text-muted" />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Email address</label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        name="email"
-                        required
-                        placeholder="name@company.com"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full form-input text-xs rounded-xl pl-9.5 pr-4 py-2.5"
-                      />
-                      <Mail size={14} className="absolute left-3.5 top-3 text-text-muted" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          required
-                          placeholder="••••••••"
-                          value={formData.password}
-                          onChange={handleChange}
-                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-10 py-2.5"
-                        />
-                        <KeyRound size={14} className="absolute left-3.5 top-3 text-text-muted" />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2.5 text-text-muted hover:text-text-title cursor-pointer"
-                        >
-                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Confirm</label>
-                      <div className="relative">
-                        <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          name="confirmPassword"
-                          required
-                          placeholder="••••••••"
-                          value={formData.confirmPassword}
-                          onChange={handleChange}
-                          className="w-full form-input text-xs rounded-xl pl-9.5 pr-10 py-2.5"
-                        />
-                        <KeyRound size={14} className="absolute left-3.5 top-3 text-text-muted" />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-2.5 text-text-muted hover:text-text-title cursor-pointer"
-                        >
-                          {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {selectedRole === "admin" && (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-accent-emerald uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} />
-                        Admin Access Token
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="password"
-                          name="adminAccessToken"
-                          required
-                          placeholder="Enter admin token"
-                          value={formData.adminAccessToken}
-                          onChange={handleChange}
-                          className="w-full bg-bg-dark border border-accent-emerald/30 text-text-main text-xs rounded-xl pl-9.5 pr-4 py-2.5 outline-none focus:border-accent-emerald/50 focus:ring-1 focus:ring-accent-emerald/10 transition"
-                        />
-                        <KeyRound size={14} className="absolute left-3.5 top-3.5 text-text-muted" />
-                      </div>
-                    </div>
-                  )}
-
-                  <Button type="submit" loading={loading} className="w-full py-3 text-xs font-bold rounded-xl mt-3">
-                    Create Account
-                  </Button>
-
-                  {selectedRole !== "admin" && (
-                    <>
-                      <div className="flex items-center my-3.5">
-                        <div className="flex-grow h-[1px] bg-glass-border" />
-                        <span className="text-[8px] text-text-muted uppercase px-2.5 font-bold">Or register with</span>
-                        <div className="flex-grow h-[1px] bg-glass-border" />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleGoogleSignup}
-                        disabled={loading}
-                        className="w-full flex items-center justify-center gap-2 bg-bg-darker border border-glass-border hover:bg-glass-border text-xs text-text-main hover:text-text-title font-bold py-3 px-4 rounded-xl transition cursor-pointer"
-                      >
-                        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
-                          <path
-                            fill="#EA4335"
-                            d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.111 4.114-3.478 0-6.3-2.822-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.11.63 4.23 1.64l3.15-3.15C19.29 2.45 15.98 1.1 12.24 1.1 6.13 1.1 1.1 6.13 1.1 12.24s5.03 11.14 11.14 11.14c6.19 0 11.23-5.04 11.23-11.24 0-.74-.08-1.46-.23-2.16H12.24z"
-                          />
-                        </svg>
-                        Continue with Google
-                      </button>
-                    </>
-                  )}
-
-                </form>
-              </div>
-
+          {/* Role Selection Tabs */}
+          <div className="space-y-1.5 text-left">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Select Workspace Role
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {roles.map((r) => {
+                const Icon = r.icon;
+                const isSelected = selectedRole === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleRoleSelect(r.id)}
+                    className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                      isSelected
+                        ? "bg-[#281b5c] border-[#7c3aed] text-white shadow-md shadow-purple-950/50"
+                        : "bg-[#140f2e] border-[#2e235a] text-gray-400 hover:border-gray-500 hover:text-gray-200"
+                    }`}
+                  >
+                    <Icon size={16} className={isSelected ? "text-cyan-300" : "text-gray-400"} />
+                    <span className="mt-1 text-[11px]">{r.title}</span>
+                  </button>
+                );
+              })}
             </div>
-          </SpotlightCard>
+          </div>
 
-          <p className="text-center text-xs text-text-muted">
-            Already have an account?{" "}
-            <Link to="/login" className="text-accent-blue hover:underline font-bold">
-              Sign in
-            </Link>
-          </p>
+          {/* Error Banner */}
+          {error && (
+            <div className="flex items-center gap-2.5 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs px-4 py-3 rounded-xl">
+              <AlertCircle size={15} className="shrink-0 text-rose-400" />
+              <span className="font-semibold text-left">{error}</span>
+            </div>
+          )}
+
+          {/* SIGNUP FORM */}
+          <form onSubmit={handleSubmit} className="space-y-3.5 text-left">
+            
+            {/* Full Name Input (Not for admin) */}
+            {selectedRole !== "admin" && (
+              <div className="relative">
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Your full name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full bg-[#181335] border border-[#2e235a] focus:border-[#7c3aed] text-white text-xs sm:text-sm rounded-xl pl-11 pr-4 py-3 outline-none transition shadow-inner placeholder-gray-500"
+                />
+                <User size={16} className="absolute left-4 top-3.5 text-gray-400" />
+              </div>
+            )}
+
+            {/* Email Input */}
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="Yourname@gmail.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full bg-[#181335] border border-[#2e235a] focus:border-[#7c3aed] text-white text-xs sm:text-sm rounded-xl pl-11 pr-4 py-3 outline-none transition shadow-inner placeholder-gray-500"
+              />
+              <Mail size={16} className="absolute left-4 top-3.5 text-gray-400" />
+            </div>
+
+            {/* Password & Confirm Password Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  required
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full bg-[#181335] border border-[#2e235a] focus:border-[#7c3aed] text-white text-xs rounded-xl pl-11 pr-10 py-3 outline-none transition shadow-inner placeholder-gray-500"
+                />
+                <KeyRound size={16} className="absolute left-4 top-3.5 text-gray-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  required
+                  placeholder="Confirm password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full bg-[#181335] border border-[#2e235a] focus:border-[#7c3aed] text-white text-xs rounded-xl pl-11 pr-10 py-3 outline-none transition shadow-inner placeholder-gray-500"
+                />
+                <KeyRound size={16} className="absolute left-4 top-3.5 text-gray-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-white cursor-pointer"
+                >
+                  {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Token (if admin role) */}
+            {selectedRole === "admin" && (
+              <div className="relative">
+                <input
+                  type="password"
+                  name="adminAccessToken"
+                  required
+                  placeholder="Admin Access Token"
+                  value={formData.adminAccessToken}
+                  onChange={handleChange}
+                  className="w-full bg-[#181335] border border-amber-500/40 focus:border-amber-400 text-white text-xs sm:text-sm rounded-xl pl-11 pr-4 py-3 outline-none transition shadow-inner placeholder-gray-500"
+                />
+                <ShieldAlert size={16} className="absolute left-4 top-3.5 text-amber-400" />
+              </div>
+            )}
+
+            {/* Primary Action Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-extrabold text-sm tracking-wide shadow-lg shadow-purple-950/50 transition cursor-pointer flex items-center justify-center mt-2"
+            >
+              {loading ? "Creating account..." : "Sign up"}
+            </button>
+
+            {/* Separator */}
+            {selectedRole !== "admin" && (
+              <>
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-[#2e235a]"></div>
+                  <span className="flex-shrink mx-4 text-[10px] uppercase font-bold text-gray-400 tracking-wider">Or continue with</span>
+                  <div className="flex-grow border-t border-[#2e235a]"></div>
+                </div>
+
+                {/* Social Login Button */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignup}
+                    disabled={loading}
+                    className="w-full bg-[#1c1540] hover:bg-[#271d57] border border-[#2e235a] text-white text-xs sm:text-sm font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2.5 cursor-pointer transition"
+                  >
+                    <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+                      <path
+                        fill="#EA4335"
+                        d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.111 4.114-3.478 0-6.3-2.822-6.3-6.3 0-3.478 2.822-6.3 6.3-6.3 1.63 0 3.11.63 4.23 1.64l3.15-3.15C19.29 2.45 15.98 1.1 12.24 1.1 6.13 1.1 1.1 6.13 1.1 12.24s5.03 11.14 11.14 11.14c6.19 0 11.23-5.04 11.23-11.24 0-.74-.08-1.46-.23-2.16H12.24z"
+                      />
+                    </svg>
+                    Continue with Google
+                  </button>
+                </div>
+              </>
+            )}
+
+          </form>
 
         </div>
+
+        {/* Bottom Disclaimer */}
+        <div className="text-center pt-6 pb-2 text-[11px] text-gray-400 font-medium">
+          By registering you with our{" "}
+          <Link to="/" className="text-purple-400 hover:text-purple-300 font-bold underline">
+            Terms and Conditions
+          </Link>
+        </div>
+
       </div>
 
     </div>

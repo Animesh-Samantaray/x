@@ -27,7 +27,7 @@ import SessionsPage from "./pages/sessions/SessionsPage";
 import Chat from "./pages/Chat";
 import PaymentHistory from "./pages/PaymentHistory";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import ScrollToTop from "./components/ScrollToTop";
 
 import LearnerDashboard from "./pages/dashboards/LearnerDashboard";
 import CreatorDashboard from "./pages/dashboards/CreatorDashboard";
@@ -41,8 +41,10 @@ import ReportsManagement from "./pages/admin/ReportsManagement";
 const App = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Landing />} />
@@ -124,14 +126,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="resources"
-              element={
-                <ProtectedRoute>
-                  <Resources />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="resources" element={<Resources />} />
             <Route
               path="my-resources"
               element={
@@ -140,14 +135,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="resources/:id"
-              element={
-                <ProtectedRoute>
-                  <ResourceDetail />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="resources/:id" element={<ResourceDetail />} />
             <Route
               path="resources/new"
               element={
@@ -172,14 +160,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="courses"
-              element={
-                <ProtectedRoute>
-                  <ExploreCourses />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="courses" element={<ExploreCourses />} />
             <Route
               path="courses/new"
               element={
@@ -196,14 +177,8 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="courses/:id"
-              element={
-                <ProtectedRoute>
-                  <CourseDetail />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="courses/:id" element={<CourseDetail />} />
+
             <Route
               path="courses/:id/manage"
               element={

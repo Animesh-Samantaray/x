@@ -59,17 +59,17 @@ const MessageInput = ({ onSendMessage, disabled }) => {
   };
 
   return (
-    <div className="p-3 border-t border-slate-800 bg-slate-900/90 relative shrink-0">
+    <div className="p-3 border-t border-glass-border bg-glass-card relative shrink-0">
       {/* File Preview */}
       {selectedFile && (
-        <div className="mb-2 p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-bottom-2">
+        <div className="mb-2 p-2.5 bg-bg-darker border border-glass-border rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
             <span className="text-lg">📎</span>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-slate-200 truncate">
+              <p className="text-xs font-medium text-text-title truncate">
                 {selectedFile.name}
               </p>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-text-muted">
                 {formatFileSize(selectedFile.size)}
               </p>
             </div>
@@ -77,7 +77,7 @@ const MessageInput = ({ onSendMessage, disabled }) => {
           <button
             type="button"
             onClick={handleRemoveFile}
-            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
+            className="p-1 rounded-lg hover:bg-glass-card text-text-muted hover:text-text-title transition cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -98,7 +98,7 @@ const MessageInput = ({ onSendMessage, disabled }) => {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="p-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition shrink-0 cursor-pointer"
+          className="p-2.5 rounded-xl border border-glass-border hover:bg-bg-darker text-text-muted hover:text-text-title transition shrink-0 cursor-pointer"
           disabled={disabled}
           title="Attach file"
         >
@@ -121,7 +121,7 @@ const MessageInput = ({ onSendMessage, disabled }) => {
             placeholder="Type a message..."
             disabled={disabled}
             rows={1}
-            className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-sky-500/50 transition resize-none pr-9 min-h-[40px] max-h-28"
+            className="w-full px-3.5 py-2.5 bg-bg-darker border border-glass-border rounded-xl text-xs text-text-title placeholder:text-text-muted focus:outline-none focus:border-sky-500/50 transition resize-none pr-9 min-h-[40px] max-h-28"
           />
 
           {/* Sticker Button */}
@@ -131,8 +131,8 @@ const MessageInput = ({ onSendMessage, disabled }) => {
             onClick={() => setShowStickerPicker((prev) => !prev)}
             className={`absolute right-2.5 transition p-1 cursor-pointer rounded-lg ${
               showStickerPicker
-                ? "text-sky-400 bg-sky-500/10"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                ? "text-sky-500 bg-sky-500/10"
+                : "text-text-muted hover:text-text-title hover:bg-glass-card"
             }`}
             title="Stickers"
           >

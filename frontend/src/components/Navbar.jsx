@@ -23,10 +23,9 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Explore", path: "/#explore" },
-    { name: "Courses", path: "/#courses" },
-    { name: "Experts", path: "/#experts" },
-    { name: "Resources", path: "/#resources" },
+    { name: "Courses", path: "/courses" },
+    { name: "Resources", path: "/resources" },
+    { name: "Mentorship", path: "/sessions" },
   ];
 
   return (
@@ -44,13 +43,13 @@ const Navbar = () => {
       {/* Desktop navigation */}
       <div className="hidden md:flex items-center space-x-2">
         {navLinks.map((link, idx) => (
-          <a
+          <Link
             key={idx}
-            href={link.path}
+            to={link.path}
             className="text-[13px] font-bold text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 dark:hover:text-white dark:hover:bg-white/5 px-4 py-2 rounded-xl transition-all duration-200"
           >
             {link.name}
-          </a>
+          </Link>
         ))}
       </div>
 
@@ -90,16 +89,17 @@ const Navbar = () => {
         <div className="absolute top-16 left-0 right-0 rounded-2xl border border-glass-border bg-bg-dark/95 backdrop-blur-2xl p-5 shadow-2xl md:hidden flex flex-col space-y-4">
           <div className="flex flex-col space-y-1">
             {navLinks.map((link, idx) => (
-              <a
+              <Link
                 key={idx}
-                href={link.path}
+                to={link.path}
                 onClick={() => setIsOpen(false)}
                 className="text-sm font-bold text-text-muted hover:text-accent-purple hover:bg-accent-purple/10 dark:hover:text-white dark:hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200 text-left"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
+
           <div className="h-[1px] bg-glass-border" />
           <div className="flex items-center space-x-3 pt-2">
             <button

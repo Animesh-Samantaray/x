@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SpotlightCard from "../SpotlightCard";
@@ -13,13 +13,11 @@ import {
   Calendar,
   User,
   Eye,
-  Edit2,
-  Trash2,
-  GraduationCap,
-  Settings,
   PlayCircle,
-  CheckCircle,
   ArrowRight,
+  CheckCircle,
+  Sparkles,
+  Tag
 } from "lucide-react";
 
 const CourseCard = ({
@@ -34,21 +32,22 @@ const CourseCard = ({
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  if (!course) return null;
+
   const hasThumbnail = course.thumbnail && course.thumbnail.startsWith("http");
   const isEnrolled = isCourseEnrolled(course, user);
-  const isLearner = user?.role === "learner";
   const isOwner = user && (course.createdBy?._id === user._id || course.createdBy === user._id);
   const isAdmin = user?.role === "admin";
 
   const getStatusStyle = (status) => {
     switch (status) {
       case "published":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
       case "archived":
-        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+        return "bg-slate-500/20 text-slate-300 border-slate-500/30";
       case "draft":
       default:
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+        return "bg-amber-500/20 text-amber-300 border-amber-500/30";
     }
   };
 
@@ -61,20 +60,21 @@ const CourseCard = ({
   else if (enrollmentCount >= 5) stickerType = "trending";
   else if (course.status === "published") stickerType = "new";
 
+  const categoryName = typeof course.category === "object" ? course.category.name : (course.category || "Masterclass");
+
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.015 }}
+      whileHover={{ y: -5, scale: 1.015 }}
       whileTap={{ scale: 0.985 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="h-full flex flex-col justify-between"
     >
-      <SpotlightCard
-        className="h-full flex flex-col justify-between rounded-2xl overflow-hidden border border-glass-border bg-glass-card hover:border-accent-purple/40 shadow-xl transition-all duration-300 group"
-        glowColor="rgba(119, 87, 245, 0.12)"
-      >
-        <div className="flex-grow flex flex-col">
-          {/* Top 3D Isometric Visual / Image Container */}
-          <div className="h-44 w-full bg-bg-dark border-b border-glass-border relative overflow-hidden shrink-0">
+      {/* Container: rounded-[28px], light white or dark space violet background */}
+      <div className="h-full p-4 sm:p-5 rounded-[28px] bg-white dark:bg-[#14121f] border-2 border-gray-200 dark:border-[#2b243d] hover:border-purple-500/50 shadow-md dark:shadow-2xl transition-all duration-300 flex flex-col justify-between text-left group">
+        
+        <div>
+          {/* Top Banner Graphics (Thumbnail header with 20px rounded curves matching reference UI/UX) */}
+          <div className="h-40 sm:h-44 w-full rounded-[20px] overflow-hidden relative mb-4 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900">
             {hasThumbnail ? (
               <img
                 src={course.thumbnail}
@@ -97,193 +97,140 @@ const CourseCard = ({
 
             {/* Status Badge top-right */}
             <span
-              className={`absolute top-3 right-3 text-[9px] border px-2.5 py-0.5 rounded-lg font-extrabold uppercase tracking-widest backdrop-blur-md z-10 ${getStatusStyle(
+              className={`absolute top-3 right-3 text-[9px] border px-2.5 py-1 rounded-full font-extrabold uppercase tracking-widest backdrop-blur-md z-10 ${getStatusStyle(
                 course.status
               )}`}
             >
               ● {course.status || "draft"}
             </span>
+
+            {/* Category tag bottom-left */}
+            <span className="absolute bottom-3 left-3 text-[9px] font-extrabold uppercase tracking-wider bg-slate-950/80 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full backdrop-blur-md z-10">
+              {categoryName}
+            </span>
           </div>
 
-          {/* Content Body */}
-          <div className="p-5 text-left space-y-3 flex-grow flex flex-col justify-between">
-            <div className="space-y-2">
-              <Link to={`/courses/${course._id}`} className="block group/link">
-                <h3 className="text-sm font-extrabold text-text-title leading-snug group-hover/link:text-accent-purple transition duration-200 line-clamp-1">
-                  {course.title}
-                </h3>
-              </Link>
+          {/* Card Body */}
+          <div className="space-y-3">
+            <Link to={`/courses/${course._id}`} className="block group/title">
+              <h3 className="text-lg font-black tracking-tight text-gray-900 dark:text-white line-clamp-1 group-hover/title:text-purple-600 dark:group-hover/title:text-purple-300 transition duration-200">
+                {course.title}
+              </h3>
+            </Link>
 
-              {/* Rating & Review Count */}
-              <div className="flex items-center justify-between">
-                <CourseRatingDisplay
-                  averageRating={course.averageRating}
-                  reviewCount={course.reviewCount}
-                  size="xs"
-                />
-                {course.category && (
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-accent-purple bg-accent-purple/10 border border-accent-purple/20 px-2 py-0.5 rounded-md">
-                    {typeof course.category === "object" ? course.category.name : course.category}
-                  </span>
-                )}
-              </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold tracking-wide uppercase">
+              Course Details:
+            </p>
 
-              <p className="text-xs text-text-muted leading-relaxed line-clamp-2">
-                {course.description}
-              </p>
-            </div>
-
-            {/* Topics Tags */}
-            {course.topics && course.topics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {course.topics.slice(0, 3).map((topic, i) => (
-                  <span
-                    key={i}
-                    className="text-[9px] bg-accent-purple/10 text-accent-purple border border-accent-purple/20 px-2 py-0.5 rounded-md font-semibold"
-                  >
-                    #{topic}
-                  </span>
-                ))}
-                {course.topics.length > 3 && (
-                  <span className="text-[9px] text-text-muted px-1 py-0.5">
-                    +{course.topics.length - 3} more
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Info Bar & Actions */}
-        <div className="px-5 pb-5 pt-3 border-t border-glass-border/40 space-y-3">
-          <div className="flex items-center justify-between text-[10px] text-text-muted">
-            <div className="flex items-center gap-1.5">
-              <User size={12} className="text-accent-purple shrink-0" />
-              <span className="font-bold text-text-main truncate max-w-[100px]">
-                {course.createdBy?.name || "Instructor"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-accent-cyan">
-                <Users size={12} />
-                <span className="font-extrabold">{enrollmentCount} enrolled</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar size={12} />
-                <span>
-                  {course.createdAt
-                    ? new Date(course.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : "N/A"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Bar for Enrolled Learner */}
-          {(() => {
-            const progressObj = progress || course.progress;
-            if (!progressObj) return null;
-            const pct = progressObj.percentage ?? 0;
-            const compCount =
-              progressObj.completedCount ??
-              (Array.isArray(progressObj.completedUnits)
-                ? progressObj.completedUnits.length
-                : undefined);
-            const totUnits = progressObj.totalUnits ?? course.units?.length;
-
-            return (
-              <div className="pt-1 space-y-1.5 border-t border-glass-border/30">
-                <div className="flex items-center justify-between text-[10px] font-bold">
-                  <span className="text-text-muted">
-                    {compCount !== undefined && totUnits !== undefined
-                      ? `${compCount} / ${totUnits} units completed`
-                      : "Course Progress"}
-                  </span>
-                  <span className="text-accent-cyan font-extrabold">{pct}%</span>
+            {/* Feature Bullet Points (3 circular icon rows matching reference picture UI/UX) */}
+            <div className="space-y-2.5 pt-1">
+              {/* Instructor Row */}
+              <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300 font-medium">
+                <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-[#272138] border border-purple-100 dark:border-[#3b3254] text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                  <User size={13} />
                 </div>
-                <div className="w-full h-1.5 bg-bg-dark rounded-full overflow-hidden border border-glass-border">
-                  <div
-                    className="h-full bg-gradient-to-r from-accent-purple to-accent-cyan transition-all duration-300 rounded-full"
-                    style={{ width: `${pct}%` }}
+                <span className="truncate">Instructor: <strong className="text-gray-900 dark:text-white font-bold">{course.createdBy?.name || "Mentor"}</strong></span>
+              </div>
+
+              {/* Rating & Enrollment Row */}
+              <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300 font-medium">
+                <div className="w-7 h-7 rounded-full bg-cyan-50 dark:bg-[#272138] border border-cyan-100 dark:border-[#3b3254] text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+                  <Users size={13} />
+                </div>
+                <div className="flex items-center gap-2 truncate">
+                  <span>Enrolled: <strong className="text-gray-900 dark:text-white font-bold">{enrollmentCount}</strong></span>
+                  <span className="text-gray-400">•</span>
+                  <CourseRatingDisplay
+                    averageRating={course.averageRating}
+                    reviewCount={course.reviewCount}
+                    size="xs"
                   />
                 </div>
               </div>
-            );
-          })()}
 
-          {/* Action Controls & Price */}
-          <div className="flex items-center justify-between gap-2 pt-1">
-            <div className="flex flex-wrap items-center gap-2">
-              {!isEnrolled && (
-                <span className="text-sm font-extrabold text-accent-emerald tracking-tight">
-                  ₹{(course.price || 999).toLocaleString("en-IN")}
+              {/* Units / Topics Row */}
+              <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300 font-medium">
+                <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-[#272138] border border-emerald-100 dark:border-[#3b3254] text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <BookOpen size={13} />
+                </div>
+                <span className="truncate">
+                  {course.units?.length ? `${course.units.length} Learning Modules` : course.topics?.length ? `#${course.topics.slice(0, 2).join(" #")}` : "Interactive Masterclass"}
                 </span>
-              )}
-
-              {/* View Overview Button for ALL users */}
-              <Link
-                to={`/courses/${course._id}`}
-                className="text-[10px] border border-glass-border hover:bg-glass-border text-text-title px-2.5 py-1.5 rounded-lg font-bold transition cursor-pointer flex items-center gap-1 active:scale-95"
-                title="View Course Overview"
-              >
-                <Eye size={12} /> Overview
-              </Link>
-
-              {isEnrolled && (
-                <Link
-                  to={`/courses/${course._id}/learn`}
-                  className="text-[10px] bg-accent-purple text-white hover:bg-purple-600 px-3 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 shadow-md active:scale-95"
-                >
-                  <PlayCircle size={12} /> Learn
-                </Link>
-              )}
-
-              {(isOwner || isAdmin) && (
-                <Link
-                  to={`/courses/${course._id}/learn`}
-                  className="text-[10px] bg-accent-purple/15 text-accent-purple border border-accent-purple/30 hover:bg-accent-purple hover:text-white px-2.5 py-1.5 rounded-lg font-extrabold uppercase tracking-wider transition cursor-pointer flex items-center gap-1 active:scale-95"
-                >
-                  <PlayCircle size={12} /> Preview
-                </Link>
-              )}
+              </div>
             </div>
 
-            {isOwnerOrAdmin && (
-              <div className="flex items-center gap-1">
-                <Link
-                  to={`/courses/${course._id}/manage`}
-                  className="text-[10px] border border-accent-indigo/30 bg-accent-indigo/10 text-accent-indigo hover:bg-accent-indigo hover:text-white p-1.5 rounded-lg font-bold transition cursor-pointer"
-                  title="Manage Curriculum"
+            {/* Progress Bar for Enrolled Learner */}
+            {(() => {
+              const progressObj = progress || course.progress;
+              if (!progressObj) return null;
+              const pct = progressObj.percentage ?? 0;
+              return (
+                <div className="pt-2 space-y-1.5 border-t border-gray-100 dark:border-[#2e2447]">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span className="text-gray-500 dark:text-gray-400">Course Progress</span>
+                    <span className="text-cyan-600 dark:text-cyan-300 font-extrabold">{pct}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-100 dark:bg-[#1b152d] rounded-full overflow-hidden border border-gray-200 dark:border-[#332752]">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 transition-all duration-300 rounded-full"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* Bottom Action Pill Bar (Signature pill container matching reference UI/UX) */}
+        <div className="mt-5 p-1.5 rounded-full bg-gray-100 dark:bg-[#1c182b] border border-gray-200 dark:border-[#332a4a] flex items-center justify-between shadow-inner">
+          <div className="flex items-center gap-2 pl-3 text-xs font-black truncate">
+            {isEnrolled ? (
+              <span className="text-cyan-600 dark:text-cyan-400 flex items-center gap-1">
+                <CheckCircle size={13} /> Enrolled
+              </span>
+            ) : (
+              <span className="text-emerald-600 dark:text-emerald-400 text-sm tracking-tight">
+                ₹{(course.price || 999).toLocaleString("en-IN")}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {isEnrolled ? (
+              <button
+                onClick={() => navigate(`/courses/${course._id}/learn`)}
+                className="px-5 py-2 rounded-full bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <PlayCircle size={13} /> Learn
+              </button>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => navigate(`/courses/${course._id}`)}
+                  className="px-3 py-2 rounded-full bg-gray-200 dark:bg-[#28213b] hover:bg-gray-300 dark:hover:bg-[#342b4d] text-gray-800 dark:text-gray-200 font-bold text-xs transition cursor-pointer active:scale-95"
                 >
-                  <Settings size={13} />
-                </Link>
-                {onEdit && (
-                  <button
-                    onClick={() => onEdit(course._id)}
-                    className="text-[10px] border border-accent-blue/25 bg-accent-blue/5 text-accent-blue hover:bg-accent-blue hover:text-white p-1.5 rounded-lg font-bold transition cursor-pointer"
-                    title="Edit Course"
-                  >
-                    <Edit2 size={13} />
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    onClick={() => onDelete(course._id)}
-                    className="text-[10px] border border-rose-500/25 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white p-1.5 rounded-lg font-bold transition cursor-pointer"
-                    title="Delete Course"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                )}
+                  Overview
+                </button>
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      navigate("/login");
+                    } else {
+                      navigate(`/courses/${course._id}`);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  Enroll Now <ArrowRight size={13} />
+                </button>
               </div>
             )}
           </div>
+
         </div>
-      </SpotlightCard>
+
+      </div>
     </motion.div>
   );
 };

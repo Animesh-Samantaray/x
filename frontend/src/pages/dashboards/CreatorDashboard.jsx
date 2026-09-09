@@ -1,36 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import StatCard from "../../components/dashboard/StatCard";
 import LoadingSkeleton from "../../components/dashboard/LoadingSkeleton";
 import EmptyState from "../../components/dashboard/EmptyState";
 import ErrorState from "../../components/dashboard/ErrorState";
-import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
 
-import { getMyCourses, deleteCourse } from "../../services/courseService";
-import { getMyResources, deleteResource, publishResource, archiveResource } from "../../services/resourceService";
-import { getMyEarnings } from "../../services/paymentService";
+import { getMyCourses } from "../../services/courseService";
+import { getMyResources } from "../../services/resourceService";
 
 import {
   BookOpen,
-  FileText,
-  Users,
   PlusCircle,
-  TrendingUp,
+  FileText,
+  DollarSign,
+  Users,
   Layers,
   Edit,
-  Trash2,
-  Eye,
-  Settings,
   CheckCircle,
-  Archive,
-  ArrowRight,
-  DollarSign
+  BarChart2,
+  TrendingUp,
+  Activity,
 } from "lucide-react";
 
-import creatorImg from "../../assets/images/roles/creator.jpg";
+import { transformCreatorAnalytics } from "../../utils/analyticsTransformer";
+import { RealBarChart, RealDoughnutChart } from "../../components/dashboard/RealChart";
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
@@ -41,18 +35,17 @@ const CreatorDashboard = () => {
 
   const [courses, setCourses] = useState([]);
   const [resources, setResources] = useState([]);
-  const [totalEarnings, setTotalEarnings] = useState(0);
-  const [activeTab, setActiveTab] = useState("overview");
+
+  const [activeTab, setActiveTab] = useState("courses");
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [coursesRes, resourcesRes, earningsRes] = await Promise.allSettled([
+      const [coursesRes, resourcesRes] = await Promise.allSettled([
         getMyCourses(),
         getMyResources(),
-        getMyEarnings(),
       ]);
 
       if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
@@ -61,12 +54,9 @@ const CreatorDashboard = () => {
       if (resourcesRes.status === "fulfilled" && resourcesRes.value?.resources) {
         setResources(resourcesRes.value.resources);
       }
-      if (earningsRes.status === "fulfilled" && earningsRes.value?.data) {
-        setTotalEarnings(earningsRes.value.data.earnings || 0);
-      }
     } catch (err) {
-      console.error("Error fetching creator dashboard data:", err);
-      setError(err.message || "Failed to load creator statistics.");
+      console.error("Creator studio fetch error:", err);
+      setError(err.message || "Failed to load creator studio data.");
     } finally {
       setLoading(false);
     }
@@ -76,180 +66,189 @@ const CreatorDashboard = () => {
     fetchData();
   }, []);
 
-  const handleDeleteCourse = async (id) => {
-    if (window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
-      try {
-        await deleteCourse(id);
-        setCourses((prev) => prev.filter((c) => c._id !== id));
-      } catch (err) {
-        alert(err.response?.data?.message || "Failed to delete course.");
-      }
-    }
-  };
-
-  const handleDeleteResource = async (id) => {
-    if (window.confirm("Are you sure you want to delete this resource?")) {
-      try {
-        await deleteResource(id);
-        setResources((prev) => prev.filter((r) => r._id !== id));
-      } catch (err) {
-        alert(err.response?.data?.message || "Failed to delete resource.");
-      }
-    }
-  };
-
-  const handlePublishResource = async (id) => {
-    try {
-      await publishResource(id);
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to publish resource.");
-    }
-  };
-
-  const handleArchiveResource = async (id) => {
-    try {
-      await archiveResource(id);
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to archive resource.");
-    }
-  };
-
-  // Real Stats Calculations
   const totalCourses = courses.length;
-  const publishedCourses = courses.filter((c) => c.status === "published").length;
-  const draftCourses = courses.filter((c) => c.status === "draft" || !c.status).length;
-  const archivedCourses = courses.filter((c) => c.status === "archived").length;
-
-  const totalEnrolledLearners = courses.reduce(
-    (sum, c) => sum + (c.enrolledStudents?.length || 0),
-    0
-  );
-
+  const publishedCourses = courses.filter((c) => c.status === "published" || c.isPublished !== false).length;
   const totalResources = resources.length;
 
+  let totalLearners = 0;
+  courses.forEach((c) => {
+    totalLearners += c.enrolledStudents?.length || c.enrollmentCount || 0;
+  });
+
   return (
-    <DashboardLayout
-      title={`Creator Studio — ${user?.name || "Creator"}`}
-      subtitle="Publish masterclasses, release developer tools, and manage enrolled learners."
-      actions={
-        <div className="flex items-center gap-2">
-          <Button onClick={() => navigate("/courses/new")} className="text-xs py-2 px-3 bg-accent-purple hover:bg-purple-600 flex items-center gap-1.5">
-            <PlusCircle size={14} /> Create Course
+    <div className="space-y-8 text-left">
+      
+      {/* HEADER BAR */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-glass-border/60 pb-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              ● CREATOR CONTENT STUDIO
+            </span>
+            <span className="text-xs text-text-muted font-mono">Author: {user?.name}</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-text-title tracking-tight font-display">
+            Authoring Workspace
+          </h1>
+          <p className="text-xs sm:text-sm text-text-muted font-medium">
+            Draft interactive units, publish masterclasses, monitor learner enrollments, and manage resource blueprints.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            onClick={() => navigate("/courses/new")}
+            className="text-xs font-bold py-2.5 px-4 rounded-xl bg-btn-primary hover:bg-btn-primary-hover text-white flex items-center gap-2 shadow-lg"
+          >
+            <PlusCircle size={15} /> Create Course
           </Button>
-          <Button onClick={() => navigate("/resources/new")} className="text-xs py-2 px-3 bg-accent-cyan hover:bg-cyan-600 flex items-center gap-1.5">
-            <PlusCircle size={14} /> Create Resource
+          <Button
+            onClick={() => navigate("/resources/new")}
+            variant="secondary"
+            className="text-xs font-bold py-2.5 px-4 rounded-xl border border-glass-border flex items-center gap-2"
+          >
+            <FileText size={15} className="text-purple-400" /> Upload Resource
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchData} />
       ) : (
-        <div className="space-y-6 text-left">
-          {/* ENTERPRISE CREATOR STUDIO HERO WORKSPACE CONSOLE */}
-          <div className="relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
-            {/* Top Accent Gradient Bar */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400" />
+        <div className="space-y-8">
+          
+          {/* AUTHORING TELEMETRY ROW */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>AUTHORING INVENTORY</span>
+                <BookOpen size={14} className="text-purple-500" />
+              </div>
+              <div className="text-2xl font-black text-text-title font-mono">{totalCourses} Courses</div>
+              <p className="text-[10px] text-text-muted">{publishedCourses} Published / Live</p>
+            </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-2xl">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-400/30 text-purple-300 text-[11px] font-mono font-semibold">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>KNOWLEDGE RESOURCES</span>
+                <FileText size={14} className="text-cyan-500" />
+              </div>
+              <div className="text-2xl font-black text-text-title font-mono">{totalResources} Documents</div>
+              <p className="text-[10px] text-text-muted">Attached Blueprints & Scripts</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>COMMUNITY IMPACT</span>
+                <Users size={14} className="text-emerald-500" />
+              </div>
+              <div className="text-2xl font-black text-emerald-500 font-mono">{totalLearners} Learners</div>
+              <p className="text-[10px] text-text-muted">Active Masterclass Enrollments</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>AUTHOR STATUS</span>
+                <DollarSign size={14} className="text-amber-500" />
+              </div>
+              <div className="text-2xl font-black text-amber-500 font-mono">
+                Active Creator
+              </div>
+              <p className="text-[10px] text-text-muted">Content Monetization Enabled</p>
+            </div>
+
+          </div>
+
+          {/* REAL CREATOR ANALYTICS PANEL (100% REAL DATA FROM BACKEND DATABASE) */}
+          {(() => {
+            const creatorData = transformCreatorAnalytics(courses, resources);
+
+            if (creatorData.isEmpty) {
+              return (
+                <div className="p-8 rounded-3xl bg-glass-card border border-glass-border text-center space-y-3 shadow-sm">
+                  <Activity size={28} className="text-purple-500 mx-auto opacity-70" />
+                  <h3 className="text-sm font-bold font-mono text-text-title uppercase tracking-wider">No Content Authoring Analytics Recorded</h3>
+                  <p className="text-xs text-text-muted max-w-md mx-auto">
+                    Publish your first interactive course masterclass or upload downloadable blueprint resources to start gathering enrollment metrics.
+                  </p>
+                  <Button
+                    onClick={() => navigate("/courses/new")}
+                    className="text-xs py-2 px-4 bg-btn-primary hover:bg-btn-primary-hover text-white font-bold"
+                  >
+                    Create New Course
+                  </Button>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* REAL METRICS ROW 1 */}
+                <div className="lg:col-span-7 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4">
+                  <div className="flex items-center justify-between border-b border-glass-border pb-3">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">LEARNER ENROLLMENT DISTRIBUTION</span>
+                      <h3 className="text-base font-extrabold text-text-title">Student Count Per Authored Course</h3>
+                    </div>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                      Total: {creatorData.totalLearners} Learners
                     </span>
-                    <span>AUTHORING STUDIO LIVE</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
-                    <span>Monetization Active</span>
-                  </span>
+                  </div>
+                  <RealBarChart data={creatorData.enrollmentChartData} height={200} />
                 </div>
 
-                <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                  Creator Studio: <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">{user?.name || "Creator"}</span>
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
-                  Author masterclasses, track course sales revenue, publish developer resources, and manage learner analytics.
-                </p>
-              </div>
+                <div className="lg:col-span-5 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md flex flex-col justify-between space-y-4">
+                  <div className="border-b border-glass-border pb-3 text-left">
+                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">AUTHORING STATUS BREAKDOWN</span>
+                    <h3 className="text-sm font-extrabold text-text-title mt-0.5">{creatorData.totalCourses} Authored Masterclasses</h3>
+                  </div>
+                  <RealDoughnutChart data={creatorData.statusChartData} height={180} />
+                </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => navigate("/courses/new")}
-                  className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
-                >
-                  <PlusCircle size={15} />
-                  <span>Create Masterclass</span>
-                </button>
-                <button
-                  onClick={() => navigate("/resources/new")}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-900/80 border border-white/10 hover:border-cyan-400/40 backdrop-blur-xl transition-all duration-200 flex items-center space-x-2 cursor-pointer active:scale-95"
-                >
-                  <PlusCircle size={15} className="text-cyan-400" />
-                  <span>Upload Resource</span>
-                </button>
-              </div>
-            </div>
-          </div>
+                {/* REAL METRICS ROW 2 */}
+                <div className="lg:col-span-12 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4 text-left">
+                  <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block border-b border-glass-border pb-3">ESTIMATED MONETIZATION & INVENTORY SUMMARY</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Gross Course Revenue</span>
+                      <span className="text-2xl font-black text-amber-500 mt-1 block">₹{creatorData.grossRevenue.toLocaleString()}</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Published Masterclasses</span>
+                      <span className="text-2xl font-black text-emerald-500 mt-1 block">{creatorData.publishedCount} / {creatorData.totalCourses}</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Uploaded Blueprint Resources</span>
+                      <span className="text-2xl font-black text-cyan-500 mt-1 block">{creatorData.totalResources} Documents</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Draft Works</span>
+                      <span className="text-2xl font-black text-purple-500 mt-1 block">{creatorData.draftCount} Drafts</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* HIGH-DENSITY ENTERPRISE CREATOR METRICS BENTO STRIP */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-emerald-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Accrued Revenue</span>
-                <DollarSign size={16} className="text-emerald-400" />
               </div>
-              <div className="text-2xl font-extrabold text-emerald-400 font-mono">₹{totalEarnings.toLocaleString("en-IN")}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Platform sales payouts</p>
-            </div>
+            );
+          })()}
 
-            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Authoring Units</span>
-                <BookOpen size={16} className="text-purple-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-white">{totalCourses}</div>
-              <p className="text-[10px] text-slate-400 font-medium">{publishedCourses} published • {draftCourses} draft</p>
-            </div>
-
-            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Enrolled Community</span>
-                <Users size={16} className="text-cyan-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-cyan-300 font-mono">{totalEnrolledLearners}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Active enrolled students</p>
-            </div>
-
-            <div className="p-5 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-pink-400/40 transition duration-300 backdrop-blur-xl space-y-1.5">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Developer Tools</span>
-                <FileText size={16} className="text-pink-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-white">{totalResources}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Code packages & guides</p>
-            </div>
-          </div>
-
-          {/* DASHBOARD TAB SUB-NAV */}
-          <div className="flex items-center space-x-2 border-b border-white/10 pb-2">
+          {/* SUB NAV TABS */}
+          <div className="flex items-center gap-2 border-b border-glass-border/40 pb-2 overflow-x-auto">
             {[
-              { id: "overview", label: "Overview" },
-              { id: "courses", label: `Course Catalog (${totalCourses})` },
+              { id: "courses", label: `Course Inventory (${totalCourses})` },
               { id: "resources", label: `Uploaded Resources (${totalResources})` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 text-xs font-bold rounded-xl transition duration-150 cursor-pointer ${
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-950/40 border border-purple-500/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow"
+                    : "text-text-muted hover:text-text-title hover:bg-glass-border/40"
                 }`}
               >
                 {tab.label}
@@ -257,241 +256,123 @@ const CreatorDashboard = () => {
             ))}
           </div>
 
-          {/* OVERVIEW TAB */}
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Recent Courses */}
-              <div className="lg:col-span-8 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-text-title uppercase tracking-wider flex items-center gap-2">
-                    <BookOpen size={16} className="text-accent-purple" /> Recent Masterclasses
-                  </h3>
-                  <button onClick={() => setActiveTab("courses")} className="text-xs font-bold text-accent-purple hover:underline cursor-pointer">
-                    View All ({totalCourses})
-                  </button>
-                </div>
-
-                {courses.length === 0 ? (
-                  <EmptyState
-                    icon={BookOpen}
-                    title="No courses created yet"
-                    description="Build your first course module with interactive units and rich resources."
-                    actionText="Create Course Now"
-                    onAction={() => navigate("/courses/new")}
-                    glowColor="rgba(168, 85, 247, 0.08)"
-                  />
-                ) : (
-                  <div className="space-y-4">
-                    {courses.slice(0, 4).map((course) => (
-                      <SpotlightCard key={course._id} className="p-5 bg-glass-card border border-glass-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          {course.thumbnail ? (
-                            <img src={course.thumbnail} alt={course.title} className="h-16 w-24 object-cover rounded-xl border border-glass-border shrink-0" />
-                          ) : (
-                            <div className="h-16 w-24 rounded-xl bg-bg-dark border border-glass-border flex items-center justify-center text-text-muted shrink-0">
-                              <BookOpen size={24} />
-                            </div>
-                          )}
-                          <div className="space-y-1 text-left">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-accent-purple/10 text-accent-purple border border-accent-purple/20">
-                                {course.category?.name || "Uncategorized"}
-                              </span>
-                              <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded ${
-                                course.status === "published" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                              }`}>
-                                {course.status || "draft"}
-                              </span>
-                            </div>
-                            <h4 className="text-sm font-extrabold text-text-title line-clamp-1">{course.title}</h4>
-                            <p className="text-[10px] text-text-muted">
-                              {course.units?.length || 0} Units • {course.enrolledStudents?.length || 0} Learners enrolled
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end border-t sm:border-t-0 border-glass-border/30 pt-3 sm:pt-0">
-                          <button onClick={() => navigate(`/courses/${course._id}`)} className="p-2 border border-glass-border hover:bg-glass-border rounded-lg text-text-muted hover:text-text-title transition cursor-pointer" title="View">
-                            <Eye size={14} />
-                          </button>
-                          <button onClick={() => navigate(`/courses/edit/${course._id}`)} className="p-2 border border-accent-blue/30 bg-accent-blue/10 text-accent-blue rounded-lg transition cursor-pointer" title="Edit">
-                            <Edit size={14} />
-                          </button>
-                          <button onClick={() => navigate(`/courses/${course._id}/manage`)} className="p-2 border border-accent-purple/30 bg-accent-purple/10 text-accent-purple rounded-lg transition cursor-pointer" title="Manage Units">
-                            <Settings size={14} />
-                          </button>
-                          <button onClick={() => handleDeleteCourse(course._id)} className="p-2 border border-rose-500/30 bg-rose-500/10 text-rose-400 rounded-lg transition cursor-pointer" title="Delete">
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </SpotlightCard>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Actions & Recent Resources */}
-              <div className="lg:col-span-4 space-y-6">
-                <SpotlightCard className="p-5 card-tint-mint border border-glass-border rounded-2xl" glowColor="rgba(16, 185, 129, 0.12)">
-                  <h4 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/40 pb-3 mb-4">
-                    Quick Creator Tools
-                  </h4>
-                  <div className="space-y-2.5">
-                    <Button onClick={() => navigate("/courses/new")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <PlusCircle size={14} className="text-accent-purple" />
-                      Create New Course
-                    </Button>
-                    <Button onClick={() => navigate("/resources/new")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <PlusCircle size={14} className="text-accent-cyan" />
-                      Upload Resource Package
-                    </Button>
-                    <Button onClick={() => navigate("/my-courses")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <BookOpen size={14} className="text-accent-blue" />
-                      Manage All Courses
-                    </Button>
-                    <Button onClick={() => navigate("/my-resources")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <FileText size={14} className="text-accent-emerald" />
-                      Manage All Resources
-                    </Button>
-                  </div>
-                </SpotlightCard>
-              </div>
-            </div>
-          )}
-
-          {/* COURSES TAB */}
+          {/* TAB 1: COURSES AUTHORING TABLE */}
           {activeTab === "courses" && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {courses.length === 0 ? (
                 <EmptyState
                   icon={BookOpen}
-                  title="No courses created"
-                  description="You have not published or drafted any courses yet."
-                  actionText="Create Course"
+                  title="No courses authored yet"
+                  description="Start creating your first interactive software engineering or system design masterclass."
+                  actionText="Create New Course"
                   onAction={() => navigate("/courses/new")}
                 />
               ) : (
-                <div className="overflow-x-auto border border-glass-border rounded-2xl bg-glass-card">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">
-                        <th className="px-6 py-4">Course</th>
-                        <th className="px-6 py-4">Category</th>
-                        <th className="px-6 py-4">Status</th>
-                        <th className="px-6 py-4">Units</th>
-                        <th className="px-6 py-4">Learners</th>
-                        <th className="px-6 py-4 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-glass-border/30">
-                      {courses.map((course) => (
-                        <tr key={course._id} className="hover:bg-glass-border/20 transition duration-150">
-                          <td className="px-6 py-4">
-                            <h4 className="font-bold text-text-title">{course.title}</h4>
-                            <p className="text-[10px] text-text-muted">Created {new Date(course.createdAt).toLocaleDateString()}</p>
-                          </td>
-                          <td className="px-6 py-4 text-accent-purple font-semibold">
-                            {course.category?.name || "Uncategorized"}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border ${
-                              course.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            }`}>
-                              {course.status || "draft"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-text-main font-bold">{course.units?.length || 0}</td>
-                          <td className="px-6 py-4 text-text-main font-bold">{course.enrolledStudents?.length || 0}</td>
-                          <td className="px-6 py-4 text-right space-x-2">
-                            <button onClick={() => navigate(`/courses/${course._id}`)} className="text-[10px] border border-glass-border hover:bg-glass-border px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                              View
-                            </button>
-                            <button onClick={() => navigate(`/courses/edit/${course._id}`)} className="text-[10px] border border-accent-blue/30 bg-accent-blue/5 text-accent-blue px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                              Edit
-                            </button>
-                            <button onClick={() => navigate(`/courses/${course._id}/manage`)} className="text-[10px] border border-accent-purple/30 bg-accent-purple/5 text-accent-purple px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                              Units
-                            </button>
-                            <button onClick={() => handleDeleteCourse(course._id)} className="text-[10px] border border-rose-500/30 bg-rose-500/5 text-rose-400 px-2.5 py-1 rounded font-bold uppercase transition cursor-pointer">
-                              Delete
-                            </button>
-                          </td>
+                <div className="rounded-2xl border border-glass-border bg-bg-panel overflow-hidden shadow-xl">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-glass-border/60 bg-bg-darker text-[10px] font-mono font-bold text-text-muted uppercase tracking-wider">
+                          <th className="p-4">Course Title & Category</th>
+                          <th className="p-4">Units</th>
+                          <th className="p-4">Price</th>
+                          <th className="p-4">Learners</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4 text-right">Authoring Controls</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-glass-border/40 text-xs">
+                        {courses.map((c) => (
+                          <tr key={c._id} className="hover:bg-glass-border/30 transition">
+                            <td className="p-4">
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                  {typeof c.category === "object" ? c.category?.name : c.category || "General"}
+                                </span>
+                                <h4 className="font-bold text-text-title">{c.title}</h4>
+                              </div>
+                            </td>
+                            <td className="p-4 font-mono font-semibold text-text-main">
+                              {c.units?.length || 0} Units
+                            </td>
+                            <td className="p-4 font-mono font-bold text-text-title">
+                              ₹{c.price || 999}
+                            </td>
+                            <td className="p-4 font-mono text-cyan-400 font-bold">
+                              {c.enrolledStudents?.length || c.enrollmentCount || 0} Enrolled
+                            </td>
+                            <td className="p-4">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <CheckCircle size={10} /> {c.status || "published"}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  onClick={() => navigate(`/courses/${c._id}/manage`)}
+                                  className="text-[11px] py-1.5 px-3 bg-btn-primary hover:bg-btn-primary-hover text-white font-bold flex items-center gap-1"
+                                >
+                                  <Layers size={12} /> Manage Syllabus
+                                </Button>
+                                <Button
+                                  onClick={() => navigate(`/courses/edit/${c._id}`)}
+                                  variant="secondary"
+                                  className="text-[11px] py-1.5 px-2.5 border-glass-border"
+                                >
+                                  <Edit size={12} /> Edit Metadata
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* RESOURCES TAB */}
+          {/* TAB 2: RESOURCES INVENTORY */}
           {activeTab === "resources" && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {resources.length === 0 ? (
                 <EmptyState
                   icon={FileText}
                   title="No resources uploaded"
-                  description="Share deployment guides, code snippets, or reference documents with the community."
+                  description="Upload downloadable blueprints, code cheatsheets, and architectural PDFs."
                   actionText="Upload Resource"
                   onAction={() => navigate("/resources/new")}
-                  glowColor="rgba(6, 182, 212, 0.08)"
                 />
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {resources.map((res) => (
-                    <SpotlightCard key={res._id} className="p-5 bg-glass-card border border-glass-border rounded-2xl space-y-4 text-left" glowColor="rgba(6, 182, 212, 0.08)">
+                    <div key={res._id} className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-3 text-left">
                       <div className="flex justify-between items-start">
-                        <div>
-                          <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20">
-                            {res.category?.name || "Resource"}
-                          </span>
-                          <h4 className="text-sm font-extrabold text-text-title mt-2 line-clamp-1">{res.title}</h4>
-                        </div>
-                        <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${
-                          res.status === "published" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                        }`}>
-                          {res.status}
+                        <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                          {typeof res.category === "object" ? res.category?.name : res.category || "Resource"}
                         </span>
+                        <Button
+                          onClick={() => navigate(`/resources/edit/${res._id}`)}
+                          variant="secondary"
+                          className="text-[10px] py-1 px-2 border-glass-border"
+                        >
+                          <Edit size={12} /> Edit
+                        </Button>
                       </div>
-
-                      <p className="text-xs text-text-muted line-clamp-2">{res.description || "No description provided."}</p>
-
-                      <div className="text-[10px] text-text-muted space-y-0.5">
-                        <div>📄 {res.documents?.length || 0} Documents uploaded</div>
-                        <div>🔗 {res.links?.length || 0} Reference links</div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-glass-border/30 text-right space-x-1">
-                        <button onClick={() => navigate(`/resources/${res._id}`)} className="text-[10px] border border-glass-border hover:bg-glass-border px-2 py-1 rounded font-bold uppercase transition cursor-pointer">
-                          View
-                        </button>
-                        <button onClick={() => navigate(`/resources/edit/${res._id}`)} className="text-[10px] border border-accent-blue/30 bg-accent-blue/5 text-accent-blue px-2 py-1 rounded font-bold uppercase transition cursor-pointer">
-                          Edit
-                        </button>
-                        {res.status !== "published" && (
-                          <button onClick={() => handlePublishResource(res._id)} className="text-[10px] border border-emerald-500/30 text-emerald-400 px-2 py-1 rounded font-bold uppercase transition cursor-pointer">
-                            Publish
-                          </button>
-                        )}
-                        {res.status !== "archived" && (
-                          <button onClick={() => handleArchiveResource(res._id)} className="text-[10px] border border-amber-500/30 text-amber-400 px-2 py-1 rounded font-bold uppercase transition cursor-pointer">
-                            Archive
-                          </button>
-                        )}
-                        <button onClick={() => handleDeleteResource(res._id)} className="text-[10px] border border-rose-500/30 text-rose-400 px-2 py-1 rounded font-bold uppercase transition cursor-pointer">
-                          Delete
-                        </button>
-                      </div>
-                    </SpotlightCard>
+                      <h4 className="text-xs font-bold text-text-title line-clamp-1">{res.title}</h4>
+                      <p className="text-[11px] text-text-muted line-clamp-2">{res.description}</p>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           )}
+
         </div>
       )}
-    </DashboardLayout>
+
+    </div>
   );
 };
 

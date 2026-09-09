@@ -14,7 +14,7 @@ import {
 } from "../controllers/resource.controller.js";
 
 import uploadMiddleware from "../middlewares/upload.middleware.js";
-import { protect } from "../middlewares/auth.middleware.js";
+import { protect, optionalAuth } from "../middlewares/auth.middleware.js";
 import authorizeRoles from "../middlewares/role.middleware.js";
 
 const router = express.Router();
@@ -41,7 +41,8 @@ router.get(
 router.get("/:id/document/:docId", getDocument);
 
 
-router.get("/:id", protect, getResourceById);
+router.get("/:id", optionalAuth, getResourceById);
+
 
 
 router.post(
