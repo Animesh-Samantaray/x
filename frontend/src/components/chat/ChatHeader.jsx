@@ -13,8 +13,8 @@ const ChatHeader = ({
 
   if (!conversation) {
     return (
-      <div className="h-14 border-b border-slate-800 bg-slate-900/80 flex items-center px-4">
-        <p className="text-xs text-slate-500">Select a discussion to start messaging</p>
+      <div className="h-14 border-b border-glass-border bg-glass-card flex items-center px-4">
+        <p className="text-xs text-text-muted">Select a discussion to start messaging</p>
       </div>
     );
   }
@@ -50,13 +50,13 @@ const ChatHeader = ({
 
   return (
     <>
-      <div className="h-14 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between px-4 shrink-0 z-10">
+      <div className="h-14 border-b border-glass-border bg-glass-card flex items-center justify-between px-4 shrink-0 z-10">
         <div className="flex items-center gap-3 min-w-0">
           {/* Mobile Back Button */}
           {onBackToList && (
             <button
               onClick={onBackToList}
-              className="lg:hidden p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:text-white shrink-0"
+              className="lg:hidden p-1.5 rounded-lg bg-bg-darker border border-glass-border text-text-title shrink-0"
               aria-label="Back to discussions list"
             >
               <ArrowLeft size={16} />
@@ -64,7 +64,7 @@ const ChatHeader = ({
           )}
 
           {/* Thumbnail / Avatar */}
-          <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 shrink-0 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg overflow-hidden bg-bg-darker border border-glass-border shrink-0 flex items-center justify-center">
             {thumbnail ? (
               <img
                 src={thumbnail}
@@ -74,7 +74,7 @@ const ChatHeader = ({
             ) : (
               <div
                 className={`w-full h-full flex items-center justify-center ${
-                  isCourse ? "bg-sky-600/20 text-sky-400" : "bg-emerald-600/20 text-emerald-400"
+                  isCourse ? "bg-sky-500/10 text-sky-500" : "bg-emerald-500/10 text-emerald-500"
                 }`}
               >
                 {isCourse ? <BookOpen size={16} /> : <Video size={16} />}
@@ -84,13 +84,13 @@ const ChatHeader = ({
 
           {/* Title & Info */}
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-slate-100 text-sm truncate leading-tight">
+            <h3 className="font-semibold text-text-title text-sm truncate leading-tight">
               {title || "Discussion"}
             </h3>
-            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+            <div className="flex items-center gap-2 text-[11px] text-text-muted mt-0.5">
               <span className="truncate">{subtitle}</span>
               <span>•</span>
-              <div className="flex items-center gap-1 shrink-0 font-medium text-slate-400">
+              <div className="flex items-center gap-1 shrink-0 font-medium text-text-muted">
                 <Users size={11} />
                 <span>{participantCount} participants</span>
               </div>
@@ -103,7 +103,7 @@ const ChatHeader = ({
           {canDelete && (
             <button
               onClick={onDeleteConversation}
-              className="p-2 rounded-lg transition-colors cursor-pointer border border-transparent hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 hover:border-rose-800/50"
+              className="p-2 rounded-lg transition-colors cursor-pointer border border-transparent hover:bg-rose-500/10 text-text-muted hover:text-rose-500"
               title="Delete Discussion Workspace"
             >
               <Trash2 size={16} />
@@ -114,8 +114,8 @@ const ChatHeader = ({
             onClick={() => setShowInfo(!showInfo)}
             className={`p-2 rounded-lg transition-colors cursor-pointer border ${
               showInfo
-                ? "bg-slate-800 border-slate-700 text-slate-100"
-                : "hover:bg-slate-800/80 border-transparent text-slate-400 hover:text-slate-200"
+                ? "bg-bg-darker border-glass-border text-text-title"
+                : "hover:bg-bg-darker border-transparent text-text-muted hover:text-text-title"
             }`}
             title="Toggle Details"
           >
@@ -127,15 +127,15 @@ const ChatHeader = ({
       {/* Info Drawer Modal */}
       {showInfo && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs">
-          <div className="w-80 max-w-full bg-slate-900 border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
+          <div className="w-80 max-w-full bg-glass-card border-l border-glass-border h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
             {/* Header */}
-            <div className="h-14 border-b border-slate-800 flex items-center justify-between px-4">
-              <h3 className="font-semibold text-slate-200 text-xs uppercase tracking-wider">
+            <div className="h-14 border-b border-glass-border flex items-center justify-between px-4">
+              <h3 className="font-semibold text-text-title text-xs uppercase tracking-wider">
                 Discussion Information
               </h3>
               <button
                 onClick={() => setShowInfo(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+                className="p-1.5 rounded-lg hover:bg-bg-darker text-text-muted hover:text-text-title transition"
               >
                 <X size={16} />
               </button>
@@ -144,8 +144,8 @@ const ChatHeader = ({
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 space-y-5">
               {/* Type Badge */}
-              <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+              <div className="p-3 bg-bg-darker border border-glass-border rounded-xl space-y-1">
+                <div className="flex items-center gap-2 text-xs font-semibold text-text-title">
                   {isCourse ? (
                     <BookOpen size={16} className="text-sky-400" />
                   ) : (
@@ -153,7 +153,7 @@ const ChatHeader = ({
                   )}
                   <span>{isCourse ? "Course Discussion" : "Mentorship Discussion"}</span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-normal">
+                <p className="text-[11px] text-text-muted leading-normal">
                   {isCourse
                     ? "Enrolled students, creator, and platform admins share real-time updates and Q&A here."
                     : "Accepted session participants and expert interact in real time here."}
@@ -162,10 +162,10 @@ const ChatHeader = ({
 
               {/* Course/Session Title */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                   Title
                 </label>
-                <p className="text-xs font-medium text-slate-200 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                <p className="text-xs font-medium text-text-title bg-bg-darker p-2.5 rounded-lg border border-glass-border">
                   {title}
                 </p>
               </div>
@@ -173,10 +173,10 @@ const ChatHeader = ({
               {/* Participants */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                     Participants
                   </label>
-                  <span className="text-[10px] font-semibold text-sky-400">
+                  <span className="text-[10px] font-semibold text-sky-500">
                     {participantCount} total
                   </span>
                 </div>
@@ -185,9 +185,9 @@ const ChatHeader = ({
                   {conversation.participants?.map((participant) => (
                     <div
                       key={participant._id}
-                      className="flex items-center gap-2.5 p-2 bg-slate-950/60 border border-slate-800/60 rounded-lg"
+                      className="flex items-center gap-2.5 p-2 bg-bg-darker border border-glass-border rounded-lg"
                     >
-                      <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-800 border border-slate-700 shrink-0 flex items-center justify-center text-[10px] font-bold text-slate-200 uppercase">
+                      <div className="w-7 h-7 rounded-full overflow-hidden bg-bg-panel border border-glass-border shrink-0 flex items-center justify-center text-[10px] font-bold text-text-title uppercase">
                         {participant.profilePicture ? (
                           <img
                             src={participant.profilePicture}
@@ -199,10 +199,10 @@ const ChatHeader = ({
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-200 truncate">
+                        <p className="text-xs font-semibold text-text-title truncate">
                           {participant.name}
                         </p>
-                        <p className="text-[10px] text-slate-400 capitalize">
+                        <p className="text-[10px] text-text-muted capitalize">
                           {participant.role || "Member"}
                         </p>
                       </div>
@@ -216,13 +216,13 @@ const ChatHeader = ({
 
               {/* Danger Zone: Delete Action */}
               {canDelete && (
-                <div className="pt-2 border-t border-slate-800/80">
+                <div className="pt-2 border-t border-glass-border">
                   <button
                     onClick={() => {
                       setShowInfo(false);
                       onDeleteConversation();
                     }}
-                    className="w-full py-2.5 px-3 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full py-2.5 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <Trash2 size={15} />
                     <span>Delete Discussion Workspace</span>

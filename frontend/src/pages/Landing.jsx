@@ -1,261 +1,225 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getAllCourses } from "../services/courseService";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
   Users,
   MessageSquare,
-  Bookmark,
   ArrowRight,
   Sparkles,
-  Info,
-  Calendar,
   FileText,
   Play,
-  Heart,
-  TrendingUp,
-  Cpu,
-  Terminal,
-  Database,
-  Layers,
-  Search,
-  Check,
-  Award,
   BarChart,
+  Cpu,
+  Layers,
+  Video,
+  CheckCircle,
+  ShieldCheck,
+  Star,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  Quote,
+  Send,
+  User,
+  Check,
+  Calendar,
   Lock,
-  Clock,
-  Video
 } from "lucide-react";
-import SpotlightCard from "../components/SpotlightCard";
-import ProgressRing from "../components/ProgressRing";
 import Button from "../components/Button";
 
-import learnerImg from "../assets/images/roles/learner.jpg";
-import creatorImg from "../assets/images/roles/creator.jpg";
-import expertImg from "../assets/images/roles/expert.jpg";
-import adminImg from "../assets/images/roles/admin.jpg";
-
 const Landing = () => {
-  const { isAuthenticated } = useAuth();
-  const [toastMessage, setToastMessage] = useState("");
-  const [activeCategory, setActiveCategory] = useState(0);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handlePlaceholderClick = (pageName) => {
-    setToastMessage(`The "${pageName}" portal is launching in the next phase!`);
-    setTimeout(() => setToastMessage(""), 4000);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [emailInput, setEmailInput] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [featuredCourses, setFeaturedCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+
+  const facilities = [
+    { title: "1-on-1 Live Video Consultations", icon: Video, color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
+    { title: "Real-Time Socket Discussion Channels", icon: MessageSquare, color: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10" },
+    { title: "Downloadable Code & Blueprint Resources", icon: FileText, color: "text-purple-400 border-purple-500/30 bg-purple-500/10" },
+    { title: "Real Database Telemetry & Progress Analytics", icon: BarChart, color: "text-blue-400 border-blue-500/30 bg-blue-500/10" },
+    { title: "2FA & Role-Based Access Control", icon: ShieldCheck, color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
+    { title: "Interactive Video Unit Player", icon: Play, color: "text-pink-400 border-pink-500/30 bg-pink-500/10" },
+    { title: "Direct Creator-Student Messaging", icon: Users, color: "text-indigo-400 border-indigo-500/30 bg-indigo-500/10" },
+    { title: "Admin Moderation Queue & Audit Logs", icon: Layers, color: "text-rose-400 border-rose-500/30 bg-rose-500/10" },
+  ];
+
+  const testimonials = [
+    {
+      name: "Marcus Aurelius",
+      role: "Senior AI Software Engineer",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      quote: "CKM's system design blueprints helped me pass my principal engineer interviews. The 1-on-1 expert mentorship session cleared my doubts on distributed consensus algorithms in minutes.",
+    },
+    {
+      name: "Sofia Rodriguez",
+      role: "Lead Fullstack Architect",
+      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      quote: "As a course creator, the authoring studio allowed me to package my Next.js architecture knowledge into interactive units and earn direct revenue while building a community.",
+    },
+    {
+      name: "Dr. David Vance",
+      role: "Principal Cryptography Lead",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      quote: "The 1-on-1 mentorship scheduling system connects me directly with ambitious software leads. I can set custom slot availability and conduct code reviews seamlessly.",
+    }
+  ];
+
+  const mentors = [
+    {
+      name: "Mentor Thomas Winsley",
+      title: "Director AI Lead",
+      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400",
+      bio: "Forefront of shaping distributed systems and AI neural infrastructure.",
+      specialty: "Distributed Systems & RAG",
+    },
+    {
+      name: "Mentor Kate Green",
+      title: "VP Engineering",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+      bio: "High-availability system design and modern web architecture.",
+      specialty: "Next.js 15 & Microservices",
+    },
+    {
+      name: "Mentor Alex Rivera",
+      title: "Cloud Infrastructure Architect",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400",
+      bio: "Kubernetes operators, Raft consensus, and zero-downtime deployments.",
+      specialty: "Cloud Native & DevOps",
+    },
+  ];
+
+  const faqs = [
+    {
+      q: "What is Collaborative Knowledge Marketplace (CKM)?",
+      a: "CKM is a commercial EdTech platform designed for developers, creators, expert mentors, and admins. It provides interactive course units, downloadable code blueprints, and direct 1-on-1 video mentorship calls.",
+    },
+    {
+      q: "How does 1-on-1 Expert Mentorship work?",
+      a: "Expert mentors publish open session slots with dates and topics. Learners request bookings, and once accepted by the expert, both parties receive instant calendar notifications and video meeting room access.",
+    },
+    {
+      q: "Can I author courses and monetize my technical knowledge?",
+      a: "Yes! Switch to the Creator role to access the Content Authoring Studio. You can draft course units, attach PDF/code resource blueprints, set your custom pricing, and track student enrollments.",
+    },
+    {
+      q: "Are course blueprints and downloadable resources verified?",
+      a: "All uploaded blueprints and resources undergo platform moderation before being published to guarantee high technical quality and security compliance.",
+    },
+    {
+      q: "What user roles are supported on CKM?",
+      a: "CKM supports 4 specialized roles: Learner (study & track skills), Creator (author & monetize courses), Expert (host 1-on-1 mentorship calls), and Admin (platform operations & moderation).",
+    },
+  ];
+
+  useEffect(() => {
+    const fetchTopCourses = async () => {
+      try {
+        setCoursesLoading(true);
+        const res = await getAllCourses();
+        if (res && res.success) {
+          setFeaturedCourses((res.courses || []).slice(0, 3));
+        }
+      } catch (err) {
+        console.error("Failed to fetch featured courses:", err);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    fetchTopCourses();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [testimonials.length]);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (emailInput.trim()) {
+      setSubscribed(true);
+      setEmailInput("");
+    }
   };
 
-  const categories = [
-    {
-      num: "01",
-      title: "AI & Machine Learning",
-      count: "1,240 Resources",
-      creators: "42 Creators",
-      topics: ["Deep Learning", "LLM Quantization", "Neural Networks"],
-      color: "from-blue-500/30 to-cyan-500/30",
-      accent: "bg-accent-blue"
-    },
-    {
-      num: "02",
-      title: "Cybersecurity & Cryptography",
-      count: "389 Resources",
-      creators: "18 Creators",
-      topics: ["Zero Trust", "SSL/TLS Audits", "Penetration Testing"],
-      color: "from-purple-500/30 to-magenta-500/30",
-      accent: "bg-accent-purple"
-    },
-    {
-      num: "03",
-      title: "Web Development",
-      count: "892 Resources",
-      creators: "65 Creators",
-      topics: ["Next.js 15", "Wasm Compiler", "Tailwind v4"],
-      color: "from-cyan-500/30 to-teal-500/30",
-      accent: "bg-accent-cyan"
-    },
-    {
-      num: "04",
-      title: "Business & SaaS Scale",
-      count: "428 Resources",
-      creators: "29 Creators",
-      topics: ["Revenue Ops", "Auth Architecture", "Payout APIs"],
-      color: "from-orange-500/30 to-amber-500/30",
-      accent: "bg-accent-orange"
-    },
-    {
-      num: "05",
-      title: "Data Science & Pipelines",
-      count: "512 Resources",
-      creators: "34 Creators",
-      topics: ["PyTorch Data", "ETL Warehousing", "Feature Stores"],
-      color: "from-emerald-500/30 to-teal-500/30",
-      accent: "bg-accent-emerald"
-    },
-    {
-      num: "06",
-      title: "System Architecture",
-      count: "450 Resources",
-      creators: "28 Creators",
-      topics: ["Raft Consensus", "Kafka Decoupling", "Redis Cache"],
-      color: "from-violet-500/30 to-pink-500/30",
-      accent: "bg-accent-violet"
+  const handleEnrollClick = (courseId) => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      navigate(`/courses/${courseId}`);
     }
-  ];
+  };
 
-  const resources = [
-    {
-      type: "Course",
-      title: "Production Next.js 15 App Router Masterclass",
-      creator: "Alex Rivera",
-      initials: "AR",
-      description: "Learn server actions, routing paradigms, compilation optimizations, and advanced middleware hooks in Next.js 15.",
-      category: "Web Dev",
-      rating: "4.9",
-      learners: "1.2K learners",
-      difficulty: "Advanced",
-      duration: "14 hours",
-      price: "$29.00",
-      pillColor: "sticker-cyan",
-      badgeText: "POPULAR",
-      rotation: "rotate-[-1.5deg]"
-    },
-    {
-      type: "Guide",
-      title: "High-Availability System Design Patterns Blueprint",
-      creator: "Sophia Chen",
-      initials: "SC",
-      description: "Zero-downtime container configuration, Raft consensus pipelines, and multi-region replication architectures.",
-      category: "Sys Design",
-      rating: "4.8",
-      learners: "892 learners",
-      difficulty: "Expert",
-      duration: "45 pages",
-      price: "$15.00",
-      pillColor: "sticker-orange",
-      badgeText: "EXPERT APPROVED",
-      rotation: "rotate-[1.5deg]"
-    },
-    {
-      type: "Notes",
-      title: "LLM Fine-Tuning & Weight Quantization Cheatsheet",
-      creator: "Marcus Aurelius",
-      initials: "MA",
-      description: "Direct weights tweaking cheatsheet, PyTorch fine-tuning datasets setup, and memory optimizations blueprint.",
-      category: "AI / ML",
-      rating: "5.0",
-      learners: "428 learners",
-      difficulty: "Intermediate",
-      duration: "12 pages",
-      price: "$8.00",
-      pillColor: "sticker-purple",
-      badgeText: "NEW",
-      rotation: "rotate-[-1deg]"
+  const handleBookCallClick = () => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      navigate("/sessions");
     }
-  ];
-
-  const experts = [
-    {
-      name: "Devon Webb",
-      role: "Principal Infrastructure Architect",
-      expertise: "Kubernetes, Cloud migrations",
-      portrait: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=180&q=80",
-      sessions: "148 sessions",
-      rating: "5.0",
-      availability: "Available Tomorrow",
-      glowColor: "rgba(249, 115, 22, 0.12)",
-      sticker: "TOP EXPERT"
-    },
-    {
-      name: "Aria Thorne",
-      role: "Lead Machine Learning Scientist",
-      expertise: "LLMs, Pytorch models",
-      portrait: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=180&q=80",
-      sessions: "92 sessions",
-      rating: "4.9",
-      availability: "Available Tuesday",
-      glowColor: "rgba(168, 85, 247, 0.12)",
-      sticker: "AI VISUALLY AUDITED"
-    }
-  ];
+  };
 
   return (
-    <div className="relative bg-transparent pb-24 overflow-hidden pt-12">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-surface border-accent-blue/30 bg-bg-darker/95 px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] transition-all duration-300">
-          <Info className="text-accent-blue shrink-0 animate-pulse" size={18} />
-          <p className="text-xs font-semibold text-text-title">{toastMessage}</p>
-        </div>
-      )}
-
-      {/* Grid background */}
-      <div className="absolute inset-0 dot-grid opacity-50 pointer-events-none z-0"></div>
-
-      {/* Multiple semantic ambient light glows */}
-      <div className="glow-orb w-[600px] h-[600px] bg-accent-blue/10 top-[-100px] left-[-150px]"></div>
-      <div className="glow-orb w-[550px] h-[550px] bg-accent-purple/5 top-[20%] right-[-100px]"></div>
-      <div className="glow-orb w-[650px] h-[650px] bg-accent-orange/5 bottom-[35%] left-[-150px]"></div>
-      <div className="glow-orb w-[600px] h-[600px] bg-accent-pink/5 bottom-[10%] right-[-100px]"></div>
-
+    <div className="min-h-screen bg-bg-deep text-text-main relative overflow-hidden font-sans transition-colors duration-200">
+      
       {/* HERO SECTION */}
-      <div className="w-full bg-[#f1eaff]/65 dark:bg-[#070b1a] border-b border-purple-500/10 dark:border-purple-950/30">
-      <section className="relative mx-auto max-w-7xl px-6 pt-16 md:pt-28 pb-20 z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Copywriting */}
-          <div className="lg:col-span-5 text-left space-y-6">
-            <div className="sticker sticker-blue rotate-[-2deg]">
-              <Sparkles size={11} className="text-accent-blue" />
-              <span>THE KNOWLEDGE MARKETPLACE v2.0</span>
+      <section className="relative pt-12 md:pt-20 pb-20 border-b border-glass-border overflow-hidden bg-gradient-to-b from-bg-dark via-bg-deep to-bg-deep">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-tr from-cyan-500/15 via-purple-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center max-w-4xl mx-auto space-y-6">
+            <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-[11px]">
+              <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles size={12} /> AI & Tech Masterclass Hub
+              </span>
+              <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold uppercase tracking-wider">
+                Industry Connected
+              </span>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider">
+                1-on-1 Expert Mentorship
+              </span>
             </div>
-            
-            <h1 className="hero-heading text-4xl sm:text-5xl lg:text-[54px] leading-[1.08] tracking-tight">
-              Knowledge is <br />
-              better when <br />
-              it's <span className="text-gradient-cyan">shared.</span>
+
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black leading-[1.06] tracking-tight text-text-title font-display">
+              Boost Your Skills And <span className="text-gradient-cyan">Get Ahead</span>
             </h1>
-            
-            <p className="text-sm sm:text-base text-text-main leading-relaxed font-medium">
-              Discover verified resources, learn from creators, schedule video mentorship sessions, and connect with peer groups.
+
+            <p className="text-base sm:text-lg text-text-muted max-w-2xl mx-auto leading-relaxed font-medium">
+              Collaborative Knowledge Marketplace for high-stakes engineering. Master AI neural systems, distributed architecture, and fullstack frameworks with top mentors on desktop & mobile.
             </p>
 
-            {/* Core Values Pills */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              {[
-                { word: "LEARN", color: "text-accent-blue border-accent-blue/30 bg-accent-blue/5", icon: BookOpen },
-                { word: "CREATE", color: "text-accent-purple border-accent-purple/30 bg-accent-purple/5", icon: Cpu },
-                { word: "CONNECT", color: "text-accent-orange border-accent-orange/30 bg-accent-orange/5", icon: Users },
-                { word: "SHARE", color: "text-accent-cyan border-accent-cyan/30 bg-accent-cyan/5", icon: MessageSquare }
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <span key={idx} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold border ${item.color} tracking-wider`}>
-                    <Icon size={10} />
-                    {item.word}
-                  </span>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               {isAuthenticated ? (
                 <Button
-                  variant="primary"
-                  onClick={() => handlePlaceholderClick("Marketplace")}
-                  className="group gap-2 text-xs font-bold py-3 px-6 rounded-xl"
+                  onClick={() => navigate(`/${user?.role || "learner"}/dashboard`)}
+                  className="group gap-2 text-xs font-bold py-3.5 px-7 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white shadow-xl shadow-purple-950/20"
                 >
-                  Explore Dashboard <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
+                  Enter {user?.role || "Learner"} Workspace <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
                 </Button>
               ) : (
                 <>
-                  <Link to="/login">
-                    <Button variant="primary" className="group gap-2 text-xs font-bold py-3.5 px-6 rounded-xl shadow-lg">
-                      Explore Knowledge <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-1" />
+                  <Link to="/courses">
+                    <Button className="group gap-2 text-xs font-bold py-3.5 px-7 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white shadow-xl shadow-purple-950/20">
+                      Explore Masterclasses <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
                     </Button>
                   </Link>
                   <Link to="/signup">
-                    <Button variant="secondary" className="text-xs font-bold py-3.5 px-6 rounded-xl border border-glass-border">
-                      Become a Creator
+                    <Button variant="secondary" className="text-xs font-bold py-3.5 px-7 rounded-xl border border-glass-border bg-glass-card text-text-title hover:bg-glass-border">
+                      Join Marketplace
                     </Button>
                   </Link>
                 </>
@@ -263,860 +227,440 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Interactive Node Ecosystem Visual Hero */}
-          <div className="lg:col-span-7 relative h-[440px] w-full hidden sm:flex items-center justify-center">
-            
-            {/* SVG dash lines connecting nodes */}
-            <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 600 440">
-              <defs>
-                <linearGradient id="gradient-blue" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.1" />
-                </linearGradient>
-                <linearGradient id="gradient-purple" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#ec4899" stopOpacity="0.1" />
-                </linearGradient>
-              </defs>
-              <path d="M 120 100 L 300 220" stroke="url(#gradient-blue)" strokeWidth="1.5" fill="none" strokeDasharray="6 6" className="animate-dash" />
-              <path d="M 460 110 L 300 220" stroke="url(#gradient-purple)" strokeWidth="1.5" fill="none" strokeDasharray="6 6" className="animate-dash" style={{ animationDuration: "14s" }} />
-              <path d="M 280 340 L 300 220" stroke="url(#gradient-blue)" strokeWidth="1.5" fill="none" strokeDasharray="6 6" className="animate-dash" style={{ animationDuration: "25s" }} />
-            </svg>
+          <div className="mt-14 relative max-w-5xl mx-auto flex justify-center items-end">
+            <div className="w-full max-w-4xl relative z-10 shadow-2xl">
+              <div className="rounded-t-3xl border-4 border-glass-border bg-bg-dark p-2 sm:p-3 relative overflow-hidden shadow-2xl">
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-700 mx-auto mb-2 border border-slate-600" />
+                <div className="rounded-xl overflow-hidden relative border border-glass-border bg-bg-deep group">
+                  <img
+                    src="/assets/hero_laptop.jpg"
+                    alt="CKM Laptop Workspace"
+                    className="w-full h-auto object-cover max-h-[420px] rounded-xl shadow-inner"
+                  />
 
-            {/* AI Node (Blue) */}
-            <div className="absolute top-[50px] left-[40px] animate-float relative">
-              <div className="absolute -top-3 -left-3 sticker sticker-blue rotate-[-6deg] z-20 scale-90">
-                <span>✦ TRENDING</span>
+                  <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm p-3.5 rounded-xl bg-bg-dark/95 border border-glass-border backdrop-blur-md space-y-1.5 text-left text-xs shadow-2xl">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                      <span className="font-mono font-bold text-text-title uppercase text-[10px]">AI Neural Architecture</span>
+                    </div>
+                    <p className="text-[11px] text-text-muted font-medium">Interactive code execution & vector database indexing masterclass.</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-3 p-3.5 rounded-2xl glass-surface border border-accent-blue/30 shadow-xl">
-                <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-accent-blue">
-                  <Cpu size={16} />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-xs font-bold text-text-title">Artificial Intelligence</h3>
-                  <p className="text-[9px] text-text-muted mt-0.5">1,240 resources</p>
-                </div>
+
+              <div className="w-full h-4 bg-bg-dark rounded-b-2xl border-t border-glass-border relative flex justify-center shadow-xl">
+                <div className="w-20 h-1.5 bg-slate-700 rounded-full mt-0.5" />
               </div>
             </div>
 
-            {/* Web Dev Node (Cyan) */}
-            <div className="absolute bottom-[40px] left-[80px] animate-float-reverse">
-              <div className="flex items-center gap-3 p-3.5 rounded-2xl glass-surface border border-accent-cyan/30 shadow-xl">
-                <div className="h-8 w-8 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 text-accent-cyan">
-                  <Terminal size={16} />
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="absolute -right-2 sm:right-4 md:-right-8 bottom-0 z-20 w-44 sm:w-56 md:w-60 drop-shadow-2xl"
+            >
+              <div className="rounded-[36px] border-4 border-glass-border bg-bg-dark p-2 shadow-2xl relative overflow-hidden">
+                <div className="w-16 h-3 bg-slate-700 rounded-full mx-auto mb-1 flex items-center justify-center">
+                  <div className="w-3 h-1 bg-slate-600 rounded-full" />
                 </div>
-                <div className="text-left">
-                  <h3 className="text-xs font-bold text-text-title">Web Development</h3>
-                  <p className="text-[9px] text-text-muted mt-0.5">892 resources</p>
-                </div>
-              </div>
-            </div>
 
-            {/* System Design Node (Purple) */}
-            <div className="absolute top-[70px] right-[40px] animate-float relative" style={{ animationDelay: "-2.5s" }}>
-              <div className="absolute -top-3 -right-3 sticker sticker-purple rotate-[4deg] z-20 scale-90">
-                <span>TOP CREATED</span>
-              </div>
-              <div className="flex items-center gap-3 p-3.5 rounded-2xl glass-surface border border-accent-purple/30 shadow-xl">
-                <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-accent-purple">
-                  <Layers size={16} />
+                <div className="rounded-[28px] overflow-hidden border border-glass-border bg-bg-deep">
+                  <img
+                    src="/assets/hero_mobile.jpg"
+                    alt="CKM Mobile App"
+                    className="w-full h-auto object-cover max-h-[340px] sm:max-h-[380px]"
+                  />
                 </div>
-                <div className="text-left">
-                  <h3 className="text-xs font-bold text-text-title">System Design</h3>
-                  <p className="text-[9px] text-text-muted mt-0.5">428 resources</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Floating Resource Preview (Glass) - Cyan themed */}
-            <div className="absolute top-[30px] right-[20px] animate-float-card-2 z-20 pointer-events-none select-none">
-              <div className="flex flex-col gap-2 p-3.5 rounded-2xl glass-surface border border-accent-cyan/20 shadow-[0_8px_30px_rgba(80,70,120,0.06)] max-w-[170px] backdrop-blur-md">
-                <div className="flex items-center justify-between">
-                  <span className="text-[8px] font-extrabold uppercase text-accent-cyan tracking-wider">Course Player</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                </div>
-                <h4 className="text-[10px] font-bold text-text-title leading-tight">TypeScript Generics Masterclass</h4>
-                <div className="w-full bg-glass-border rounded-full h-1 mt-1 overflow-hidden">
-                  <div className="bg-accent-cyan h-full w-[72%] rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between text-[8px] text-text-muted mt-0.5">
-                  <span>Progress 72%</span>
-                  <span className="font-bold text-text-title">1,240 learners</span>
-                </div>
+                <div className="w-16 h-1 bg-slate-600 rounded-full mx-auto mt-1.5" />
               </div>
-            </div>
-
-            {/* Floating Statistics Preview - Purple themed */}
-            <div className="absolute bottom-[30px] right-[40px] animate-float-card-3 z-20 pointer-events-none select-none">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-bg-dark border border-accent-purple/20 shadow-xl max-w-[160px]">
-                <div className="h-7 w-7 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-accent-purple">
-                  <TrendingUp size={14} />
-                </div>
-                <div className="text-left">
-                  <h4 className="text-[10px] font-extrabold text-text-title">$4,850.00</h4>
-                  <p className="text-[8px] text-text-muted uppercase tracking-wider font-semibold">Total Revenue</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Expert Availability - Orange themed */}
-            <div className="absolute bottom-[100px] left-[-20px] animate-float-card-1 z-20 pointer-events-none select-none">
-              <div className="flex items-center gap-2 p-2.5 rounded-2xl glass-surface border border-accent-orange/20 shadow-lg">
-                <div className="h-6 w-6 rounded-full bg-accent-orange/10 border border-accent-orange/20 flex items-center justify-center font-bold text-[8px] text-accent-orange">
-                  AT
-                </div>
-                <div className="text-left">
-                  <h4 className="text-[9px] font-bold text-text-title">Aria Thorne</h4>
-                  <p className="text-[7px] text-accent-orange font-bold uppercase tracking-wider">Available Tuesday</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Hub CKM */}
-            <div className="absolute h-16 w-16 rounded-2xl bg-gradient-accent p-[1.5px] shadow-[0_0_40px_rgba(59,130,246,0.15)] animate-pulse flex items-center justify-center z-10">
-              <div className="h-full w-full rounded-2xl bg-bg-darker flex items-center justify-center text-text-title font-extrabold text-base tracking-wider">
-                CKM
-              </div>
-            </div>
-
+            </motion.div>
           </div>
-
         </div>
       </section>
-      </div>
 
-      {/* DISCOVER SECTION */}
-      <div className="w-full bg-[#e8edfe] dark:bg-[#0b1020] border-b border-blue-500/10 dark:border-blue-950/30">
-      <section id="explore" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
-        <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-cyan/5 rounded-full blur-[90px] pointer-events-none"></div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          <div className="lg:col-span-4 flex flex-col justify-between space-y-6 text-left">
-            <div className="space-y-4">
-              <div className="sticker sticker-cyan rotate-[-2deg]">
-                <span>01 / DISCOVER KNOWLEDGE</span>
-              </div>
-              <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
-                Find the knowledge <br />
-                you need.
-              </h2>
-              <p className="text-sm text-text-main font-medium leading-relaxed">
-                Choose your field and browse curated files, scripts, and note packages matching your build stack.
-              </p>
-            </div>
-            
-            <div className="hidden lg:block border-l-2 border-accent-cyan/40 pl-4 space-y-1 py-1">
-              <h4 className="text-xs font-bold text-text-title uppercase">Dynamic Categories</h4>
-              <p className="text-[10px] text-text-muted">Updated metrics in real-time</p>
-            </div>
-          </div>
-
-          {/* Grid Category Showcase with gradient spheres */}
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {categories.map((cat, idx) => {
-              const hoverBorders = {
-                "01": "hover:border-accent-blue/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.06)]",
-                "02": "hover:border-accent-purple/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)]",
-                "03": "hover:border-accent-cyan/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]",
-                "04": "hover:border-accent-orange/40 hover:shadow-[0_0_20px_rgba(249,115,22,0.06)]",
-                "05": "hover:border-accent-emerald/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.06)]",
-                "06": "hover:border-accent-magenta/40 hover:shadow-[0_0_20px_rgba(236,72,153,0.06)]"
-              };
-              const hoverBorder = hoverBorders[cat.num] || "hover:border-glass-border-hover";
-              const catTints = {
-                "01": "card-tint-blue border-accent-blue/20",
-                "02": "card-tint-peach border-accent-orange/20",
-                "03": "card-tint-purple border-accent-purple/20",
-                "04": "card-tint-mint border-accent-emerald/20",
-                "05": "card-tint-pink border-accent-pink/20",
-                "06": "card-tint-cyan border-accent-cyan/20"
-              };
-              const catTint = catTints[cat.num] || "bg-glass-card border-glass-border";
+      {/* TICKER BAR */}
+      <section className="py-5 bg-bg-dark border-b border-glass-border overflow-hidden relative">
+        <div className="flex items-center gap-4 text-xs font-mono font-bold uppercase tracking-widest text-text-muted whitespace-nowrap">
+          <motion.div
+            className="flex items-center gap-6 shrink-0"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          >
+            {[...facilities, ...facilities].map((item, idx) => {
+              const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  onMouseEnter={() => setActiveCategory(idx)}
-                  className={`group relative rounded-2xl border p-5 transition-all duration-300 cursor-pointer overflow-hidden hover:translate-y-[-4px] hover:scale-[1.01] ${
-                    activeCategory === idx
-                      ? "card-tint-purple border-accent-purple/40 shadow-2xl"
-                      : catTint
-                  } ${hoverBorder}`}
+                  className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-xl border ${item.color} shadow-sm`}
                 >
-                  {/* Asymmetric color glow sphere in background */}
-                  <div className={`absolute top-[-20%] right-[-20%] h-24 w-24 rounded-full bg-gradient-to-br ${cat.color} blur-xl group-hover:scale-150 transition-all duration-500`} />
-                  
-                  <div className="flex items-center justify-between mb-4 relative z-10">
-                    <span className="text-[10px] font-extrabold text-text-muted group-hover:text-text-title transition-colors">{cat.num}</span>
-                    <div className={`h-1.5 w-1.5 rounded-full ${cat.accent} transition-transform duration-300 group-hover:scale-[1.4]`} />
-                  </div>
-                  
-                  <h3 className="text-xs font-bold text-text-title mb-2 relative z-10 transition-all text-left">{cat.title}</h3>
-                  
-                  <div className="space-y-1.5 mt-4 relative z-10 text-left text-[10px] text-text-muted">
-                    <div className="flex justify-between"><span>Files</span><span className="text-text-main font-bold group-hover:text-text-title transition-colors duration-200">{cat.count}</span></div>
-                    <div className="flex justify-between"><span>Creators</span><span className="text-text-main font-bold group-hover:text-text-title transition-colors duration-200">{cat.creators}</span></div>
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-end text-[10px] text-accent-cyan opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 font-extrabold relative z-10">
-                    Explore <ArrowRight size={10} className="ml-1 transition-transform duration-200 group-hover:translate-x-1" />
-                  </div>
+                  <Icon size={15} />
+                  <span>{item.title}</span>
                 </div>
               );
             })}
-          </div>
-
+          </motion.div>
         </div>
       </section>
-      </div>
 
-      {/* 4-ROLE ECOSYSTEM ASYMMETRIC SECTION */}
-      <div className="w-full bg-bg-panel/40 border-b border-glass-border">
-        <section className="mx-auto max-w-7xl px-6 py-24 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <div className="sticker sticker-purple rotate-[-1.5deg]">
-              <span>THE KNOWLEDGE ECOSYSTEM</span>
+      {/* FEATURED COURSES SECTION (COMPACT & PROFESSIONAL) */}
+      <section className="py-16 border-b border-glass-border bg-bg-deep">
+        <div className="max-w-7xl mx-auto px-6 space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+                TOP MASTERCLASSES
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-text-title font-display mt-2">
+                Popular Courses
+              </h2>
             </div>
-            <h2 className="section-heading text-3xl sm:text-5xl leading-tight">
-              One platform, four specialized roles.
-            </h2>
-            <p className="text-xs sm:text-sm text-text-muted max-w-lg mx-auto leading-relaxed">
-              Whether you come to learn new engineering skills, publish courses, provide 1-on-1 expert mentorship, or manage the platform.
-            </p>
+            <Link to="/courses" className="text-xs font-extrabold text-cyan-400 hover:underline flex items-center gap-1">
+              View All Courses <ArrowRight size={13} />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
-            {/* LEARN Role Card - Large */}
-            <div className="md:col-span-7 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-cyan/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img
-                  src={learnerImg}
-                  alt="Learner"
-                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
-              </div>
-              <div className="relative z-10 space-y-2 text-left">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2.5 py-1 rounded-md">
-                  ● LEARN
-                </span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-text-title">Interactive Learning Workspace</h3>
-                <p className="text-xs text-text-muted max-w-md leading-relaxed">
-                  Track unit progress, save code attachments, book expert calls, and earn verifiable masterclass completion badges.
-                </p>
-              </div>
-            </div>
-
-            {/* CREATE Role Card */}
-            <div className="md:col-span-5 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-purple/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img
-                  src={creatorImg}
-                  alt="Creator"
-                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
-              </div>
-              <div className="relative z-10 space-y-2 text-left">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-purple bg-accent-purple/10 border border-accent-purple/20 px-2.5 py-1 rounded-md">
-                  ● CREATE
-                </span>
-                <h3 className="text-xl font-extrabold text-text-title">Author & Monetize Masterclasses</h3>
-                <p className="text-xs text-text-muted leading-relaxed">
-                  Publish interactive units, set custom pricing, track earnings, and manage your learner community.
-                </p>
-              </div>
-            </div>
-
-            {/* GUIDE Role Card */}
-            <div className="md:col-span-5 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-orange/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img
-                  src={expertImg}
-                  alt="Expert Mentor"
-                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
-              </div>
-              <div className="relative z-10 space-y-2 text-left">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-orange bg-accent-orange/10 border border-accent-orange/20 px-2.5 py-1 rounded-md">
-                  ● GUIDE
-                </span>
-                <h3 className="text-xl font-extrabold text-text-title">Host 1-on-1 Mentorship Sessions</h3>
-                <p className="text-xs text-text-muted leading-relaxed">
-                  Set live availability slots, accept session requests, answer technical queries, and conduct live video sessions.
-                </p>
-              </div>
-            </div>
-
-            {/* OPERATE Role Card - Large */}
-            <div className="md:col-span-7 group relative overflow-hidden rounded-3xl border border-glass-border bg-glass-card hover:border-accent-emerald/40 transition duration-500 flex flex-col justify-end min-h-[320px] p-6 sm:p-8">
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img
-                  src={adminImg}
-                  alt="Administrator"
-                  className="h-full w-full object-cover opacity-25 group-hover:scale-105 group-hover:opacity-35 transition-all duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-darker via-bg-darker/70 to-transparent" />
-              </div>
-              <div className="relative z-10 space-y-2 text-left">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent-emerald bg-accent-emerald/10 border border-accent-emerald/20 px-2.5 py-1 rounded-md">
-                  ● OPERATE
-                </span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-text-title">Admin Moderation & Operations</h3>
-                <p className="text-xs text-text-muted max-w-md leading-relaxed">
-                  Platform oversight, moderation queue resolution, user permissions management, financial audits, and report actions.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* LEARNING VISUALIZATION */}
-      <div className="w-full bg-[#e3faf2] dark:bg-[#050814] border-b border-emerald-500/10 dark:border-emerald-950/30">
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
-        <div className="absolute top-[20%] right-[-150px] w-[500px] h-[500px] bg-accent-blue/5 rounded-full blur-[80px] pointer-events-none"></div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left illustration panels */}
-          <div className="lg:col-span-7 bg-bg-panel border border-glass-border rounded-2xl p-6 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6">
-            <div className="absolute top-[-20px] left-[-20px] h-32 w-32 rounded-full bg-accent-cyan/5 blur-xl pointer-events-none"></div>
-            
-            {/* Semantic Ring indicator */}
-            <div className="flex flex-col items-center shrink-0 space-y-3 bg-bg-darker/80 border border-glass-border p-5 rounded-2xl shadow-lg relative">
-              <div className="absolute -top-3 -right-2 sticker sticker-cyan rotate-[4deg] scale-90">
-                <span>ACTIVE STREAK</span>
-              </div>
-              <ProgressRing progress={72} size={85} strokeWidth={8} ringColor="stroke-accent-cyan" trackColor="stroke-glass-border" />
-              <div className="text-center">
-                <h4 className="text-xs font-bold text-text-title">72% Completed</h4>
-                <p className="text-[9px] text-text-muted mt-0.5">TypeScript Generics</p>
-              </div>
-            </div>
-
-            {/* Simulated learning statistics logs */}
-            <div className="flex-grow space-y-3.5 text-left w-full">
-              <div className="flex items-center justify-between text-[10px] text-text-muted font-bold border-b border-glass-border/40 pb-2">
-                <span>study workspace metrics</span>
-                <span className="text-accent-cyan">+5h this week</span>
-              </div>
-              
-              <div className="space-y-2.5">
-                {[
-                  { text: "Section 3 - Server Actions & compilation metrics", time: "Completed yesterday", active: true },
-                  { text: "Docker foundations basic routing logs", time: "Completed 3d ago", active: false }
-                ].map((l, i) => (
-                  <div key={i} className="flex gap-2.5 items-start text-xs p-2.5 bg-bg-darker/40 border border-glass-border rounded-xl">
-                    {l.active ? (
-                      <Check className="text-accent-cyan mt-0.5 shrink-0" size={12} />
-                    ) : (
-                      <Check className="text-text-muted mt-0.5 shrink-0" size={12} />
-                    )}
-                    <div>
-                      <h4 className="font-bold text-text-title text-[11px] leading-tight">{l.text}</h4>
-                      <p className="text-[9px] text-text-muted mt-0.5">{l.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right copywriting */}
-          <div className="lg:col-span-5 text-left space-y-6">
-            <div className="sticker sticker-blue rotate-[-2deg]">
-              <span>02 / MODERN LEARNING</span>
-            </div>
-            <h2 className="section-heading text-3xl">Targeted, step-by-step progress tracking.</h2>
-            <p className="text-sm text-text-main font-medium leading-relaxed">
-              CKM isn't just about reading documentation. Log your progress, test configurations locally, and trace curriculum milestones inside your workspace shell.
-            </p>
-          </div>
-
-        </div>
-      </section>
-      </div>
-
-      {/* FEATURED RESOURCES SHOWCASE SECTION */}
-      <div className="w-full bg-[#faf7f2]/90 dark:bg-[#0f1226] border-b border-amber-500/10 dark:border-purple-950/30">
-      <section id="resources" className="mx-auto max-w-7xl px-6 py-20 relative z-10">
-        <div className="absolute top-[20%] left-[-150px] w-[500px] h-[500px] bg-accent-cyan/5 rounded-full blur-[80px] pointer-events-none"></div>
-
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="sticker sticker-cyan rotate-[-2deg] mb-3">
-            <span>03 / FEATURED RESOURCES</span>
-          </div>
-          <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
-            Explore premium configurations & blueprints
-          </h2>
-          <p className="text-sm text-text-main font-medium leading-relaxed mt-2.5 max-w-xl mx-auto">
-            Visually verified, production-ready courses, guides, and shell scripts built by technical experts.
-          </p>
-        </div>
-
-        {/* Resources Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {resources.map((res, idx) => {
-            let catColor = "from-accent-cyan/15 to-accent-cyan/5 border-accent-cyan/25 glow-border-cyan card-tint-cyan";
-            let hoverGlow = "hover:border-accent-cyan/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
-            let Icon = Terminal;
-            let themeTextColor = "text-accent-cyan";
-            let themeHoverText = "group-hover:text-accent-cyan";
-
-            if (res.category === "Sys Design") {
-              catColor = "from-accent-orange/15 to-accent-orange/5 border-accent-orange/25 glow-border-orange card-tint-peach";
-              hoverGlow = "hover:border-accent-orange/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
-              Icon = Layers;
-              themeTextColor = "text-accent-orange";
-              themeHoverText = "group-hover:text-accent-orange";
-            } else if (res.category === "AI / ML") {
-              catColor = "from-accent-purple/15 to-accent-purple/5 border-accent-purple/25 glow-border-purple card-tint-purple";
-              hoverGlow = "hover:border-accent-purple/40 hover:shadow-[0_12px_40px_rgba(80,70,120,0.06)]";
-              Icon = Cpu;
-              themeTextColor = "text-accent-purple";
-              themeHoverText = "group-hover:text-accent-purple";
-            }
-
-            return (
-              <div
-                key={idx}
-                className={`group relative rounded-3xl border p-6 transition-all duration-300 hover:translate-y-[-6px] hover:scale-[1.01] flex flex-col justify-between text-left ${catColor} ${hoverGlow} ${res.rotation}`}
-              >
-                <div className="space-y-4 w-full">
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between">
-                    <span className={`sticker ${res.pillColor} scale-90 origin-left`}>
-                      {res.badgeText}
-                    </span>
-                    <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{res.category}</span>
-                  </div>
-
-                  {/* UI-driven Graphic Course Thumbnail Composition */}
-                  <div className={`h-32 w-full rounded-2xl bg-gradient-to-br ${
-                    res.category === 'Web Dev' ? 'from-[#0b2447] via-[#19376d] to-[#02040a] border-accent-cyan/30' :
-                    res.category === 'Sys Design' ? 'from-[#2c1100] via-[#4d2200] to-[#02040a] border-accent-orange/30' :
-                    'from-[#200b3b] via-[#3d1355] to-[#02040a] border-accent-purple/30'
-                  } border relative overflow-hidden flex items-center justify-center p-4 shadow-[inset_0_4px_20px_rgba(0,0,0,0.4)] transition-transform duration-300 group-hover:scale-[1.02]`}>
-                    
-                    {/* Glowing Light Effect */}
-                    <div className={`absolute h-28 w-28 rounded-full bg-gradient-to-br ${
-                      res.category === 'Web Dev' ? 'from-cyan-400 to-blue-500' :
-                      res.category === 'Sys Design' ? 'from-orange-400 to-amber-500' :
-                      'from-purple-400 to-pink-500'
-                    } opacity-20 blur-xl pointer-events-none`} />
-
-                    {/* Dot grid decoration for futuristic coding vibe */}
-                    <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
-                    
-                    <div className="w-full h-full flex flex-col justify-between relative z-10 text-[9px] font-mono text-text-muted leading-normal">
-                      <div className="flex items-center justify-between border-b border-glass-border/40 pb-1.5 mb-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <Icon size={12} className={themeTextColor} />
-                          <span className="text-text-title font-bold transition-colors">{res.type} config</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {coursesLoading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="p-4 rounded-2xl bg-glass-card border border-glass-border animate-pulse space-y-3">
+                  <div className="h-28 bg-slate-700/20 rounded-xl" />
+                  <div className="h-4 bg-slate-700/20 rounded w-3/4" />
+                  <div className="h-3 bg-slate-700/20 rounded w-1/2" />
+                </div>
+              ))
+            ) : featuredCourses.length > 0 ? (
+              featuredCourses.map((c) => (
+                <div key={c._id} className="p-4 rounded-2xl bg-glass-card border border-glass-border hover:border-purple-500/40 shadow-lg transition-all duration-300 flex flex-col justify-between group">
+                  <div>
+                    <div className="h-28 w-full rounded-xl overflow-hidden relative mb-3 bg-gradient-to-r from-purple-900/60 to-indigo-900/60">
+                      {c.thumbnail ? (
+                        <img src={c.thumbnail} alt={c.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-purple-400">
+                          <BookOpen size={24} />
                         </div>
-                        <span className="text-[8px]">v2.1.0</span>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="h-1.5 bg-glass-border rounded-sm w-[85%]"></div>
-                        <div className="h-1.5 bg-glass-border rounded-sm w-[60%]"></div>
-                        <div className="h-1.5 bg-glass-border rounded-sm w-[75%]"></div>
-                      </div>
-
-                      <div className="flex justify-between items-end border-t border-glass-border/30 pt-1.5 mt-1.5">
-                        <span className="text-[8px] uppercase tracking-wider">{res.difficulty}</span>
-                        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-bg-dark text-[8px] font-bold text-text-title uppercase">
-                          {res.initials}
-                        </div>
-                      </div>
+                      )}
+                      <span className="absolute top-2 right-2 text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-950/80 text-emerald-400 border border-emerald-500/30">
+                        ₹{(c.price || 999).toLocaleString("en-IN")}
+                      </span>
                     </div>
-                  </div>
 
-                  {/* Title & Description */}
-                  <div className="space-y-2">
-                    <h3 className={`text-sm font-bold text-text-title leading-snug transition-colors duration-200 ${themeHoverText}`}>
-                      {res.title}
+                    <h3 className="text-sm font-extrabold text-text-title line-clamp-1 group-hover:text-cyan-400 transition">
+                      {c.title}
                     </h3>
-                    <p className="text-xs text-text-main font-medium leading-relaxed line-clamp-3">
-                      {res.description}
+                    <p className="text-xs text-text-muted line-clamp-2 mt-1 font-medium leading-relaxed">
+                      {c.description}
                     </p>
                   </div>
-                </div>
 
-                <div className="mt-6 pt-4 border-t border-glass-border/40 space-y-4 w-full">
-                  {/* Creator & Stats Row */}
-                  <div className="flex items-center justify-between text-[10px] text-text-muted">
-                    <div className="flex items-center gap-2">
-                      <div className={`h-6 w-6 rounded-full flex items-center justify-center font-extrabold text-[8px] text-text-title uppercase bg-gradient-to-br ${
-                        res.category === 'Web Dev' ? 'from-cyan-500/30' : res.category === 'Sys Design' ? 'from-orange-500/30' : 'from-purple-500/30'
-                      } to-transparent border border-glass-border transition-transform duration-300 group-hover:scale-105`}>
-                        {res.initials}
-                      </div>
-                      <span className="font-semibold text-text-main">{res.creator}</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-0.5 font-bold"><span className="text-amber-500 transition-transform group-hover:scale-110 duration-200">★</span> {res.rating}</span>
-                      <span className="font-medium">{res.learners}</span>
-                    </div>
-                  </div>
-
-                  {/* Duration & Difficulty Row */}
-                  <div className="flex items-center justify-between text-[10px] text-text-muted">
-                    <div className="flex items-center gap-1.5">
-                      <Clock size={11} className="text-text-muted" />
-                      <span>{res.duration}</span>
-                    </div>
-                    <span className="font-bold text-[9px] uppercase tracking-wider">{res.difficulty}</span>
-                  </div>
-
-                  {/* Price & CTA Button */}
-                  <div className="flex items-center justify-between gap-4 pt-1.5">
-                    <div className="text-left">
-                      <span className="text-[9px] text-text-muted uppercase tracking-widest block leading-none">Price</span>
-                      <span className="text-sm font-extrabold text-text-title mt-1.5 block">{res.price}</span>
+                  <div className="mt-4 pt-3 border-t border-glass-border flex items-center justify-between">
+                    <div className="text-[11px] font-semibold text-text-muted flex items-center gap-1.5 truncate max-w-[120px]">
+                      <User size={12} className="text-purple-400 shrink-0" />
+                      <span className="truncate">{c.createdBy?.name || "Mentor"}</span>
                     </div>
                     <Button
-                      variant="primary"
-                      onClick={() => handlePlaceholderClick(res.title)}
-                      className="text-[10px] font-bold py-2 px-4 rounded-xl"
+                      onClick={() => handleEnrollClick(c._id)}
+                      className="py-1.5 px-3 rounded-lg text-[11px] font-bold bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:opacity-90 transition active:scale-95 shadow-md"
                     >
-                      Unlock Now
+                      Enroll Now <ArrowRight size={11} />
                     </Button>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 text-xs text-text-muted">
+                No courses published yet. Check back soon!
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
       </section>
-      </div>
 
-      {/* EXPERT DISCOVERY SECTION */}
-      <div className="w-full bg-[#ffe8d6]/80 dark:bg-[#070b1a] border-b border-orange-500/10 dark:border-indigo-950/30">
-      <section id="experts" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
-        <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-orange/5 rounded-full blur-[90px] pointer-events-none"></div>
-
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
-          <div className="space-y-4 text-left">
-            <div className="sticker sticker-orange rotate-[-2deg]">
-              <span>04 / MASTER CONSULTING</span>
+      {/* EXPERT MENTORSHIP SECTION (COMPACT & PROFESSIONAL) */}
+      <section className="py-16 border-b border-glass-border bg-bg-panel/40">
+        <div className="max-w-7xl mx-auto px-6 space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                1-ON-1 CONSULTATIONS
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-text-title font-display mt-2">
+                Expert Mentors
+              </h2>
             </div>
-            <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
-              Sometimes you don't need another tutorial.
-            </h2>
-          </div>
-          <p className="text-xs text-text-main font-semibold max-w-xs leading-relaxed text-left">
-            "You need an architect who has already deployed it at scale." Connect live with verified developers.
-          </p>
-        </div>
-
-        {/* Experts Directory grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {experts.map((exp, idx) => (
-            <SpotlightCard
-              key={idx}
-              className={`group p-6 border rounded-2xl relative overflow-hidden text-left hover:translate-y-[-4px] hover:scale-[1.01] transition-all duration-300 ease-out ${
-                idx === 0 ? "card-tint-peach border-accent-orange/20" : "card-tint-purple border-accent-purple/20"
-              }`}
-              glowColor={exp.glowColor}
-            >
-              {/* Radial gradient background light */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-accent-orange/5 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-              <div className="flex flex-col sm:flex-row gap-5 relative z-10">
-                {/* Expert portrait */}
-                <div className={`h-16 w-16 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.2)] relative border font-extrabold text-lg text-white uppercase bg-gradient-to-br transition-all duration-300 ${
-                  idx === 0
-                    ? "from-orange-500 to-amber-500 border-orange-400/30 glow-border-orange group-hover:shadow-[0_0_15px_rgba(249,115,22,0.25)] group-hover:border-orange-400"
-                    : "from-purple-500 to-pink-500 border-purple-400/30 glow-border-purple group-hover:shadow-[0_0_15px_rgba(168,85,247,0.25)] group-hover:border-purple-400"
-                }`}>
-                  {exp.portrait && !exp.portrait.includes("unsplash.com") ? (
-                    <img src={exp.portrait} alt={exp.name} className="h-full w-full object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105" />
-                  ) : (
-                    exp.name.split(' ').map(n => n[0]).join('')
-                  )}
-                  <div className="absolute -bottom-2 -right-2 bg-bg-darker p-1 rounded-tl-xl border-t border-l border-glass-border">
-                    <span className="text-[8px] text-amber-400">★</span>
-                  </div>
-                  {/* Status Indicator */}
-                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 transition-transform duration-300 group-hover:scale-110">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                  </span>
-                </div>
-
-                <div className="space-y-3.5 flex-grow w-full">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-glass-border/40 pb-2">
-                    <div>
-                      <h3 className={`text-sm font-bold text-text-title mb-0.5 transition-colors ${
-                        idx === 0 ? "group-hover:text-accent-orange" : "group-hover:text-accent-purple"
-                      }`}>{exp.name}</h3>
-                      <p className="text-[10px] text-text-muted font-bold">{exp.role}</p>
-                    </div>
-                    
-                    <span className="text-[9px] text-accent-orange bg-accent-orange/15 border border-accent-orange/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider transition-all duration-300 group-hover:bg-accent-orange/25 group-hover:border-accent-orange/40 group-hover:shadow-[0_0_8px_rgba(249,115,22,0.2)]">
-                      {exp.availability}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-text-main leading-relaxed font-medium transition-colors group-hover:text-text-title">
-                    Former developer specialized in high-scale infrastructure audits, multi-region database replications, and zero-downtime container configuration.
-                  </p>
-
-                  <div className="pt-2 flex items-center justify-between text-[10px] text-text-muted font-bold uppercase tracking-wider">
-                    <span className="transition-colors group-hover:text-text-main">{exp.expertise}</span>
-                    <div className="flex items-center gap-3 font-semibold text-text-muted normal-case">
-                      <span className="transition-colors group-hover:text-text-title">{exp.sessions}</span>
-                      <span className="flex items-center gap-0.5"><span className="text-amber-500 transition-transform duration-200 group-hover:scale-110">★</span> {exp.rating}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </SpotlightCard>
-          ))}
-        </div>
-      </section>
-      </div>
-
-      {/* CREATORS SECTION */}
-      <div className="w-full bg-[#fdf2f8]/90 dark:bg-[#0b1020] border-b border-pink-500/10 dark:border-purple-950/30">
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
-        <div className="absolute top-[20%] right-[-150px] w-[500px] h-[500px] bg-accent-purple/5 rounded-full blur-[80px] pointer-events-none"></div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left content description */}
-          <div className="lg:col-span-5 text-left space-y-6">
-            <div className="sticker sticker-purple rotate-[-2deg]">
-              <span>05 / MONETIZE EXPERIENCE</span>
-            </div>
-            <h2 className="section-heading text-3xl sm:text-4xl leading-tight">
-              Compile notes & sell configurations.
-            </h2>
-            <p className="text-sm text-text-main font-medium leading-relaxed">
-              Compile your schema templates, config scripts, and blueprints. Set your pricing model and distribute files securely to builders on CKM.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 text-xs font-semibold">
-              {[
-                { title: "Boilerplates", text: "Package codebase ZIPs." },
-                { title: "Checklists", text: "Upload audit references." },
-                { title: "Consulting", text: "Open mentorship call times." },
-                { title: "Payouts", text: "Get paid direct to account." }
-              ].map((item, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <Check size={13} className="text-accent-purple mt-0.5 shrink-0" />
-                  <div>
-                    <h4 className="text-text-title font-bold">{item.title}</h4>
-                    <p className="text-[9px] text-text-muted mt-0.5">{item.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Link to="/sessions" className="text-xs font-extrabold text-amber-400 hover:underline flex items-center gap-1">
+              Browse All Slots <ArrowRight size={13} />
+            </Link>
           </div>
 
-          {/* Right visual dashboard preview */}
-          <div className="lg:col-span-7 bg-bg-panel border border-glass-border rounded-2xl p-6 shadow-2xl relative overflow-hidden text-left">
-            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-accent-purple/5 blur-2xl pointer-events-none"></div>
-            
-            {/* Header with Creator Identity */}
-            <div className="flex items-center justify-between border-b border-glass-border/40 pb-4 mb-5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center font-extrabold text-sm text-accent-purple bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-accent-purple/20 glow-border-purple">
-                  AR
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {mentors.map((m, idx) => (
+              <div key={idx} className="p-4 rounded-2xl bg-glass-card border border-glass-border hover:border-amber-500/40 transition-all duration-300 shadow-lg flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-text-title leading-none">Alex Rivera</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <div className="flex items-start gap-3">
+                    <img src={m.image} alt={m.name} className="h-14 w-14 rounded-xl object-cover border border-amber-500/30 shrink-0" />
+                    <div className="space-y-0.5 overflow-hidden">
+                      <h3 className="text-xs sm:text-sm font-extrabold text-text-title truncate">{m.name}</h3>
+                      <p className="text-[10px] font-mono text-amber-400 truncate">{m.title}</p>
+                      <span className="inline-block text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20 mt-1">
+                        {m.specialty}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-0.5 block">CKM Verified Creator</span>
+                  <p className="text-xs text-text-muted leading-relaxed line-clamp-2 mt-3 font-medium">
+                    {m.bio}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-glass-border flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1">
+                    <Video size={12} /> Live Video Slot
+                  </span>
+                  <Button
+                    onClick={handleBookCallClick}
+                    variant="secondary"
+                    className="py-1.5 px-3 rounded-lg text-[11px] font-bold text-text-title hover:text-cyan-400 flex items-center gap-1 border border-glass-border bg-bg-dark"
+                  >
+                    Book Call <ArrowRight size={11} />
+                  </Button>
                 </div>
               </div>
-              <span className="text-[10px] text-text-muted font-bold">Standard Account</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* QUOTE SECTION */}
+      <section className="py-14 bg-bg-deep border-b border-glass-border relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-6 text-center space-y-3">
+          <Quote size={32} className="text-cyan-500/40 mx-auto" />
+          <h2 className="text-lg sm:text-xl font-extrabold text-text-title leading-relaxed font-display max-w-2xl mx-auto">
+            "By far, the greatest danger of Artificial Intelligence is that <span className="text-amber-400 underline decoration-amber-500/40 underline-offset-4">people conclude too early that they understand it.</span>"
+          </h2>
+          <p className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest pt-1">— Eliezer Yudkowsky, AI Researcher</p>
+        </div>
+      </section>
+
+      {/* TARGET AUDIENCE SECTION */}
+      <section className="py-16 border-b border-glass-border bg-bg-panel/40">
+        <div className="max-w-7xl mx-auto px-6 space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-2">
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+              TARGET AUDIENCE
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-title font-display">
+              Designed For High-Stakes Tech
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border hover:border-cyan-400/40 transition duration-300 space-y-3 shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center font-bold">
+                <BookOpen size={18} />
+              </div>
+              <span className="text-[10px] font-mono font-bold uppercase text-cyan-400 tracking-wider block">01. LEARNER</span>
+              <h3 className="text-sm font-extrabold text-text-title">Engineers & Students</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Structured unit lessons, real code blueprints, and 1-on-1 mentorship to stay ahead.
+              </p>
             </div>
 
-            {/* Premium Stats Grid */}
-            <div className="grid grid-cols-4 gap-3 mb-5">
-              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Earnings</div>
-                <div className="text-[11px] font-extrabold text-emerald-400 mt-1">$4,850.00</div>
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border hover:border-purple-400/40 transition duration-300 space-y-3 shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center font-bold">
+                <Cpu size={18} />
               </div>
-              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Resources</div>
-                <div className="text-[11px] font-extrabold text-text-title mt-1">18 Items</div>
-              </div>
-              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Learners</div>
-                <div className="text-[11px] font-extrabold text-accent-blue mt-1">1,420</div>
-              </div>
-              <div className="bg-bg-darker/60 border border-glass-border/60 rounded-xl p-2.5 text-center">
-                <div className="text-[8px] font-bold text-text-muted uppercase tracking-wider">Rating</div>
-                <div className="text-[11px] font-extrabold text-amber-400 mt-1">4.9 ★</div>
-              </div>
+              <span className="text-[10px] font-mono font-bold uppercase text-purple-400 tracking-wider block">02. CREATOR</span>
+              <h3 className="text-sm font-extrabold text-text-title">Authors & Tech Leads</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Draft interactive courses, attach code schemas, set pricing, and monetize knowledge directly.
+              </p>
             </div>
 
-            {/* Miniature Resource Catalog Preview */}
-            <div className="space-y-2 mb-5">
-              <div className="text-[9px] font-extrabold text-text-muted uppercase tracking-widest mb-1.5">Published Resources</div>
-              {[
-                { title: "Production Next.js 15 Masterclass", type: "Course", price: "$29.00", category: "Web Dev", color: "border-accent-cyan/20 bg-accent-cyan/5 card-tint-cyan", text: "text-accent-cyan" },
-                { title: "Raft Consensus Blueprint & Scripts", type: "Guide", price: "$15.00", category: "Sys Design", color: "border-accent-orange/20 bg-accent-orange/5 card-tint-peach", text: "text-accent-orange" }
-              ].map((res, i) => (
-                <div key={i} className="flex items-center justify-between p-2.5 bg-bg-darker/40 border border-glass-border rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-flex px-1.5 py-0.5 rounded text-[8px] font-extrabold border ${res.color} ${res.text}`}>
-                      {res.type}
-                    </span>
-                    <span className="text-[10px] font-bold text-text-title">{res.title}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-text-title">{res.price}</span>
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border hover:border-emerald-400/40 transition duration-300 space-y-3 shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+                <Video size={18} />
+              </div>
+              <span className="text-[10px] font-mono font-bold uppercase text-emerald-400 tracking-wider block">03. EXPERT MENTOR</span>
+              <h3 className="text-sm font-extrabold text-text-title">Domain Specialists</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Set session availability, conduct live 1-on-1 video consultations, and review learner code.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border hover:border-amber-400/40 transition duration-300 space-y-3 shadow-md">
+              <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
+                <Layers size={18} />
+              </div>
+              <span className="text-[10px] font-mono font-bold uppercase text-amber-400 tracking-wider block">04. OPERATIONS</span>
+              <h3 className="text-sm font-extrabold text-text-title">Platform Admin</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Oversee platform user directory, update permissions, and resolve content moderation reports.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS SECTION */}
+      <section className="py-16 border-b border-glass-border bg-bg-dark relative overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6 space-y-8 text-center">
+          <div className="space-y-2">
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+              COMMUNITY TESTIMONIALS
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-title font-display">
+              Loved By Engineers & Creators
+            </h2>
+          </div>
+
+          <div className="relative max-w-2xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentTestimonial}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="p-6 sm:p-8 rounded-2xl bg-glass-card border border-glass-border text-left space-y-4 shadow-xl relative"
+              >
+                <div className="flex items-center gap-1 text-amber-400">
+                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                    <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* Analytical Graph mockup */}
-            <div className="bg-bg-darker/40 border border-glass-border/40 rounded-xl p-4">
-              <div className="flex items-center justify-between text-[9px] text-text-muted mb-4">
-                <span>Revenue Metrics</span>
-                <span className="text-accent-purple font-bold">+18.5% growth</span>
-              </div>
-              <div className="flex items-end justify-between h-20 px-2 gap-2 pt-2">
-                {[30, 45, 35, 60, 50, 75, 90, 85].map((h, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center">
-                    <div className="w-full bg-gradient-to-t from-accent-purple/20 to-accent-purple rounded-t-sm transition-all duration-500 hover:to-text-title" style={{ height: `${h}%` }}></div>
+                <p className="text-sm sm:text-base text-text-main italic leading-relaxed font-medium">
+                  "{testimonials[currentTestimonial].quote}"
+                </p>
+
+                <div className="flex items-center gap-3 pt-3 border-t border-glass-border">
+                  <img
+                    src={testimonials[currentTestimonial].avatar}
+                    alt={testimonials[currentTestimonial].name}
+                    className="h-10 w-10 rounded-full object-cover border-2 border-cyan-500/40"
+                  />
+                  <div>
+                    <h4 className="text-xs font-extrabold text-text-title">{testimonials[currentTestimonial].name}</h4>
+                    <p className="text-[11px] text-cyan-400 font-mono">{testimonials[currentTestimonial].role}</p>
                   </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="flex justify-center items-center gap-3 mt-5">
+              <button
+                onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                className="p-2 rounded-full bg-bg-deep border border-glass-border text-text-muted hover:text-text-title transition cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="flex items-center gap-1.5">
+                {testimonials.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentTestimonial(idx)}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      currentTestimonial === idx ? "w-6 bg-cyan-400" : "w-2 bg-slate-600"
+                    }`}
+                  />
                 ))}
               </div>
+
+              <button
+                onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+                className="p-2 rounded-full bg-bg-deep border border-glass-border text-text-muted hover:text-text-title transition cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
-
         </div>
       </section>
-      </div>
 
-      {/* COMMUNITY DISCUSSIONS */}
-      <div className="w-full bg-[#f5e0ff]/80 dark:bg-[#050814] border-b border-purple-500/10 dark:border-purple-950/30">
-      <section id="community" className="mx-auto max-w-7xl px-6 py-24 relative z-10">
-        <div className="absolute top-[10%] left-[-150px] w-[500px] h-[500px] bg-accent-pink/5 rounded-full blur-[90px] pointer-events-none"></div>
-
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="sticker sticker-pink rotate-[-2deg] mb-3">
-            <span>06 / PEER COMMONS</span>
-          </div>
-          <h2 className="section-heading text-3xl">Active Developer Threads</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            { title: "What is the best way to structure Redis caching inside Next.js API endpoints?", author: "Nikola T.", replies: 18, likes: 42, topic: "Web Dev" },
-            { title: "Decoupling microservices: should we use Kafka event streaming or simple RabbitMQ exchanges?", author: "Sarah L.", replies: 24, likes: 56, topic: "System Design" }
-          ].map((d, idx) => (
-            <SpotlightCard
-              key={idx}
-              className={`p-6 border rounded-2xl flex flex-col justify-between text-left ${
-                idx === 0 ? "card-tint-cyan border-accent-cyan/20" : "card-tint-pink border-accent-pink/20"
-              }`}
-              glowColor="rgba(236, 72, 153, 0.12)"
-            >
-              <div className="space-y-4 w-full">
-                <div className="flex items-center justify-between text-[10px] font-bold text-text-muted">
-                  <span className="uppercase tracking-wider">{d.topic}</span>
-                  <span>Started by {d.author}</span>
-                </div>
-                <h3 className="text-xs font-bold text-text-title hover:text-accent-blue transition-all cursor-pointer leading-relaxed">
-                  "{d.title}"
-                </h3>
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-glass-border/30 flex items-center justify-between text-[10px] text-text-muted font-semibold w-full">
-                <div className="flex gap-4">
-                  <span>{d.replies} replies</span>
-                  <span>{d.likes} likes</span>
-                </div>
-                <button
-                  onClick={() => handlePlaceholderClick("Community Forum")}
-                  className="text-accent-pink hover:text-text-title flex items-center gap-1 transition cursor-pointer"
-                >
-                  Join discussion <ArrowRight size={10} />
-                </button>
-              </div>
-            </SpotlightCard>
-          ))}
-        </div>
-      </section>
-      </div>
-
-      {/* PLATFORM STATISTICS SECTION */}
-      <div className="w-full bg-[#e6fffa]/80 dark:bg-[#0b1020] border-b border-teal-500/10 dark:border-teal-950/30">
-      <section className="mx-auto max-w-7xl px-6 py-20 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-          {[
-            { num: "10K+", label: "Active Learners", color: "text-accent-blue", bgGlow: "rgba(59, 130, 246, 0.08)" },
-            { num: "2.5K+", label: "Verified Resources", color: "text-accent-cyan", bgGlow: "rgba(6, 182, 212, 0.08)" },
-            { num: "800+", label: "Specialist Creators", color: "text-accent-purple", bgGlow: "rgba(168, 85, 247, 0.08)" },
-            { num: "320+", label: "Consultant Experts", color: "text-accent-orange", bgGlow: "rgba(249, 115, 22, 0.08)" }
-          ].map((stat, idx) => (
-            <SpotlightCard
-              key={idx}
-              className={`group p-6 border rounded-2xl text-center flex flex-col items-center justify-center hover:translate-y-[-4px] hover:scale-[1.01] transition-all duration-300 ease-out ${
-                idx === 0 ? "card-tint-blue border-accent-blue/20" :
-                idx === 1 ? "card-tint-cyan border-accent-cyan/20" :
-                idx === 2 ? "card-tint-purple border-accent-purple/20" :
-                "card-tint-peach border-accent-orange/20"
-              }`}
-              glowColor={stat.bgGlow}
-            >
-              <div className={`text-2xl sm:text-3xl font-extrabold ${stat.color} tracking-tight transition-transform duration-300 group-hover:scale-105`}>{stat.num}</div>
-              <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider mt-1.5 transition-colors group-hover:text-text-title">{stat.label}</div>
-            </SpotlightCard>
-          ))}
-        </div>
-      </section>
-      </div>
-
-      {/* FINAL CTA SECTION */}
-      <div className="w-full bg-[#eee9ff] dark:bg-transparent py-6 border-b border-purple-500/10">
-      <section className="mx-auto max-w-5xl px-6 py-12 relative z-10">
-        
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] dark:from-purple-950 dark:to-indigo-950 border border-purple-500/20 dark:border-purple-800/30 p-12 md:p-18 text-center shadow-2xl">
-          <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none"></div>
-          
-          <div className="relative z-10 max-w-xl mx-auto space-y-6">
-            <h2 className="text-3xl sm:text-4xl leading-tight font-extrabold text-white">
-              Your next breakthrough could start here.
+      {/* FAQ SECTION */}
+      <section className="py-16 border-b border-glass-border bg-bg-deep">
+        <div className="max-w-4xl mx-auto px-6 space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+              FREQUENTLY ASKED QUESTIONS
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-text-title font-display">
+              Frequently Asked Questions
             </h2>
-            <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed font-medium">
-              Join a modern repository built to connect resources, course modules, and direct mentorship lines.
-            </p>
-            <div className="pt-4 flex justify-center">
-              {isAuthenticated ? (
-                <Button
-                  variant="secondary"
-                  className="font-bold px-8 py-3.5 rounded-xl text-xs bg-white text-purple-700 hover:bg-purple-50 border border-transparent shadow-lg shadow-purple-950/20 active:scale-95 transition-all duration-150 cursor-pointer"
-                  onClick={() => handlePlaceholderClick("Marketplace Dashboard")}
+          </div>
+
+          <div className="space-y-3 text-left">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl bg-glass-card border border-glass-border overflow-hidden transition duration-200"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full p-4 text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-bg-dark/50"
                 >
-                  Explore Dashboard
-                </Button>
-              ) : (
-                <Link to="/signup">
-                  <Button
-                    variant="secondary"
-                    className="font-bold px-8 py-3.5 rounded-xl text-xs bg-white text-purple-700 hover:bg-purple-50 border border-transparent shadow-lg shadow-purple-950/20 active:scale-95 transition-all duration-150 cursor-pointer"
-                  >
-                    Get Started with CKM
-                  </Button>
-                </Link>
-              )}
-            </div>
+                  <span className="text-xs sm:text-sm font-extrabold text-text-title">{faq.q}</span>
+                  {openFaq === idx ? <ChevronUp size={16} className="text-cyan-400 shrink-0" /> : <ChevronDown size={16} className="text-text-muted shrink-0" />}
+                </button>
+                {openFaq === idx && (
+                  <div className="px-4 pb-4 text-xs text-text-muted leading-relaxed border-t border-glass-border pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
-      </div>
 
+      {/* WAITLIST FOOTER */}
+      <section className="py-16 bg-gradient-to-t from-bg-dark via-bg-deep to-bg-deep relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-6 text-center space-y-6 relative z-10">
+          <div className="space-y-3">
+            <h2 className="text-2xl sm:text-4xl font-black text-text-title font-display leading-tight">
+              Looking for upcoming masterclasses?
+            </h2>
+            <p className="text-xs sm:text-sm text-text-muted font-medium max-w-xl mx-auto">
+              Join our technical community waitlist to receive immediate notifications when new architecture guides and expert session slots drop.
+            </p>
+          </div>
+
+          {subscribed ? (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold max-w-md mx-auto">
+              ✓ Thank you! You have been added to the CKM waitlist.
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-center gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                placeholder="Enter your work email address..."
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-bg-dark border border-glass-border text-xs text-text-title placeholder:text-text-muted outline-none focus:border-cyan-400 font-mono"
+              />
+              <Button
+                type="submit"
+                className="w-full sm:w-auto text-xs font-bold py-3 px-5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white shrink-0 shadow-md"
+              >
+                Join Waitlist <Send size={13} className="ml-1" />
+              </Button>
+            </form>
+          )}
+
+          <div className="pt-6 border-t border-glass-border flex flex-wrap items-center justify-center gap-6 text-xs text-text-muted font-mono">
+            <span>© 2026 Collaborative Knowledge Marketplace</span>
+            <span>•</span>
+            <Link to="/courses" className="hover:text-cyan-400">Courses</Link>
+            <span>•</span>
+            <Link to="/sessions" className="hover:text-purple-400">Mentorship</Link>
+            <span>•</span>
+            <Link to="/resources" className="hover:text-emerald-400">Resources</Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

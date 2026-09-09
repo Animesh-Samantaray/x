@@ -9,14 +9,14 @@ import {
 } from "../controllers/category.controller.js";
 
 import authorizeRoles from '../middlewares/role.middleware.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
+import authMiddleware, { optionalAuth } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 
-router.get("/", authMiddleware, getCategories);
+router.get("/", optionalAuth, getCategories);
 
-router.get("/:id", authMiddleware, getCategoryById);
+router.get("/:id", optionalAuth, getCategoryById);
 
 
 router.post(

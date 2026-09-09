@@ -141,7 +141,7 @@ const PaymentHistory = () => {
         </div>
 
         {/* Filter & Search Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#181824] border border-white/10 p-3.5 rounded-2xl shadow-xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-glass-card border border-glass-border p-3.5 rounded-2xl shadow-md">
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {["all", "Paid", "Pending", "Failed"].map((st) => (
               <button
@@ -149,8 +149,8 @@ const PaymentHistory = () => {
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold capitalize transition cursor-pointer ${
                   statusFilter === st
-                    ? "bg-[#7757F5]/20 text-[#00F2FF] border border-[#7757F5]/40 shadow-xs"
-                    : "text-text-muted hover:text-text-title hover:bg-white/5"
+                    ? "bg-purple-500/20 text-cyan-400 border border-purple-500/40 shadow-xs"
+                    : "text-text-muted hover:text-text-title hover:bg-glass-border/40"
                 }`}
               >
                 {st === "all" ? "All Statuses" : st}
@@ -164,7 +164,7 @@ const PaymentHistory = () => {
               placeholder="Search by title, recipient, ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full form-input text-xs rounded-xl pl-9 pr-4 py-2 bg-[#0F0F17] text-text-title border-white/10 focus:border-[#7757F5] focus:outline-none"
+              className="w-full text-xs rounded-xl pl-9 pr-4 py-2 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 focus:outline-none"
             />
             <Search size={14} className="absolute left-3 top-2.5 text-text-muted" />
           </div>
@@ -186,14 +186,14 @@ const PaymentHistory = () => {
         {loading && !error && (
           <div className="space-y-3 animate-pulse">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-20 bg-[#181824] rounded-2xl border border-white/10"></div>
+              <div key={i} className="h-20 bg-glass-card rounded-2xl border border-glass-border"></div>
             ))}
           </div>
         )}
 
         {/* Empty state */}
         {!loading && !error && filteredPayments.length === 0 && (
-          <SpotlightCard className="p-12 bg-[#181824] border border-white/10 text-center rounded-2xl shadow-xl" glowColor="rgba(119, 87, 245, 0.08)">
+          <SpotlightCard className="p-12 bg-glass-card border border-glass-border text-center rounded-2xl shadow-md" glowColor="rgba(119, 87, 245, 0.08)">
             <Receipt size={40} className="text-text-muted mx-auto mb-3" />
             <h3 className="text-sm font-extrabold text-text-title">No payment records found</h3>
             <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
@@ -224,14 +224,14 @@ const PaymentHistory = () => {
               return (
                 <SpotlightCard
                   key={p._id}
-                  className="p-4 sm:p-5 bg-[#181824] border border-white/10 rounded-2xl transition hover:border-[#7757F5]/40 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="p-4 sm:p-5 bg-glass-card border border-glass-border rounded-2xl transition hover:border-purple-500/40 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   glowColor="rgba(119, 87, 245, 0.08)"
                 >
                   <div className="flex items-start sm:items-center gap-3.5 min-w-0">
                     <div className={`p-3 rounded-2xl border shrink-0 ${
                       isCourse
-                        ? "bg-[#7757F5]/15 text-[#00F2FF] border-[#7757F5]/30"
-                        : "bg-[#00F2FF]/15 text-[#00F2FF] border-[#00F2FF]/30"
+                        ? "bg-purple-500/15 text-cyan-400 border-purple-500/30"
+                        : "bg-cyan-500/15 text-cyan-400 border-cyan-500/30"
                     }`}>
                       {isCourse ? <BookOpen size={22} /> : <Video size={22} />}
                     </div>
@@ -240,22 +240,22 @@ const PaymentHistory = () => {
                       <div className="flex items-center gap-2">
                         <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded border ${
                           isCourse
-                            ? "bg-[#7757F5]/15 text-[#00F2FF] border-[#7757F5]/30"
-                            : "bg-[#00F2FF]/15 text-[#00F2FF] border-[#00F2FF]/30"
+                            ? "bg-purple-500/15 text-cyan-400 border-purple-500/30"
+                            : "bg-cyan-500/15 text-cyan-400 border-cyan-500/30"
                         }`}>
                           {p.type}
                         </span>
                         {renderStatusBadge(p.status)}
                       </div>
 
-                      <h3 className="text-sm sm:text-base font-extrabold text-white truncate leading-snug">
+                      <h3 className="text-sm sm:text-base font-extrabold text-text-title truncate leading-snug">
                         {itemTitle || `${p.type} Transaction`}
                       </h3>
 
-                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#9696A8] font-semibold">
+                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-text-muted font-semibold">
                         <span className="flex items-center gap-1">
-                          <User size={12} className="text-[#7757F5]" />
-                          To: <strong className="text-white">{p.recipient?.name || "Creator/Expert"}</strong>
+                          <User size={12} className="text-purple-400" />
+                          To: <strong className="text-text-title">{p.recipient?.name || "Creator/Expert"}</strong>
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
@@ -265,13 +265,13 @@ const PaymentHistory = () => {
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0 shrink-0">
-                    <div className="text-base sm:text-lg font-black text-emerald-400 tracking-tight">
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-glass-border pt-3 sm:pt-0 shrink-0">
+                    <div className="text-base sm:text-lg font-black text-emerald-500 tracking-tight">
                       ₹{p.amount?.toLocaleString("en-IN")} <span className="text-[10px] text-text-muted">{p.currency || "INR"}</span>
                     </div>
                     <button
                       onClick={() => handleViewDetails(p._id)}
-                      className="text-xs font-extrabold text-[#00F2FF] hover:underline flex items-center gap-1 cursor-pointer transition mt-1"
+                      className="text-xs font-extrabold text-cyan-500 hover:underline flex items-center gap-1 cursor-pointer transition mt-1"
                     >
                       View Receipt &rarr;
                     </button>
@@ -284,28 +284,28 @@ const PaymentHistory = () => {
 
         {/* Payment Details Modal */}
         {detailsModalOpen && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <SpotlightCard className="w-full max-w-md bg-[#181824] border border-white/10 p-6 rounded-3xl text-left shadow-2xl space-y-5" glowColor="rgba(119, 87, 245, 0.15)">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <h3 className="text-xs font-extrabold text-white uppercase tracking-widest flex items-center gap-2">
-                  <Receipt size={16} className="text-[#00F2FF]" /> Payment Receipt Details
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <SpotlightCard className="w-full max-w-md bg-bg-panel border border-glass-border p-6 rounded-3xl text-left shadow-2xl space-y-5" glowColor="rgba(119, 87, 245, 0.15)">
+              <div className="flex items-center justify-between border-b border-glass-border pb-3">
+                <h3 className="text-xs font-extrabold text-text-title uppercase tracking-widest flex items-center gap-2">
+                  <Receipt size={16} className="text-cyan-500" /> Payment Receipt Details
                 </h3>
-                <button onClick={() => setDetailsModalOpen(false)} className="text-text-muted hover:text-white transition cursor-pointer p-1 rounded-lg">
+                <button onClick={() => setDetailsModalOpen(false)} className="text-text-muted hover:text-text-title transition cursor-pointer p-1 rounded-lg">
                   <X size={18} />
                 </button>
               </div>
 
               {loadingDetails ? (
                 <div className="py-12 text-center text-xs text-text-muted space-y-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#7757F5] mx-auto"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
                   <p>Loading payment receipt...</p>
                 </div>
               ) : selectedPayment ? (
                 <div className="space-y-4 text-xs">
-                  <div className="p-4 bg-[#0F0F17] rounded-2xl border border-white/10 space-y-2">
+                  <div className="p-4 bg-bg-darker rounded-2xl border border-glass-border space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold text-text-muted uppercase">Payment Amount</span>
-                      <span className="text-xl font-black text-emerald-400">
+                      <span className="text-xl font-black text-emerald-500">
                         ₹{selectedPayment.amount} {selectedPayment.currency || "INR"}
                       </span>
                     </div>
@@ -316,29 +316,29 @@ const PaymentHistory = () => {
                   </div>
 
                   <div className="space-y-2.5">
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Reason</span>
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-text-title">
                         {selectedPayment.reason || (selectedPayment.type === "Course" ? "Course Enrollment" : "Mentorship Session Booking")}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Item Type</span>
-                      <span className="font-bold text-white">{selectedPayment.type}</span>
+                      <span className="font-bold text-text-title">{selectedPayment.type}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Item Title</span>
-                      <span className="font-bold text-white truncate max-w-[200px]">
+                      <span className="font-bold text-text-title truncate max-w-[200px]">
                         {selectedPayment.course?.title || selectedPayment.session?.title || "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Recipient</span>
-                      <span className="font-bold text-white">{selectedPayment.recipient?.name || "Instructor/Expert"}</span>
+                      <span className="font-bold text-text-title">{selectedPayment.recipient?.name || "Instructor/Expert"}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Payment Date</span>
-                      <span className="font-bold text-white">
+                      <span className="font-bold text-text-title">
                         {selectedPayment.paidAt
                           ? new Date(selectedPayment.paidAt).toLocaleString()
                           : selectedPayment.createdAt
@@ -346,14 +346,14 @@ const PaymentHistory = () => {
                           : "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-white/10">
+                    <div className="flex justify-between py-1 border-b border-glass-border">
                       <span className="text-text-muted">Transaction ID</span>
-                      <span className="font-mono text-[10px] text-white">{selectedPayment._id}</span>
+                      <span className="font-mono text-[10px] text-text-title">{selectedPayment._id}</span>
                     </div>
                     {selectedPayment.razorpayPaymentId && (
-                      <div className="flex justify-between py-1 border-b border-white/10">
+                      <div className="flex justify-between py-1 border-b border-glass-border">
                         <span className="text-text-muted">Razorpay Payment ID</span>
-                        <span className="font-mono text-[10px] text-[#00F2FF]">{selectedPayment.razorpayPaymentId}</span>
+                        <span className="font-mono text-[10px] text-cyan-500">{selectedPayment.razorpayPaymentId}</span>
                       </div>
                     )}
                   </div>

@@ -1,42 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import StatCard from "../../components/dashboard/StatCard";
 import LoadingSkeleton from "../../components/dashboard/LoadingSkeleton";
 import EmptyState from "../../components/dashboard/EmptyState";
 import ErrorState from "../../components/dashboard/ErrorState";
-import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
-import SessionCard from "../../components/sessions/SessionCard";
-import CreateSessionModal from "../../components/sessions/CreateSessionModal";
+import toast from "react-hot-toast";
 
-import { getExpertProfile } from "../../services/expertApi";
-import { getMySessions, acceptLearner, rejectLearner, cancelSession, completeSession } from "../../services/sessionService";
-import { getMyCourses, deleteCourse } from "../../services/courseService";
-import { getMyResources, deleteResource } from "../../services/resourceService";
-import { getMyEarnings } from "../../services/paymentService";
+import {
+  getMySessions,
+  getAllSessions,
+  acceptLearner,
+  rejectLearner,
+} from "../../services/sessionService";
 
 import {
   Video,
   Users,
-  Award,
-  BookOpen,
-  FileText,
   Clock,
   CheckCircle,
   XCircle,
-  PlusCircle,
-  Edit,
-  Trash2,
   Calendar,
   DollarSign,
-  UserCheck,
-  Star,
   ExternalLink,
+  PlusCircle,
+  Sparkles,
+  UserCheck,
   ShieldCheck,
-  AlertCircle
+  ChevronRight,
+  Activity,
 } from "lucide-react";
+
+import { transformExpertAnalytics } from "../../utils/analyticsTransformer";
+import { RealLineChart, RealDoughnutChart } from "../../components/dashboard/RealChart";
 
 const ExpertDashboard = () => {
   const { user } = useAuth();
@@ -45,47 +41,21 @@ const ExpertDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [profile, setProfile] = useState(null);
   const [sessions, setSessions] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [resources, setResources] = useState([]);
-  const [totalEarnings, setTotalEarnings] = useState(0);
-
-  const [activeTab, setActiveTab] = useState("overview");
-  const [createSessionOpen, setCreateSessionOpen] = useState(false);
-  const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [activeTab, setActiveTab] = useState("my");
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [profileRes, sessionsRes, coursesRes, resourcesRes, earningsRes] = await Promise.allSettled([
-        getExpertProfile(),
-        getMySessions(),
-        getMyCourses(),
-        getMyResources(),
-        getMyEarnings(),
-      ]);
-
-      if (profileRes.status === "fulfilled" && profileRes.value?.profile) {
-        setProfile(profileRes.value.profile);
-      }
-      if (sessionsRes.status === "fulfilled" && sessionsRes.value?.sessions) {
-        setSessions(sessionsRes.value.sessions);
-      }
-      if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
-        setCourses(coursesRes.value.courses);
-      }
-      if (resourcesRes.status === "fulfilled" && resourcesRes.value?.resources) {
-        setResources(resourcesRes.value.resources);
-      }
-      if (earningsRes.status === "fulfilled" && earningsRes.value?.data) {
-        setTotalEarnings(earningsRes.value.data.earnings || 0);
+      const res = await getMySessions();
+      if (res && res.success) {
+        setSessions(res.sessions || []);
       }
     } catch (err) {
-      console.error("Error fetching expert dashboard data:", err);
-      setError(err.message || "Failed to load expert dashboard data.");
+      console.error("Expert hub fetch error:", err);
+      setError(err.message || "Failed to load expert hub data.");
     } finally {
       setLoading(false);
     }
@@ -95,197 +65,212 @@ const ExpertDashboard = () => {
     fetchData();
   }, []);
 
-  const handleAcceptLearner = async (sessionId, learnerId) => {
+  const handleAccept = async (sessionId, learnerId) => {
     try {
-      setActionLoadingId(`${sessionId}-${learnerId}`);
-      await acceptLearner(sessionId, learnerId);
-      await fetchData();
+      const res = await acceptLearner(sessionId, learnerId);
+      if (res && res.success) {
+        toast.success("Learner request accepted!");
+        fetchData();
+      }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to accept learner.");
-    } finally {
-      setActionLoadingId(null);
+      toast.error("Failed to accept learner request.");
     }
   };
 
-  const handleRejectLearner = async (sessionId, learnerId) => {
+  const handleReject = async (sessionId, learnerId) => {
     try {
-      setActionLoadingId(`${sessionId}-${learnerId}`);
-      await rejectLearner(sessionId, learnerId);
-      await fetchData();
+      const res = await rejectLearner(sessionId, learnerId);
+      if (res && res.success) {
+        toast.success("Learner request rejected.");
+        fetchData();
+      }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to reject learner.");
-    } finally {
-      setActionLoadingId(null);
+      toast.error("Failed to reject learner request.");
     }
   };
 
-  const handleCancelSession = async (sessionId) => {
-    if (window.confirm("Are you sure you want to cancel this mentorship session?")) {
-      try {
-        await cancelSession(sessionId);
-        await fetchData();
-      } catch (err) {
-        alert(err.response?.data?.message || "Failed to cancel session.");
-      }
-    }
-  };
-
-  const handleCompleteSession = async (sessionId) => {
-    if (window.confirm("Mark this session as completed?")) {
-      try {
-        await completeSession(sessionId);
-        await fetchData();
-      } catch (err) {
-        alert(err.response?.data?.message || "Failed to complete session.");
-      }
-    }
-  };
-
-  // Real statistics calculation
-  const totalCourses = courses.length;
-  const publishedCourses = courses.filter((c) => c.status === "published").length;
-  const totalResources = resources.length;
-  const totalLearners = courses.reduce((acc, c) => acc + (c.enrolledStudents?.length || 0), 0);
-
-  const totalSessions = sessions.length;
-  
-  let pendingRequestsCount = 0;
-  let upcomingSessionsCount = 0;
-  let completedSessionsCount = 0;
-
+  // Collect pending requests across expert sessions
+  const pendingRequests = [];
   sessions.forEach((s) => {
-    if (s.status === "completed") completedSessionsCount++;
-    if (s.status === "open" || s.status === "upcoming") upcomingSessionsCount++;
-
     (s.learners || []).forEach((l) => {
-      if (l.status === "pending") pendingRequestsCount++;
+      if (l.status === "pending") {
+        pendingRequests.push({
+          sessionId: s._id,
+          sessionTitle: s.title,
+          scheduledAt: s.scheduledAt,
+          learner: l.user,
+          status: l.status,
+        });
+      }
     });
   });
 
+  const upcomingCalls = sessions.filter((s) => s.status === "open" || s.status === "upcoming");
+
   return (
-    <DashboardLayout
-      title={`Expert Mentorship Workspace — ${user?.name || "Expert"}`}
-      subtitle="Manage your 1-on-1 calls, learner join requests, and published courses."
-      actions={
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setCreateSessionOpen(true)} className="text-xs py-2 px-3 bg-accent-orange hover:bg-amber-600 flex items-center gap-1.5">
-            <PlusCircle size={14} /> Create Mentorship Session
-          </Button>
-          <Button onClick={() => navigate("/profile")} className="text-xs py-2 px-3 bg-glass-card hover:bg-glass-border flex items-center gap-1.5">
-            <Edit size={14} /> Edit Profile
+    <div className="space-y-8 text-left">
+      
+      {/* HEADER BAR */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-glass-border/60 pb-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              ● EXPERT MENTORSHIP HUB
+            </span>
+            <span className="text-xs text-text-muted font-mono">Expert: {user?.name}</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-text-title tracking-tight font-display">
+            Mentorship Operations Center
+          </h1>
+          <p className="text-xs sm:text-sm text-text-muted font-medium">
+            Review learner session requests, host 1-on-1 consultations, set availability slots, and guide emerging engineers.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            onClick={() => navigate("/sessions")}
+            className="text-xs font-bold py-2.5 px-4 rounded-xl bg-btn-primary hover:bg-btn-primary-hover text-white flex items-center gap-2 shadow-lg"
+          >
+            <PlusCircle size={15} /> Manage Mentorship Sessions
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {loading ? (
         <LoadingSkeleton />
       ) : error ? (
         <ErrorState message={error} onRetry={fetchData} />
       ) : (
-        <div className="space-y-6 text-left">
-          {/* ENTERPRISE EXPERT MENTORSHIP CONSOLE */}
-          <div className="relative overflow-hidden rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
-            {/* Top Accent Gradient Bar */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 via-pink-500 to-cyan-400" />
+        <div className="space-y-8">
+          
+          {/* EXPERT TELEMETRY ROW */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>PENDING REQUESTS</span>
+                <Clock size={14} className="text-amber-500" />
+              </div>
+              <div className="text-2xl font-black text-amber-500 font-mono">{pendingRequests.length} Requests</div>
+              <p className="text-[10px] text-text-muted">Awaiting your approval</p>
+            </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-2xl">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-mono font-semibold">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>ACTIVE SESSIONS</span>
+                <Video size={14} className="text-emerald-500" />
+              </div>
+              <div className="text-2xl font-black text-emerald-500 font-mono">{upcomingCalls.length} Slots</div>
+              <p className="text-[10px] text-text-muted">Open video appointments</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>TOTAL CREATED</span>
+                <Users size={14} className="text-cyan-500" />
+              </div>
+              <div className="text-2xl font-black text-cyan-500 font-mono">{sessions.length} Sessions</div>
+              <p className="text-[10px] text-text-muted">Created mentorship slots</p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
+                <span>CONSULTATION STATUS</span>
+                <DollarSign size={14} className="text-purple-500" />
+              </div>
+              <div className="text-2xl font-black text-purple-500 font-mono">Verified Expert</div>
+              <p className="text-[10px] text-text-muted">Available for booking</p>
+            </div>
+
+          </div>
+
+          {/* REAL EXPERT ANALYTICS PANEL (100% REAL DATA FROM BACKEND DATABASE) */}
+          {(() => {
+            const expertData = transformExpertAnalytics(sessions);
+
+            if (expertData.isEmpty) {
+              return (
+                <div className="p-8 rounded-3xl bg-glass-card border border-glass-border text-center space-y-3 shadow-sm">
+                  <Activity size={28} className="text-emerald-500 mx-auto opacity-70" />
+                  <h3 className="text-sm font-bold font-mono text-text-title uppercase tracking-wider">No Mentorship Consultation Analytics Recorded</h3>
+                  <p className="text-xs text-text-muted max-w-md mx-auto">
+                    Create 1-on-1 mentorship session slots to start receiving learner booking requests and tracking consultation trends.
+                  </p>
+                  <Button
+                    onClick={() => navigate("/sessions")}
+                    className="text-xs py-2 px-4 bg-btn-primary hover:bg-btn-primary-hover text-white font-bold"
+                  >
+                    Manage Mentorship Slots
+                  </Button>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* REAL METRICS ROW 1 */}
+                <div className="lg:col-span-7 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4">
+                  <div className="flex items-center justify-between border-b border-glass-border pb-3">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">SESSION SCHEDULING TRENDS</span>
+                      <h3 className="text-base font-extrabold text-text-title">Monthly Advisory Sessions Scheduled</h3>
+                    </div>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      Total: {expertData.totalSessions} Sessions
                     </span>
-                    <span>EXPERT HUB OPERATIONAL</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-white/10 text-slate-300 text-[10px] font-mono">
-                    <span>Direct Consultation</span>
-                  </span>
+                  </div>
+                  <RealLineChart data={expertData.monthlyChartData} height={200} />
                 </div>
 
-                <h1 className="hero-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                  Expert Workspace: <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-pink-400 to-cyan-400">{user?.name || "Expert"}</span>
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-xl">
-                  Host live 1-on-1 mentorship sessions, accept incoming consultation requests, and track consultation earnings.
-                </p>
-              </div>
+                <div className="lg:col-span-5 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md flex flex-col justify-between space-y-4">
+                  <div className="border-b border-glass-border pb-3 text-left">
+                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">LEARNER REQUEST STATUS</span>
+                    <h3 className="text-sm font-extrabold text-text-title mt-0.5">{expertData.acceptedRequests + expertData.pendingRequests + expertData.rejectedRequests} Booking Requests</h3>
+                  </div>
+                  <RealDoughnutChart data={expertData.requestsChartData} height={180} />
+                </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => setCreateSessionOpen(true)}
-                  className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
-                >
-                  <PlusCircle size={15} />
-                  <span>Host Mentorship Call</span>
-                </button>
-              </div>
-            </div>
-          </div>
+                {/* REAL METRICS ROW 2 */}
+                <div className="lg:col-span-12 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4 text-left">
+                  <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block border-b border-glass-border pb-3">MENTORSHIP OPERATIONS SUMMARY</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Pending Learner Requests</span>
+                      <span className="text-2xl font-black text-amber-500 mt-1 block">{expertData.pendingRequests} Requests</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Accepted Consultations</span>
+                      <span className="text-2xl font-black text-emerald-500 mt-1 block">{expertData.acceptedRequests} Sessions</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Active Open Slots</span>
+                      <span className="text-2xl font-black text-cyan-500 mt-1 block">{expertData.openCount} Slots</span>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
+                      <span className="text-[10px] text-text-muted uppercase block">Completed Calls</span>
+                      <span className="text-2xl font-black text-purple-400 mt-1 block">{expertData.completedCount} Completed</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* HIGH-DENSITY ENTERPRISE EXPERT METRICS STRIP */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-emerald-400/40 transition duration-300 backdrop-blur-xl space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Earnings</span>
-                <DollarSign size={15} className="text-emerald-400" />
               </div>
-              <div className="text-2xl font-extrabold text-emerald-400 font-mono">₹{totalEarnings.toLocaleString("en-IN")}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Payout accrued</p>
-            </div>
+            );
+          })()}
 
-            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-amber-400/40 transition duration-300 backdrop-blur-xl space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Sessions</span>
-                <Video size={15} className="text-amber-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-white">{totalSessions}</div>
-              <p className="text-[10px] text-slate-400 font-medium">{upcomingSessionsCount} upcoming • {completedSessionsCount} done</p>
-            </div>
-
-            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-pink-400/40 transition duration-300 backdrop-blur-xl space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Pending</span>
-                <Clock size={15} className="text-pink-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-pink-300 font-mono">{pendingRequestsCount}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Awaiting response</p>
-            </div>
-
-            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-purple-400/40 transition duration-300 backdrop-blur-xl space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Courses</span>
-                <BookOpen size={15} className="text-purple-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-white">{courses.length}</div>
-              <p className="text-[10px] text-slate-400 font-medium">{publishedCourses} active</p>
-            </div>
-
-            <div className="p-4 rounded-2xl glass-panel-futuristic border border-white/15 bg-slate-900/70 hover:border-cyan-400/40 transition duration-300 backdrop-blur-xl space-y-1">
-              <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Learners</span>
-                <Users size={15} className="text-cyan-400" />
-              </div>
-              <div className="text-2xl font-extrabold text-cyan-300 font-mono">{totalLearners}</div>
-              <p className="text-[10px] text-slate-400 font-medium">Mentored students</p>
-            </div>
-          </div>
-
-          {/* DASHBOARD TAB SUB-NAV */}
-          <div className="flex items-center space-x-2 border-b border-glass-border/40 pb-2">
+          {/* SUB NAV TABS */}
+          <div className="flex items-center gap-2 border-b border-glass-border/40 pb-2 overflow-x-auto">
             {[
-              { id: "overview", label: "Overview" },
-              { id: "sessions", label: `Mentorship Sessions (${totalSessions})` },
-              { id: "requests", label: `Learner Requests (${pendingRequestsCount})` },
-              { id: "courses", label: `Courses (${totalCourses})` },
-              { id: "resources", label: `Resources (${totalResources})` },
+              { id: "requests", label: `Pending Requests (${pendingRequests.length})` },
+              { id: "my", label: `My Sessions (${sessions.length})` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 text-xs font-bold rounded-xl transition duration-150 cursor-pointer ${
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
-                    ? "bg-accent-orange text-white shadow-md shadow-orange-900/30"
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow"
                     : "text-text-muted hover:text-text-title hover:bg-glass-border/40"
                 }`}
               >
@@ -294,275 +279,103 @@ const ExpertDashboard = () => {
             ))}
           </div>
 
-          {/* OVERVIEW TAB */}
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Learner Requests Section */}
-              <div className="lg:col-span-8 space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-text-title uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <UserCheck className="text-accent-orange" size={16} /> Pending Learner Requests ({pendingRequestsCount})
-                  </h3>
+          {/* TAB 1: PENDING REQUESTS QUEUE */}
+          {activeTab === "requests" && (
+            <div className="space-y-4">
+              {pendingRequests.length === 0 ? (
+                <EmptyState
+                  icon={Clock}
+                  title="No pending requests"
+                  description="When learners request a 1-on-1 consultation slot, they will be listed here for approval."
+                />
+              ) : (
+                <div className="space-y-3">
+                  {pendingRequests.map((req) => (
+                    <div
+                      key={`${req.sessionId}-${req.learner?._id}`}
+                      className="p-5 rounded-2xl bg-glass-card border border-glass-border hover:border-emerald-500/40 transition duration-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/20">
+                          {req.learner?.name?.[0] || "L"}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-text-title">{req.sessionTitle || "Mentorship Session"}</h4>
+                          <p className="text-[11px] text-text-muted mt-0.5">
+                            Learner: <strong className="text-text-title">{req.learner?.name}</strong> ({req.learner?.email})
+                          </p>
+                          <p className="text-[10px] font-mono text-text-muted mt-0.5">
+                            📅 Scheduled: {new Date(req.scheduledAt).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
 
-                  {pendingRequestsCount === 0 ? (
-                    <EmptyState
-                      icon={UserCheck}
-                      title="No pending requests"
-                      description="All learner registration requests for your mentorship sessions have been processed."
-                      glowColor="rgba(249, 115, 22, 0.08)"
-                    />
-                  ) : (
-                    <div className="space-y-4">
-                      {sessions.flatMap((session) =>
-                        (session.learners || [])
-                          .filter((l) => l.status === "pending")
-                          .map((learner) => (
-                            <SpotlightCard key={`${session._id}-${learner.user?._id || learner.user}`} className="p-4 bg-glass-card border border-glass-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-xl bg-accent-orange/10 border border-accent-orange/20 flex items-center justify-center font-bold text-accent-orange uppercase shrink-0">
-                                  {learner.user?.name ? learner.user.name[0] : "L"}
-                                </div>
-                                <div className="space-y-0.5 text-left">
-                                  <h4 className="text-xs font-extrabold text-text-title">{learner.user?.name || "Learner"}</h4>
-                                  <p className="text-[10px] text-text-muted">{learner.user?.email}</p>
-                                  <p className="text-[10px] text-accent-orange font-semibold">Session: {session.title}</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-glass-border/30 pt-2 sm:pt-0">
-                                <Button
-                                  onClick={() => handleAcceptLearner(session._id, learner.user?._id || learner.user)}
-                                  disabled={actionLoadingId === `${session._id}-${learner.user?._id || learner.user}`}
-                                  className="text-xs py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1"
-                                >
-                                  <CheckCircle size={12} /> Accept
-                                </Button>
-                                <Button
-                                  onClick={() => handleRejectLearner(session._id, learner.user?._id || learner.user)}
-                                  disabled={actionLoadingId === `${session._id}-${learner.user?._id || learner.user}`}
-                                  className="text-xs py-1.5 px-3 bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1"
-                                >
-                                  <XCircle size={12} /> Reject
-                                </Button>
-                              </div>
-                            </SpotlightCard>
-                          ))
-                      )}
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+                        <Button
+                          onClick={() => handleReject(req.sessionId, req.learner?._id)}
+                          variant="secondary"
+                          className="text-[11px] py-1.5 px-3 border-glass-border hover:bg-rose-500/10 hover:text-rose-400"
+                        >
+                          <XCircle size={13} /> Reject
+                        </Button>
+                        <Button
+                          onClick={() => handleAccept(req.sessionId, req.learner?._id)}
+                          className="text-[11px] py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1"
+                        >
+                          <CheckCircle size={13} /> Accept Request
+                        </Button>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-
-                {/* Recent Sessions */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-text-title uppercase tracking-wider flex items-center gap-2">
-                      <Video className="text-accent-orange" size={16} /> Active Mentorship Calls
-                    </h3>
-                    <button onClick={() => setActiveTab("sessions")} className="text-xs font-bold text-accent-orange hover:underline cursor-pointer">
-                      View All ({totalSessions})
-                    </button>
-                  </div>
-
-                  {sessions.length === 0 ? (
-                    <EmptyState
-                      icon={Video}
-                      title="No mentorship sessions created"
-                      description="Schedule consultation time slots for learners to request 1-on-1 advice."
-                      actionText="Create Session"
-                      onAction={() => setCreateSessionOpen(true)}
-                      glowColor="rgba(249, 115, 22, 0.08)"
-                    />
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {sessions.slice(0, 4).map((session) => (
-                        <SessionCard
-                          key={session._id}
-                          session={session}
-                          currentUser={user}
-                          onCancel={handleCancelSession}
-                          onComplete={handleCompleteSession}
-                          onAcceptLearner={handleAcceptLearner}
-                          onRejectLearner={handleRejectLearner}
-                          actionLoadingId={actionLoadingId}
-                        />
-
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Quick Actions & Expert Tools */}
-              <div className="lg:col-span-4 space-y-6">
-                <SpotlightCard className="p-5 card-tint-peach border border-glass-border rounded-2xl" glowColor="rgba(249, 115, 22, 0.12)">
-                  <h4 className="text-xs font-bold text-text-title uppercase tracking-widest border-b border-glass-border/40 pb-3 mb-4">
-                    Expert Tools
-                  </h4>
-                  <div className="space-y-2.5">
-                    <Button onClick={() => setCreateSessionOpen(true)} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <PlusCircle size={14} className="text-accent-orange" />
-                      Create New Mentorship Call
-                    </Button>
-                    <Button onClick={() => navigate("/courses/new")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <PlusCircle size={14} className="text-accent-purple" />
-                      Create Masterclass Course
-                    </Button>
-                    <Button onClick={() => navigate("/resources/new")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <PlusCircle size={14} className="text-accent-cyan" />
-                      Upload Technical Resource
-                    </Button>
-                    <Button onClick={() => navigate("/profile")} className="w-full text-xs py-2 px-3 justify-start gap-2 bg-glass-card hover:bg-glass-border">
-                      <Edit size={14} className="text-accent-blue" />
-                      Update Hourly Rate & Expertise
-                    </Button>
-                  </div>
-                </SpotlightCard>
-              </div>
+              )}
             </div>
           )}
 
-          {/* SESSIONS TAB */}
-          {activeTab === "sessions" && (
-            <div className="space-y-6">
+          {/* TAB 2: MY SESSIONS */}
+          {activeTab === "my" && (
+            <div className="space-y-4">
               {sessions.length === 0 ? (
                 <EmptyState
                   icon={Video}
                   title="No sessions created"
-                  description="Offer 1-on-1 mentorship sessions to share your domain expertise."
-                  actionText="Create Session"
-                  onAction={() => setCreateSessionOpen(true)}
+                  description="Create your first mentorship session to start accepting learner bookings."
+                  actionText="Manage Sessions"
+                  onAction={() => navigate("/sessions")}
                 />
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sessions.map((session) => (
-                    <SessionCard
-                      key={session._id}
-                      session={session}
-                      currentUser={user}
-                      onCancel={handleCancelSession}
-                      onComplete={handleCompleteSession}
-                      onAcceptLearner={handleAcceptLearner}
-                      onRejectLearner={handleRejectLearner}
-                      actionLoadingId={actionLoadingId}
-                    />
-                  ))}
-
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* LEARNER REQUESTS TAB */}
-          {activeTab === "requests" && (
-            <div className="space-y-6">
-              {pendingRequestsCount === 0 ? (
-                <EmptyState
-                  icon={UserCheck}
-                  title="No pending requests"
-                  description="There are currently no pending learner requests awaiting your decision."
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {sessions.flatMap((session) =>
-                    (session.learners || [])
-                      .filter((l) => l.status === "pending")
-                      .map((learner) => (
-                        <SpotlightCard key={`${session._id}-${learner.user?._id || learner.user}`} className="p-5 bg-glass-card border border-glass-border rounded-2xl space-y-3 text-left">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="text-xs font-bold text-text-title">{learner.user?.name || "Learner"}</h4>
-                              <p className="text-[10px] text-text-muted">{learner.user?.email}</p>
-                            </div>
-                            <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                              Pending
-                            </span>
-                          </div>
-                          <p className="text-xs text-accent-orange font-semibold">Session: {session.title}</p>
-                          <p className="text-[10px] text-text-muted">Requested on: {new Date(learner.requestedAt || session.createdAt).toLocaleDateString()}</p>
-                          <div className="flex items-center gap-2 pt-2 border-t border-glass-border/30">
-                            <Button onClick={() => handleAcceptLearner(session._id, learner.user?._id || learner.user)} className="w-full text-xs py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700">
-                              Accept Learner
-                            </Button>
-                            <Button onClick={() => handleRejectLearner(session._id, learner.user?._id || learner.user)} className="w-full text-xs py-1.5 px-3 bg-rose-600 hover:bg-rose-700">
-                              Reject
-                            </Button>
-                          </div>
-                        </SpotlightCard>
-                      ))
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* COURSES TAB */}
-          {activeTab === "courses" && (
-            <div className="space-y-6">
-              {courses.length === 0 ? (
-                <EmptyState
-                  icon={BookOpen}
-                  title="No courses created"
-                  description="You have not created any course modules yet."
-                  actionText="Create Course"
-                  onAction={() => navigate("/courses/new")}
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.map((course) => (
-                    <SpotlightCard key={course._id} className="p-5 bg-glass-card border border-glass-border rounded-2xl space-y-4 text-left">
-                      <h4 className="text-sm font-extrabold text-text-title line-clamp-1">{course.title}</h4>
-                      <p className="text-xs text-text-muted">{course.units?.length || 0} Units • {course.enrolledStudents?.length || 0} Learners</p>
-                      <Button onClick={() => navigate(`/courses/${course._id}`)} className="w-full text-xs py-2 px-3">
-                        View Course Details
-                      </Button>
-                    </SpotlightCard>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sessions.map((s) => (
+                    <div key={s._id} className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-3 text-left">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-xs font-bold text-text-title">{s.title}</h4>
+                        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          {s.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-text-muted line-clamp-2">{s.description}</p>
+                      <p className="text-[10px] font-mono text-text-muted">📅 Scheduled: {new Date(s.scheduledAt).toLocaleString()}</p>
+                      {s.meetingUrl && (
+                        <a
+                          href={s.meetingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 hover:underline pt-1"
+                        >
+                          Meeting Link <ExternalLink size={12} />
+                        </a>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           )}
 
-          {/* RESOURCES TAB */}
-          {activeTab === "resources" && (
-            <div className="space-y-6">
-              {resources.length === 0 ? (
-                <EmptyState
-                  icon={FileText}
-                  title="No resources uploaded"
-                  description="Upload guides and code packages for learners."
-                  actionText="Upload Resource"
-                  onAction={() => navigate("/resources/new")}
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {resources.map((res) => (
-                    <SpotlightCard key={res._id} className="p-5 bg-glass-card border border-glass-border rounded-2xl space-y-3 text-left">
-                      <h4 className="text-sm font-extrabold text-text-title line-clamp-1">{res.title}</h4>
-                      <p className="text-xs text-text-muted">{res.documents?.length || 0} Docs uploaded</p>
-                      <Button onClick={() => navigate(`/resources/${res._id}`)} className="w-full text-xs py-2 px-3">
-                        View Resource
-                      </Button>
-                    </SpotlightCard>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* CREATE SESSION MODAL */}
-          {createSessionOpen && (
-            <CreateSessionModal
-              isOpen={createSessionOpen}
-              onClose={() => setCreateSessionOpen(false)}
-              onSuccess={() => {
-                setCreateSessionOpen(false);
-                fetchData();
-              }}
-            />
-          )}
         </div>
       )}
-    </DashboardLayout>
+
+    </div>
   );
 };
 

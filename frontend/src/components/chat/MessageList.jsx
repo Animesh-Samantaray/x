@@ -122,7 +122,7 @@ const MessageList = ({
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className={`h-12 w-1/2 bg-slate-900 rounded-xl animate-pulse ${
+            className={`h-12 w-1/2 bg-glass-card rounded-xl animate-pulse ${
               i % 2 === 0 ? "self-end" : "self-start"
             }`}
           />
@@ -134,11 +134,11 @@ const MessageList = ({
   if (!messages || messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-        <MessageSquare size={36} className="text-slate-600 mb-2" />
-        <p className="text-xs font-semibold text-slate-300">
+        <MessageSquare size={36} className="text-text-muted mb-2 opacity-50" />
+        <p className="text-xs font-semibold text-text-title">
           No messages in this discussion
         </p>
-        <p className="text-[11px] text-slate-500 mt-1 max-w-[220px]">
+        <p className="text-[11px] text-text-muted mt-1 max-w-[220px]">
           Send a message below to start the conversation with participants.
         </p>
       </div>
@@ -158,7 +158,7 @@ const MessageList = ({
           <div key={dateKey} className="space-y-3">
             {/* Date divider */}
             <div className="flex items-center justify-center my-2">
-              <span className="px-2.5 py-0.5 bg-slate-900 border border-slate-800 rounded-full text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 bg-bg-darker border border-glass-border rounded-full text-[10px] font-semibold text-text-muted uppercase tracking-wider">
                 {formatDate(dateKey)}
               </span>
             </div>

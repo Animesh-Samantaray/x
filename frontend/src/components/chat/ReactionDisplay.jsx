@@ -55,13 +55,13 @@ const ReactionDisplay = ({ reactions = [], currentUserId, messageId, onReact, is
             title={titleText}
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border transition-all duration-150 cursor-pointer select-none ${
               item.hasReacted
-                ? "bg-sky-950/90 border-sky-500/70 text-sky-200 shadow-xs ring-1 ring-sky-500/40 hover:bg-sky-900/90 hover:scale-105"
-                : "bg-slate-900/90 border-slate-800 text-slate-300 hover:bg-slate-800/90 hover:border-slate-700 hover:scale-105"
+                ? "bg-sky-500/20 border-sky-500/50 text-sky-500 shadow-xs ring-1 ring-sky-500/30 hover:bg-sky-500/30 hover:scale-105"
+                : "bg-glass-card border-glass-border text-text-title hover:bg-bg-darker hover:scale-105"
             }`}
           >
             <span className="text-sm leading-none">{item.emoji}</span>
             {item.count > 1 && (
-              <span className="text-[10px] font-bold tracking-tight text-slate-300 leading-none">
+              <span className="text-[10px] font-bold tracking-tight text-text-title leading-none">
                 {item.count}
               </span>
             )}

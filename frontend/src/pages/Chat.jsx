@@ -276,10 +276,10 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-screen w-full flex bg-slate-950 text-slate-100 overflow-hidden font-sans">
+    <div className="h-screen w-full flex bg-bg-darker text-text-title overflow-hidden font-sans">
       {/* Middle Column: Conversation List */}
       <div
-        className={`w-full lg:w-80 xl:w-96 border-r border-slate-800 flex flex-col shrink-0 h-full bg-slate-900/90 ${
+        className={`w-full lg:w-80 xl:w-96 border-r border-glass-border flex flex-col shrink-0 h-full bg-glass-card ${
           showConversationListMobile ? "flex" : "hidden lg:flex"
         }`}
       >
@@ -295,7 +295,7 @@ const Chat = () => {
 
       {/* Right Column: Active Conversation */}
       <div
-        className={`flex-1 flex flex-col h-full min-w-0 bg-slate-950 ${
+        className={`flex-1 flex flex-col h-full min-w-0 bg-bg-darker ${
           !showConversationListMobile ? "flex" : "hidden lg:flex"
         }`}
       >

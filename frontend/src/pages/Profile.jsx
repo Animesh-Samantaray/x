@@ -319,14 +319,14 @@ const Profile = () => {
         
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 glass-panel-futuristic border-cyan-500/40 bg-slate-950/95 px-5 py-4 rounded-2xl shadow-2xl">
-            <Info className="text-cyan-400 shrink-0 animate-pulse" size={18} />
-            <p className="text-xs font-semibold text-white">{toastMessage}</p>
+          <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 border border-cyan-500/40 bg-bg-panel px-5 py-4 rounded-2xl shadow-2xl">
+            <Info className="text-cyan-500 shrink-0 animate-pulse" size={18} />
+            <p className="text-xs font-semibold text-text-title">{toastMessage}</p>
           </div>
         )}
 
         {/* Dynamic Enterprise Header / Hero Container */}
-        <div className="relative rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-2xl overflow-hidden shadow-2xl">
+        <div className="relative rounded-3xl bg-glass-card border border-glass-border p-6 sm:p-8 overflow-hidden shadow-md">
           {/* Top Multi-Color Gradient Banner Accent */}
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500" />
           
@@ -339,48 +339,48 @@ const Profile = () => {
                   {user?.profilePicture ? (
                     <img src={user.profilePicture} alt={user.name} className="h-full w-full rounded-[14px] object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-slate-950 text-2xl font-black text-white uppercase font-display">
+                    <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-bg-dark text-2xl font-black text-text-title uppercase font-display">
                       {user?.name ? user.name[0] : <UserIcon size={28} />}
                     </div>
                   )}
                 </div>
 
                 {/* Live Status Badge */}
-                <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 border border-white/20">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-bg-panel border border-glass-border">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 </span>
               </div>
 
               {/* Core Account Details */}
               <div className="text-center sm:text-left space-y-2">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-display tracking-tight leading-none">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-text-title font-display tracking-tight leading-none">
                     {user?.name || "Member"}
                   </h1>
                   
                   {/* Verified Badge */}
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider">
-                    <CheckCircle2 size={12} className="text-cyan-400" />
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-500 text-[10px] font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 size={12} className="text-cyan-500" />
                     <span>Verified {role}</span>
                   </span>
                 </div>
 
                 {headline && (
-                  <p className="text-xs text-purple-300 font-medium">{headline}</p>
+                  <p className="text-xs text-purple-500 font-medium">{headline}</p>
                 )}
                 
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-300 font-medium font-mono pt-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-text-muted font-medium font-mono pt-1">
                   <div className="flex items-center gap-1.5">
-                    <Mail size={13} className="text-cyan-400" />
+                    <Mail size={13} className="text-cyan-500" />
                     <span>{user?.email}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Calendar size={13} className="text-purple-400" />
+                    <Calendar size={13} className="text-purple-500" />
                     <span>Member since {formattedDate}</span>
                   </div>
                   {location && (
                     <div className="flex items-center gap-1.5">
-                      <MapPin size={13} className="text-pink-400" />
+                      <MapPin size={13} className="text-pink-500" />
                       <span>{location}</span>
                     </div>
                   )}
@@ -392,7 +392,7 @@ const Profile = () => {
             <div className="flex items-center space-x-3 shrink-0">
               <button
                 onClick={() => setEditMode(!editMode)}
-                className="btn-futuristic-primary px-5 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-btn-primary hover:bg-btn-primary-hover text-white flex items-center space-x-2 shadow-md cursor-pointer active:scale-95 transition-all"
               >
                 {editMode ? <X size={14} /> : <Edit2 size={14} />}
                 <span>{editMode ? "Cancel Editing" : "Edit Profile"}</span>
@@ -401,7 +401,7 @@ const Profile = () => {
               <button
                 type="button"
                 onClick={() => setReportDialogOpen(true)}
-                className="px-3 py-2.5 rounded-xl text-xs font-bold border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 transition cursor-pointer flex items-center space-x-1.5 active:scale-95"
+                className="px-3 py-2.5 rounded-xl text-xs font-bold border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition cursor-pointer flex items-center space-x-1.5 active:scale-95"
               >
                 <Flag size={13} />
                 <span>Report</span>
@@ -413,10 +413,10 @@ const Profile = () => {
         {/* Profile Edit Mode Form */}
         {editMode ? (
           <form onSubmit={handleSave} className="space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center space-x-2">
-                  <Edit2 size={16} className="text-cyan-400" />
+            <div className="p-6 sm:p-8 rounded-3xl bg-glass-card border border-glass-border space-y-6 shadow-md">
+              <div className="flex items-center justify-between border-b border-glass-border pb-4">
+                <h3 className="text-sm font-bold text-text-title font-mono uppercase tracking-wider flex items-center space-x-2">
+                  <Edit2 size={16} className="text-cyan-500" />
                   <span>Edit Account & Professional Credentials</span>
                 </h3>
               </div>
@@ -425,111 +425,111 @@ const Profile = () => {
                 {role !== "admin" && (
                   <>
                     <div className="sm:col-span-2 space-y-2">
-                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Professional Biography</label>
+                      <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Professional Biography</label>
                       <textarea
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
                         placeholder="Tell the community about your background, experience, and projects..."
                         rows={4}
-                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                        className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                       />
                     </div>
 
                     {(role === "creator" || role === "expert") && (
                       <div className="space-y-2">
-                        <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Headline Title</label>
+                        <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Headline Title</label>
                         <input
                           type="text"
                           value={headline}
                           onChange={(e) => setHeadline(e.target.value)}
                           placeholder="e.g. Senior Full-Stack Engineer"
-                          className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                         />
                       </div>
                     )}
 
                     <div className="space-y-2">
-                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Tech Stack & Skills (Comma-separated)</label>
+                      <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Tech Stack & Skills (Comma-separated)</label>
                       <input
                         type="text"
                         value={skills}
                         onChange={(e) => setSkills(e.target.value)}
                         placeholder="e.g. React, Node.js, TypeScript, Docker"
-                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                        className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                       />
                     </div>
 
                     {role === "learner" && (
                       <>
                         <div className="space-y-2">
-                          <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Focus Interests (Comma-separated)</label>
+                          <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Focus Interests (Comma-separated)</label>
                           <input
                             type="text"
                             value={interests}
                             onChange={(e) => setInterests(e.target.value)}
                             placeholder="e.g. System Design, Distributed Systems"
-                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                            className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Learning Goals (Comma-separated)</label>
+                          <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Learning Goals (Comma-separated)</label>
                           <input
                             type="text"
                             value={learningGoals}
                             onChange={(e) => setLearningGoals(e.target.value)}
                             placeholder="e.g. Master Microservices, Deploy Next.js App"
-                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                            className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                           />
                         </div>
                       </>
                     )}
 
                     <div className="space-y-2">
-                      <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Education & Credentials</label>
+                      <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Education & Credentials</label>
                       <input
                         type="text"
                         value={education}
                         onChange={(e) => setEducation(e.target.value)}
                         placeholder="e.g. B.S. Computer Science"
-                        className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                        className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                       />
                     </div>
 
                     {role === "learner" && (
                       <div className="space-y-2">
-                        <label className="font-mono text-[11px] font-bold text-slate-300 uppercase">Location</label>
+                        <label className="font-mono text-[11px] font-bold text-text-muted uppercase">Location</label>
                         <input
                           type="text"
                           value={location}
                           onChange={(e) => setLocation(e.target.value)}
                           placeholder="e.g. San Francisco, CA"
-                          className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                          className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                         />
                       </div>
                     )}
 
                     {/* Social Links Form Inputs */}
-                    <div className="sm:col-span-2 border-t border-white/10 pt-4 mt-2">
-                      <h4 className="font-mono font-bold text-white uppercase text-xs mb-3">Connected Developer Profiles</h4>
+                    <div className="sm:col-span-2 border-t border-glass-border pt-4 mt-2">
+                      <h4 className="font-mono font-bold text-text-title uppercase text-xs mb-3">Connected Developer Profiles</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="text-slate-400 text-[11px]">LinkedIn URL</label>
+                          <label className="text-text-muted text-[11px]">LinkedIn URL</label>
                           <input
                             type="text"
                             value={linkedinLink}
                             onChange={(e) => setLinkedinLink(e.target.value)}
                             placeholder="https://linkedin.com/in/username"
-                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                            className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-slate-400 text-[11px]">GitHub URL</label>
+                          <label className="text-text-muted text-[11px]">GitHub URL</label>
                           <input
                             type="text"
                             value={githubLink}
                             onChange={(e) => setGithubLink(e.target.value)}
                             placeholder="https://github.com/username"
-                            className="w-full form-input rounded-xl p-3 bg-slate-950/80 text-white border-white/10"
+                            className="w-full text-xs rounded-xl p-3 bg-bg-darker text-text-title border border-glass-border focus:border-purple-500 outline-none"
                           />
                         </div>
                       </div>
@@ -538,17 +538,17 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-glass-border">
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 border border-white/10 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-text-muted hover:text-text-title bg-bg-darker border border-glass-border transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-futuristic-primary px-6 py-2.5 rounded-xl text-xs font-bold text-white flex items-center space-x-2 shadow-lg cursor-pointer active:scale-95"
+                  className="px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-primary hover:bg-btn-primary-hover text-white flex items-center space-x-2 shadow-md cursor-pointer active:scale-95"
                 >
                   <Save size={14} />
                   <span>Save Changes</span>
@@ -564,21 +564,21 @@ const Profile = () => {
             <StaggerItem className="lg:col-span-4 space-y-6">
               
               {/* Bio Card */}
-              <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-3 hover:border-purple-400/40 transition">
-                <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
-                  <UserIcon size={16} className="text-purple-400" />
-                  <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Biography</h3>
+              <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-3 shadow-sm hover:border-purple-500/40 transition">
+                <div className="flex items-center space-x-2 border-b border-glass-border pb-3">
+                  <UserIcon size={16} className="text-purple-500" />
+                  <h3 className="text-xs font-mono font-bold text-text-title uppercase tracking-wider">Biography</h3>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                <p className="text-xs text-text-main leading-relaxed font-medium">
                   {profile?.bio || "No professional biography added yet. Click 'Edit Profile' to add your bio."}
                 </p>
               </div>
 
               {/* Skills & Tech Stack Card */}
-              <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4 hover:border-cyan-400/40 transition">
-                <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
-                  <Code2 size={16} className="text-cyan-400" />
-                  <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Skills & Tech Stack</h3>
+              <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-4 shadow-sm hover:border-cyan-500/40 transition">
+                <div className="flex items-center space-x-2 border-b border-glass-border pb-3">
+                  <Code2 size={16} className="text-cyan-500" />
+                  <h3 className="text-xs font-mono font-bold text-text-title uppercase tracking-wider">Skills & Tech Stack</h3>
                 </div>
 
                 {profile?.skills && profile.skills.length > 0 ? (
@@ -586,47 +586,47 @@ const Profile = () => {
                     {profile.skills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 rounded-xl text-xs font-mono font-semibold bg-slate-950/80 border border-white/10 text-cyan-300 hover:border-cyan-400/50 transition"
+                        className="px-3 py-1 rounded-xl text-xs font-mono font-semibold bg-bg-darker border border-glass-border text-cyan-500 transition"
                       >
                         {skill}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 italic">No skills listed yet.</p>
+                  <p className="text-xs text-text-muted italic">No skills listed yet.</p>
                 )}
               </div>
 
               {/* Connected Social & Developer Links */}
               {(linkedinLink || githubLink || twitterLink || websiteLink) && (
-                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-3.5 hover:border-pink-400/40 transition">
-                  <div className="flex items-center space-x-2 border-b border-white/10 pb-3">
-                    <Globe size={16} className="text-pink-400" />
-                    <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Connected Profiles</h3>
+                <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-3.5 shadow-sm hover:border-pink-500/40 transition">
+                  <div className="flex items-center space-x-2 border-b border-glass-border pb-3">
+                    <Globe size={16} className="text-pink-500" />
+                    <h3 className="text-xs font-mono font-bold text-text-title uppercase tracking-wider">Connected Profiles</h3>
                   </div>
 
-                  <div className="space-y-2.5 text-xs font-mono text-slate-300">
+                  <div className="space-y-2.5 text-xs font-mono text-text-main">
                     {linkedinLink && (
-                      <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-cyan-300 transition py-1">
-                        <LinkedinIcon size={15} className="text-cyan-400" />
+                      <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-cyan-500 transition py-1">
+                        <LinkedinIcon size={15} className="text-cyan-500" />
                         <span className="truncate">{linkedinLink}</span>
                       </a>
                     )}
                     {githubLink && (
-                      <a href={githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-purple-300 transition py-1">
-                        <GithubIcon size={15} className="text-purple-400" />
+                      <a href={githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-purple-500 transition py-1">
+                        <GithubIcon size={15} className="text-purple-500" />
                         <span className="truncate">{githubLink}</span>
                       </a>
                     )}
                     {twitterLink && (
-                      <a href={twitterLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-pink-300 transition py-1">
-                        <TwitterIcon size={15} className="text-pink-400" />
+                      <a href={twitterLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-pink-500 transition py-1">
+                        <TwitterIcon size={15} className="text-pink-500" />
                         <span className="truncate">{twitterLink}</span>
                       </a>
                     )}
                     {websiteLink && (
-                      <a href={websiteLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-emerald-300 transition py-1">
-                        <Globe size={15} className="text-emerald-400" />
+                      <a href={websiteLink} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2.5 hover:text-emerald-500 transition py-1">
+                        <Globe size={15} className="text-emerald-500" />
                         <span className="truncate">{websiteLink}</span>
                       </a>
                     )}
@@ -642,69 +642,69 @@ const Profile = () => {
               {/* Credentials & Goals Bento Box */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-2">
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <GraduationCap size={16} className="text-cyan-400" />
+                <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-2 shadow-sm">
+                  <div className="flex items-center space-x-2 text-text-muted">
+                    <GraduationCap size={16} className="text-cyan-500" />
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Education</span>
                   </div>
-                  <p className="text-sm font-bold text-white">{profile?.education || "Not specified"}</p>
+                  <p className="text-sm font-bold text-text-title">{profile?.education || "Not specified"}</p>
                 </div>
 
-                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-2">
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <MapPin size={16} className="text-pink-400" />
+                <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-2 shadow-sm">
+                  <div className="flex items-center space-x-2 text-text-muted">
+                    <MapPin size={16} className="text-pink-500" />
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Location</span>
                   </div>
-                  <p className="text-sm font-bold text-white">{profile?.location || "Not specified"}</p>
+                  <p className="text-sm font-bold text-text-title">{profile?.location || "Not specified"}</p>
                 </div>
 
               </div>
 
               {/* Learning Goals / Expertise Areas Card */}
               {role === "learner" && (
-                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-glass-border pb-3">
                     <div className="flex items-center space-x-2">
-                      <Sparkles size={16} className="text-purple-400" />
-                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Learning Goals</h3>
+                      <Sparkles size={16} className="text-purple-500" />
+                      <h3 className="text-xs font-mono font-bold text-text-title uppercase tracking-wider">Learning Goals</h3>
                     </div>
                   </div>
 
                   {profile?.learningGoals && profile.learningGoals.length > 0 ? (
-                    <ul className="space-y-2 text-xs font-medium text-slate-200">
+                    <ul className="space-y-2 text-xs font-medium text-text-main">
                       {profile.learningGoals.map((goal, idx) => (
-                        <li key={idx} className="flex items-center space-x-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5">
-                          <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
+                        <li key={idx} className="flex items-center space-x-2 p-2.5 rounded-xl bg-bg-darker border border-glass-border">
+                          <CheckCircle2 size={14} className="text-purple-500 shrink-0" />
                           <span>{goal}</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-xs text-slate-400 italic">No custom learning goals specified yet.</p>
+                    <p className="text-xs text-text-muted italic">No custom learning goals specified yet.</p>
                   )}
                 </div>
               )}
 
               {/* Role Credentials (Creator / Expert / Admin) */}
               {(role === "creator" || role === "expert") && (
-                <div className="p-6 rounded-3xl glass-panel-futuristic border border-white/15 bg-slate-900/70 backdrop-blur-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="p-6 rounded-3xl bg-glass-card border border-glass-border space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-glass-border pb-3">
                     <div className="flex items-center space-x-2">
-                      <Award size={16} className="text-amber-400" />
-                      <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Expertise Areas</h3>
+                      <Award size={16} className="text-amber-500" />
+                      <h3 className="text-xs font-mono font-bold text-text-title uppercase tracking-wider">Expertise Areas</h3>
                     </div>
                   </div>
 
                   {profile?.expertise && profile.expertise.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {profile.expertise.map((exp, idx) => (
-                        <span key={idx} className="px-3 py-1 rounded-xl text-xs font-mono bg-slate-950/60 border border-white/10 text-amber-300">
+                        <span key={idx} className="px-3 py-1 rounded-xl text-xs font-mono bg-bg-darker border border-glass-border text-amber-500">
                           {exp}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-400 italic">No expertise areas listed.</p>
+                    <p className="text-xs text-text-muted italic">No expertise areas listed.</p>
                   )}
                 </div>
               )}

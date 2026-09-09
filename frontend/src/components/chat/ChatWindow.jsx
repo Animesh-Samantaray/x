@@ -254,15 +254,15 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-slate-950 p-8 text-center space-y-3">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-1 text-indigo-400 shadow-inner">
+      <div className="flex-1 flex flex-col items-center justify-center bg-bg-darker p-8 text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-1 text-indigo-500 shadow-inner">
           <MessageSquare size={28} />
         </div>
         <Sticker label="Real-time Workspace" variant="verified" />
-        <h3 className="text-base font-extrabold text-slate-100">
+        <h3 className="text-base font-extrabold text-text-title">
           Your Conversations
         </h3>
-        <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+        <p className="text-xs text-text-muted max-w-sm leading-relaxed">
           Select a discussion workspace from the left panel to start chatting with creators, experts, and fellow learners in real time.
         </p>
       </div>
@@ -270,7 +270,7 @@ const ChatWindow = ({ conversation, currentUserId, onBackToList, targetMessageId
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-950 h-full overflow-hidden relative">
+    <div className="flex-1 flex flex-col bg-bg-darker h-full overflow-hidden relative">
       {!socketConnected && (
         <div className="bg-amber-950/80 border-b border-amber-800/80 px-3 py-1 text-center text-amber-200 text-xs flex items-center justify-center gap-1.5 shrink-0">
           <WifiOff size={14} className="animate-pulse" />
