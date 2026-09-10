@@ -30,6 +30,7 @@ import {
   Lock,
 } from "lucide-react";
 import Button from "../components/Button";
+import SEO from "../components/common/SEO";
 
 const Landing = () => {
   const { isAuthenticated, user } = useAuth();
@@ -175,6 +176,17 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-bg-deep text-text-main relative overflow-hidden font-sans transition-colors duration-200">
+      <SEO
+        title="Collaborative Knowledge Marketplace — Learn, Teach & Mentor"
+        description="A full-stack, real-time interactive platform for knowledge sharing, course discussions, 1-on-1 expert mentorship sessions, and collaborative learning."
+        schemaJson={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Collaborative Knowledge Marketplace",
+          "url": "https://ckm-marketplace.com",
+          "description": "Full-stack real-time interactive platform for knowledge sharing, course discussions, and 1-on-1 expert mentorship sessions."
+        }}
+      />
       
       {/* HERO SECTION */}
       <section className="relative pt-12 md:pt-20 pb-20 border-b border-glass-border overflow-hidden bg-gradient-to-b from-bg-dark via-bg-deep to-bg-deep">

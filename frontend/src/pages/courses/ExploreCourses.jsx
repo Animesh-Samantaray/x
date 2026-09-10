@@ -6,6 +6,7 @@ import CourseFilters from "../../components/courses/CourseFilters";
 import SpotlightCard from "../../components/SpotlightCard";
 import Button from "../../components/Button";
 import { BookOpen, AlertCircle } from "lucide-react";
+import SEO from "../../components/common/SEO";
 
 const ExploreCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -72,7 +73,12 @@ const ExploreCourses = () => {
   });
 
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-8 font-sans">
+      <SEO
+        title="Explore Courses — Masterclasses & Blueprints"
+        description="Browse all available course blueprints, AI masterclasses, and hands-on technical units taught by industry experts."
+        keywords="explore courses, technical masterclass, software engineering, AI courses, CKM courses"
+      />
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-glass-border/40 pb-5">
         <div>

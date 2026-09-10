@@ -38,6 +38,7 @@ import PaymentCheckoutModal from "../../components/payments/PaymentCheckoutModal
 import PaymentStatusModal from "../../components/payments/PaymentStatusModal";
 import ReportDialog from "../../components/reports/ReportDialog";
 import { Flag } from "lucide-react";
+import SEO from "../../components/common/SEO";
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -224,6 +225,31 @@ const CourseDetail = () => {
 
   return (
     <div className="space-y-6 text-left relative">
+      <SEO
+        title={course?.title ? `${course.title} — Course Blueprint` : "Course Details"}
+        description={course?.description || "Master new technical skills with this structured course blueprint on Collaborative Knowledge Marketplace."}
+        ogImage={hasThumbnail ? course.thumbnail : undefined}
+        schemaJson={
+          course
+            ? {
+                "@context": "https://schema.org",
+                "@type": "Course",
+                "name": course.title,
+                "description": course.description,
+                "provider": {
+                  "@type": "Organization",
+                  "name": "Collaborative Knowledge Marketplace",
+                  "sameAs": "https://ckm-marketplace.com"
+                },
+                "offers": {
+                  "@type": "Offer",
+                  "price": course.price || 0,
+                  "priceCurrency": "INR"
+                }
+              }
+            : null
+        }
+      />
       {/* Top Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-glass-border/40 pb-4">
         <button

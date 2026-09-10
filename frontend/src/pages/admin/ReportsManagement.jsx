@@ -279,7 +279,48 @@ const ReportsManagement = () => {
         />
       ) : (
         <div className="space-y-4">
-          <div className="overflow-x-auto border border-glass-border rounded-2xl bg-glass-card">
+        
+          <div className="md:hidden space-y-3.5">
+            {reports.map((report) => (
+              <div key={report._id} className="p-4 rounded-2xl bg-glass-card border border-glass-border space-y-3 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-semibold text-text-title">
+                    {getTargetIcon(report.targetType)}
+                    <span className="uppercase text-[10px] font-bold tracking-wider">{report.targetType}</span>
+                  </div>
+                  {getStatusBadge(report.status)}
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-text-title">{formatReason(report.reason)}</h4>
+                  <p className="text-[10px] text-text-muted mt-0.5">
+                    {new Date(report.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-glass-border/40 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-accent-blue/15 text-accent-blue flex items-center justify-center font-bold text-[10px] uppercase">
+                      {report.reportedBy?.name ? report.reportedBy.name[0] : "U"}
+                    </div>
+                    <span className="font-medium text-text-muted text-[11px] truncate max-w-[150px]">
+                      {report.reportedBy?.name || "User"}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenDetail(report._id)}
+                    className="text-[10px] border border-glass-border hover:bg-glass-border px-3 py-1.5 rounded-lg font-bold uppercase transition cursor-pointer inline-flex items-center gap-1 text-text-title"
+                  >
+                    <Eye size={12} /> Inspect
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP TABLE VIEW (>= md) */}
+          <div className="hidden md:block overflow-x-auto border border-glass-border rounded-2xl bg-glass-card">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-glass-border bg-bg-darker/60 font-bold uppercase text-[10px] tracking-wider text-text-muted">

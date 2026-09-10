@@ -22,6 +22,7 @@ import {
   Download,
   Eye,
 } from "lucide-react";
+import SEO from "../components/common/SEO";
 
 const Resources = () => {
   const navigate = useNavigate();
@@ -93,6 +94,11 @@ const Resources = () => {
 
   return (
     <div className="space-y-6 text-left">
+      <SEO
+        title="Technical Resource Library — Blueprints & PDFs"
+        description="Browse community-contributed technical articles, architecture blueprints, code cheatsheets, and developer resources."
+        keywords="developer resources, architecture blueprints, coding guides, technical PDFs, CKM library"
+      />
       
       {/* HEADER BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-glass-border/60 pb-5">

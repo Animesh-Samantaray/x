@@ -1,0 +1,150 @@
+===============================================================================
+               COLLABORATIVE KNOWLEDGE MARKETPLACE
+               PLATFORM DOCUMENTATION & KNOWLEDGE BASE
+===============================================================================
+
+-------------------------------------------------------------------------------
+1. PLATFORM OVERVIEW
+-------------------------------------------------------------------------------
+The Collaborative Knowledge Marketplace is a comprehensive, full-stack, real-time 
+interactive web platform designed for knowledge sharing, structured online course 
+learning, 1-on-1 expert mentorship sessions, community resource sharing, and 
+interactive discussion workspaces. 
+
+Key Platform Objectives:
+- Empower Learners to discover top-tier courses, access study resources, and book direct mentorship with verified experts.
+- Provide Creators with tools to build, publish, price, and monetize structured courses and educational content.
+- Enable Subject Matter Experts to offer paid 1-on-1 mentorship sessions and guide learners.
+- Offer Real-Time Collaboration through dedicated Socket.IO discussion workspaces, instant messaging, file attachments, and alerts.
+- Maintain a Safe & Moderated Ecosystem with role-based access controls, admin moderation, content reporting, and secure Razorpay payment processing.
+
+
+-------------------------------------------------------------------------------
+2. USER ROLES & PERMISSIONS
+-------------------------------------------------------------------------------
+
+1. LEARNER:
+   - Default role assigned upon registration.
+   - Explore, filter, and search public courses, knowledge resources, and expert profiles.
+   - Enroll in free or paid courses using secure Razorpay checkout.
+   - Access the interactive Course Learning view to watch lessons, read material, and track overall completion percentage.
+   - Book 1-on-1 mentorship sessions with experts by picking date and time slots.
+   - Participate in real-time course and session discussion workspaces (send messages, upload files, add emoji reactions).
+   - Bookmark favorite courses and resources for quick access under "My Bookmarks".
+   - Submit course and resource ratings and reviews.
+   - Track personal learning progress, enrolled courses, and payment history in the Learner Dashboard.
+
+2. CREATOR:
+   - Registered users with Creator privileges (or upgraded accounts).
+   - All Learner capabilities plus full course publishing tools.
+   - Create, edit, publish, or unpublish structured courses with custom categories, pricing, thumbnail images, and descriptions.
+   - Create and organize course units/modules (video links, written lectures, downloadable attachments).
+   - Interact directly with enrolled students via dedicated course discussion workspaces.
+   - Track course sales, student enrollments, completion rates, and total earnings on the Creator Dashboard.
+
+3. EXPERT:
+   - Verified mentors providing 1-on-1 coaching and specialized advice.
+   - Maintain an Expert Profile highlighting expertise, bio, hourly rate, skills, and session availability schedule.
+   - Receive, accept, manage, or reschedule 1-on-1 mentorship session bookings from learners.
+   - Conduct real-time interactive chat sessions with learners in dedicated session workspaces.
+   - View mentorship earnings, session history, and client reviews on the Expert Dashboard.
+
+4. ADMIN:
+   - Platform administrators with overall management and moderation authority.
+   - Manage platform users: view user lists, verify expert profiles, assign/promote roles, or ban policy-violating accounts.
+   - Manage categories and subcategories for courses and resources.
+   - Review user-submitted content reports (flagged courses, resources, messages, or users) and take moderation action (delete content, dismiss reports).
+   - Access platform-wide analytics, financial transaction logs, total revenue, and creator/expert payout overviews on the Admin Dashboard.
+   - Delete policy-violating discussion workspaces or individual messages across the platform.
+
+
+-------------------------------------------------------------------------------
+3. CORE PLATFORM MODULES & FEATURES
+-------------------------------------------------------------------------------
+
+A. AUTHENTICATION & SECURITY
+- Local Account Registration & Login using email and password with JWT (JSON Web Tokens).
+- Google OAuth 2.0 Single Sign-On (SSO) for seamless registration and login with dynamic role selection.
+- Two-Factor Authentication (2FA): Optional extra security layer utilizing TOTP authenticator apps.
+- Secure Session Management via HTTP-Only Cookies and Authorization headers.
+- Role-Based Access Control (RBAC) protecting frontend routes and API endpoints.
+
+B. COURSE MANAGEMENT & LEARNING
+- Course Directory: Browse courses filtered by Category, Skill Level (Beginner, Intermediate, Advanced), Price (Free / Paid), and Rating.
+- Course Details Page: View course outline, total units, instructor bio, enrolled student counts, pricing, and student reviews.
+- Checkout & Enrollment: One-click enrollment for free courses; instant Razorpay checkout for paid courses.
+- Interactive Course Player (My Learning): Track progress bar, mark units as complete, view text/video content, and download attached materials.
+- Course Reviews: Enrolled learners can leave 1 to 5-star ratings and written reviews.
+
+C. 1-ON-1 EXPERT MENTORSHIP
+- Expert Directory: Discover mentors by domain expertise, rating, price per session, and availability.
+- Session Booking Flow: Select date/time slot, specify topics/questions, and complete session fee payment via Razorpay.
+- Session Lifecycle: Pending Confirmation -> Confirmed -> In Session -> Completed (or Cancelled/Refunded).
+- Session Workspace: Real-time private chat workspace activated between mentor and learner upon booking.
+
+D. KNOWLEDGE RESOURCES & COMMUNITY
+- Article & Document Library: Curated educational guides, templates, and whitepapers uploaded by creators and experts.
+- Search & Filtering: Global search bar with tag-based filtering and instant search results.
+- Bookmarks: Save resources and courses to personal library for fast retrieval.
+- Report Content: Users can flag inappropriate or illegal content directly for Admin review.
+
+E. REAL-TIME MESSAGING & DISCUSSION WORKSPACES
+- Dedicated Workspaces: Automatically generated for enrolled courses and active mentorship sessions.
+- Socket.IO Real-Time Engine: Instant message delivery without page reloads.
+- Attachment Support: Share images, PDFs, word documents, and code snippets directly inside chat.
+- Message Features: Read receipts (double checkmarks), emoji reactions, message deletion, and workspace deletion cascades.
+- Persistent State: Auto-reconnecting WebSocket lifecycle with state restoration.
+
+F. UNIFIED NOTIFICATION SYSTEM
+- In-App Toast Alerts: Instant visual notifications for incoming messages, session confirmations, or announcements.
+- Browser Desktop Notifications: Native browser push notifications when running in the background.
+- Activity Center: Notification bell icon showing unread updates, session reminders, and platform alerts.
+
+G. PAYMENTS, EARNINGS & TRANSACTIONS
+- Razorpay Integration: PCI-DSS compliant secure payment gateway supporting Credit/Debit Cards, UPI, Net Banking, and Wallets.
+- User Payment History: Detailed ledger of course purchases, session bookings, transaction IDs, invoice status, and receipts.
+- Creator & Expert Earnings: Transparent earnings breakdown showing net income, platform fee deductions, and payout history.
+- Admin Financial Management: Overview of total platform GMV (Gross Merchandise Value), net revenue share, and payout approvals.
+
+
+-------------------------------------------------------------------------------
+4. USER NAVIGATION & SITE MAP
+-------------------------------------------------------------------------------
+- Landing Page (Home): Overview of platform features, trending courses, top experts, popular categories, and call-to-action buttons.
+- Explore Courses: Directory of all available courses with search, category filtering, and sorting options.
+- Mentorship Sessions / Experts: Directory of experts to discover and book 1-on-1 mentorship sessions.
+- Knowledge Resources: Library of community-shared articles, guides, and educational files.
+- Categories Page: Browse educational topics and domain categories.
+- My Learning: Personal hub for learners to access enrolled courses and resume learning.
+- My Bookmarks: Saved list of favorite courses and resources.
+- Discussions / Chat Workspaces: Central chat hub listing active course and mentorship discussion rooms.
+- Profile & Settings: Manage user details, avatar, security settings (2FA), bio, and account credentials.
+- Payment History: Personal ledger of all purchases, receipts, and session bookings.
+- Dashboard (Role-specific redirect):
+  - Learner Dashboard: Learning stats, enrolled courses, upcoming mentorship sessions.
+  - Creator Dashboard: Course creation tools, subscriber metrics, revenue analytics.
+  - Expert Dashboard: Session request management, schedule configuration, mentorship earnings.
+  - Admin Dashboard: Platform moderation, user administration, reports, category setup, financial logs.
+
+
+-------------------------------------------------------------------------------
+5. FREQUENTLY ASKED QUESTIONS (FAQS) & TROUBLESHOOTING
+-------------------------------------------------------------------------------
+Q: How do I enroll in a course?
+A: Go to "Explore Courses", click on the course you wish to take, and click "Enroll Now" (for free courses) or "Buy Now" to pay securely via Razorpay. Once completed, the course will appear under "My Learning".
+
+Q: How do I book a mentorship session with an expert?
+A: Visit the "Experts / Mentorship" section, choose an expert based on your learning goals, click "Book Session", select your desired date/time slot, describe what you need help with, and complete the booking payment.
+
+Q: How do I access discussion rooms for my courses or sessions?
+A: Click on "Discussions" or "Chat" in the top navigation bar. You will see all active workspace channels for your enrolled courses and booked mentorship sessions.
+
+Q: How can I become a Creator or Expert?
+A: You can request a role upgrade from your Account Settings page, or during signup via Google OAuth / Registration by selecting your intended role. Expert profiles require admin approval/verification.
+
+Q: Are payments secure?
+A: Yes, all financial transactions are processed securely through Razorpay using industry-standard encryption and compliance standards.
+
+Q: What should I do if I encounter abusive content or spam?
+A: Use the "Report" button on the resource, course, or message. Our Admin team reviews all reports and takes appropriate moderation action.
+===============================================================================
