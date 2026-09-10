@@ -41,6 +41,7 @@ import {
   requestNotificationPermission,
   sendDesktopNotification,
 } from "../../services/notification";
+import FloatingChatbot from "../ai/FloatingChatbot";
 
 const playChime = () => {
   try {
@@ -872,6 +873,9 @@ const WorkspaceShell = () => {
           </div>
         )}
       </main>
+
+      {/* FLOATING AI ASSISTANT CHATBOT */}
+      <FloatingChatbot />
 
     </div>
   );

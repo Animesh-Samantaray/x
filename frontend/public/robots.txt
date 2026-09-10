@@ -1,0 +1,25 @@
+# Collaborative Knowledge Marketplace Robots Configuration
+User-agent: *
+Allow: /
+Allow: /courses
+Allow: /courses/*
+Allow: /resources
+Allow: /resources/*
+Allow: /sessions
+Allow: /categories
+
+# Disallow private application routes & API endpoints
+Disallow: /admin/
+Disallow: /learner/
+Disallow: /creator/
+Disallow: /expert/
+Disallow: /profile
+Disallow: /chat
+Disallow: /bookmarks
+Disallow: /my-learning
+Disallow: /my-resources
+Disallow: /my-courses
+Disallow: /my-payments
+Disallow: /api/
+
+Sitemap: https://ckm-marketplace.com/sitemap.xml

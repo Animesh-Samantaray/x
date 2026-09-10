@@ -253,102 +253,163 @@ const AdminPaymentsPage = () => {
 
           {/* MAIN PAYMENT TABLE */}
           {!loading && !error && payments.length > 0 && (
-            <div className="overflow-x-auto border border-white/10 rounded-2xl bg-[#181824] shadow-2xl">
-              <table className="w-full text-left text-xs border-collapse min-w-[850px]">
-                <thead>
-                  <tr className="border-b border-white/10 bg-[#0F0F17] font-extrabold uppercase text-[10px] tracking-wider text-[#9696A8]">
-                    <th className="px-5 py-4">From (Learner)</th>
-                    <th className="px-5 py-4">To (Recipient)</th>
-                    <th className="px-5 py-4">Amount</th>
-                    <th className="px-5 py-4">Reason</th>
-                    <th className="px-5 py-4">Item</th>
-                    <th className="px-5 py-4">Type</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4">Date</th>
-                    <th className="px-5 py-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {payments.map((p) => {
-                    const isCourse = p.type === "Course";
-                    const itemTitle = isCourse ? p.course?.title : p.session?.title;
-                    const dateStr = p.paidAt || p.createdAt;
-                    const formattedDate = dateStr
-                      ? new Date(dateStr).toLocaleDateString("en-IN", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "N/A";
+            <>
+             
+              <div className="md:hidden space-y-3.5">
+                {payments.map((p) => {
+                  const isCourse = p.type === "Course";
+                  const itemTitle = isCourse ? p.course?.title : p.session?.title;
+                  const dateStr = p.paidAt || p.createdAt;
+                  const formattedDate = dateStr
+                    ? new Date(dateStr).toLocaleDateString("en-IN", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "N/A";
 
-                    return (
-                      <tr key={p._id} className="hover:bg-white/5 transition duration-150">
-                        {/* From */}
-                        <td className="px-5 py-4">
-                          <div className="font-extrabold text-white">{p.learner?.name || "Learner"}</div>
-                          <div className="text-[10px] text-[#9696A8] truncate max-w-[140px]">{p.learner?.email || "N/A"}</div>
-                        </td>
+                  return (
+                    <div key={p._id} className="p-4 rounded-2xl bg-[#181824] border border-white/10 space-y-3 shadow-md">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded border ${
+                          isCourse ? "bg-[#7757F5]/15 text-[#00F2FF] border-[#7757F5]/30" : "bg-[#00F2FF]/15 text-[#00F2FF] border-[#00F2FF]/30"
+                        }`}>
+                          {p.type}
+                        </span>
+                        {renderStatusBadge(p.status)}
+                      </div>
 
-                        {/* To */}
-                        <td className="px-5 py-4">
-                          <div className="font-extrabold text-white">{p.recipient?.name || "Creator/Expert"}</div>
-                          <div className="text-[10px] text-[#9696A8] truncate max-w-[140px]">{p.recipient?.email || "N/A"}</div>
-                        </td>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-xs font-bold text-white line-clamp-1">{itemTitle || p.reason || "Payment Transaction"}</h4>
+                          <p className="text-[10px] text-[#9696A8] mt-0.5">{formattedDate}</p>
+                        </div>
+                        <span className="text-sm font-black text-emerald-400 shrink-0">₹{p.amount?.toLocaleString("en-IN")}</span>
+                      </div>
 
-                        {/* Amount */}
-                        <td className="px-5 py-4 font-black text-emerald-400 text-sm">
-                          ₹{p.amount?.toLocaleString("en-IN")}
-                        </td>
+                      <div className="pt-2 border-t border-white/5 grid grid-cols-2 gap-2 text-[11px]">
+                        <div>
+                          <span className="text-[9px] text-[#9696A8] uppercase font-mono block">From</span>
+                          <span className="font-bold text-white truncate block">{p.learner?.name || "Learner"}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-[#9696A8] uppercase font-mono block">To</span>
+                          <span className="font-bold text-white truncate block">{p.recipient?.name || "Recipient"}</span>
+                        </div>
+                      </div>
 
-                        {/* Reason */}
-                        <td className="px-5 py-4 text-text-main font-semibold">
-                          {p.reason || (isCourse ? "Course Enrollment" : "Mentorship Session Booking")}
-                        </td>
+                      <button
+                        onClick={() => {
+                          setSelectedPayment(p);
+                          setDetailsModalOpen(true);
+                        }}
+                        className="w-full text-[11px] font-extrabold text-[#00F2FF] py-2 rounded-xl border border-[#00F2FF]/30 bg-[#00F2FF]/10 hover:bg-[#00F2FF]/20 transition cursor-pointer text-center"
+                      >
+                        View Full Receipt
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
 
-                        {/* Item */}
-                        <td className="px-5 py-4 font-extrabold text-white truncate max-w-[160px]" title={itemTitle}>
-                          {itemTitle || "N/A"}
-                        </td>
+            
+              <div className="hidden md:block overflow-x-auto border border-white/10 rounded-2xl bg-[#181824] shadow-2xl">
+                <table className="w-full text-left text-xs border-collapse min-w-[850px]">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-[#0F0F17] font-extrabold uppercase text-[10px] tracking-wider text-[#9696A8]">
+                      <th className="px-5 py-4">From (Learner)</th>
+                      <th className="px-5 py-4">To (Recipient)</th>
+                      <th className="px-5 py-4">Amount</th>
+                      <th className="px-5 py-4">Reason</th>
+                      <th className="px-5 py-4">Item</th>
+                      <th className="px-5 py-4">Type</th>
+                      <th className="px-5 py-4">Status</th>
+                      <th className="px-5 py-4">Date</th>
+                      <th className="px-5 py-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {payments.map((p) => {
+                      const isCourse = p.type === "Course";
+                      const itemTitle = isCourse ? p.course?.title : p.session?.title;
+                      const dateStr = p.paidAt || p.createdAt;
+                      const formattedDate = dateStr
+                        ? new Date(dateStr).toLocaleDateString("en-IN", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "N/A";
 
-                        {/* Type */}
-                        <td className="px-5 py-4">
-                          <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded border ${
-                            isCourse
-                              ? "bg-[#7757F5]/15 text-[#00F2FF] border-[#7757F5]/30"
-                              : "bg-[#00F2FF]/15 text-[#00F2FF] border-[#00F2FF]/30"
-                          }`}>
-                            {p.type}
-                          </span>
-                        </td>
+                      return (
+                        <tr key={p._id} className="hover:bg-white/5 transition duration-150">
+                          {/* From */}
+                          <td className="px-5 py-4">
+                            <div className="font-extrabold text-white">{p.learner?.name || "Learner"}</div>
+                            <div className="text-[10px] text-[#9696A8] truncate max-w-[140px]">{p.learner?.email || "N/A"}</div>
+                          </td>
 
-                        {/* Status */}
-                        <td className="px-5 py-4">
-                          {renderStatusBadge(p.status)}
-                        </td>
+                          {/* To */}
+                          <td className="px-5 py-4">
+                            <div className="font-extrabold text-white">{p.recipient?.name || "Creator/Expert"}</div>
+                            <div className="text-[10px] text-[#9696A8] truncate max-w-[140px]">{p.recipient?.email || "N/A"}</div>
+                          </td>
 
-                        {/* Date */}
-                        <td className="px-5 py-4 text-[#9696A8] text-[11px] whitespace-nowrap font-semibold">
-                          {formattedDate}
-                        </td>
+                          {/* Amount */}
+                          <td className="px-5 py-4 font-black text-emerald-400 text-sm">
+                            ₹{p.amount?.toLocaleString("en-IN")}
+                          </td>
 
-                        {/* Action */}
-                        <td className="px-5 py-4 text-right">
-                          <button
-                            onClick={() => {
-                              setSelectedPayment(p);
-                              setDetailsModalOpen(true);
-                            }}
-                            className="text-[11px] font-extrabold text-[#00F2FF] hover:underline px-3 py-1 rounded-lg border border-[#00F2FF]/30 bg-[#00F2FF]/10 transition cursor-pointer"
-                          >
-                            View Receipt
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          {/* Reason */}
+                          <td className="px-5 py-4 text-text-main font-semibold">
+                            {p.reason || (isCourse ? "Course Enrollment" : "Mentorship Session Booking")}
+                          </td>
+
+                          {/* Item */}
+                          <td className="px-5 py-4 font-extrabold text-white truncate max-w-[160px]" title={itemTitle}>
+                            {itemTitle || "N/A"}
+                          </td>
+
+                          {/* Type */}
+                          <td className="px-5 py-4">
+                            <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded border ${
+                              isCourse
+                                ? "bg-[#7757F5]/15 text-[#00F2FF] border-[#7757F5]/30"
+                                : "bg-[#00F2FF]/15 text-[#00F2FF] border-[#00F2FF]/30"
+                            }`}>
+                              {p.type}
+                            </span>
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-5 py-4">
+                            {renderStatusBadge(p.status)}
+                          </td>
+
+                          {/* Date */}
+                          <td className="px-5 py-4 text-[#9696A8] text-[11px] whitespace-nowrap font-semibold">
+                            {formattedDate}
+                          </td>
+
+                          {/* Action */}
+                          <td className="px-5 py-4 text-right">
+                            <button
+                              onClick={() => {
+                                setSelectedPayment(p);
+                                setDetailsModalOpen(true);
+                              }}
+                              className="text-[11px] font-extrabold text-[#00F2FF] hover:underline px-3 py-1 rounded-lg border border-[#00F2FF]/30 bg-[#00F2FF]/10 transition cursor-pointer"
+                            >
+                              View Receipt
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
           {/* PAYMENT DETAILS MODAL / DRAWER */}

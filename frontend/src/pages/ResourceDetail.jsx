@@ -6,6 +6,7 @@ import SpotlightCard from "../components/SpotlightCard";
 import Button from "../components/Button";
 import ReportDialog from "../components/reports/ReportDialog";
 import { ArrowLeft, BookOpen, ExternalLink, Calendar, User, Folder, Tag, FileText, Link as LinkIcon, AlertCircle, Flag } from "lucide-react";
+import SEO from "../components/common/SEO";
 
 const ResourceDetail = () => {
   const { id } = useParams();
@@ -106,6 +107,29 @@ const ResourceDetail = () => {
 
   return (
     <div className="space-y-6 text-left max-w-4xl mx-auto">
+      <SEO
+        title={resource?.title ? `${resource.title} — Resource Blueprint` : "Resource Details"}
+        description={resource?.description || "Technical article blueprint on Collaborative Knowledge Marketplace."}
+        ogImage={hasThumbnail ? resource.thumbnail : undefined}
+        schemaJson={
+          resource
+            ? {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": resource.title,
+                "description": resource.description,
+                "author": {
+                  "@type": "Person",
+                  "name": resource.createdBy?.name || "CKM Community Contributor"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "Collaborative Knowledge Marketplace"
+                }
+              }
+            : null
+        }
+      />
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
