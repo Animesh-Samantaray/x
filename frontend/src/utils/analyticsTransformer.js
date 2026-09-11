@@ -253,6 +253,20 @@ export const transformExpertAnalytics = (sessions = []) => {
     ],
   };
 
+  const sessionStatusChartData = {
+    labels: ["Open Slots", "Completed", "Cancelled"],
+    datasets: [
+      {
+        label: "Sessions",
+        data: [openCount, completedCount, cancelledCount],
+        backgroundColor: ["#06b6d4", "#a855f7", "#64748b"],
+        borderColor: "#0f172a",
+        borderWidth: 2,
+        borderRadius: 4,
+      },
+    ],
+  };
+
   return {
     totalSessions: sessions.length,
     openCount,
@@ -264,6 +278,7 @@ export const transformExpertAnalytics = (sessions = []) => {
     isEmpty: sessions.length === 0,
     monthlyChartData,
     requestsChartData,
+    sessionStatusChartData,
   };
 };
 

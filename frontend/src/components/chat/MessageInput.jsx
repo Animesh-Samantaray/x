@@ -84,7 +84,7 @@ const MessageInput = ({ onSendMessage, disabled }) => {
         </div>
       )}
 
-      {/* WhatsApp-Style Sticker Picker */}
+
       <StickerPicker
         isOpen={showStickerPicker}
         onClose={() => setShowStickerPicker(false)}
@@ -92,9 +92,9 @@ const MessageInput = ({ onSendMessage, disabled }) => {
         anchorRef={stickerButtonRef}
       />
 
-      {/* Form Input */}
+     
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
-        {/* Attachment Button */}
+      
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -112,42 +112,38 @@ const MessageInput = ({ onSendMessage, disabled }) => {
           disabled={disabled}
         />
 
-        {/* Textarea Input */}
-        <div className="flex-1 relative flex items-center">
+        <div className="flex-1 relative flex items-center group">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             disabled={disabled}
-            rows={1}
-            className="w-full px-3.5 py-2.5 bg-bg-darker border border-glass-border rounded-xl text-xs text-text-title placeholder:text-text-muted focus:outline-none focus:border-sky-500/50 transition resize-none pr-9 min-h-[40px] max-h-28"
+            rows={2}
+            className="w-full px-4 py-3 bg-bg-darker/90 border border-glass-border rounded-2xl text-sm text-text-title placeholder:text-text-muted/70 focus:outline-none focus:border-sky-500/70 focus:ring-2 focus:ring-sky-500/20 focus:bg-bg-darker transition-all duration-300 resize-none pr-11 min-h-[52px] max-h-36 shadow-inner"
           />
-
-          {/* Sticker Button */}
           <button
             ref={stickerButtonRef}
             type="button"
             onClick={() => setShowStickerPicker((prev) => !prev)}
-            className={`absolute right-2.5 transition p-1 cursor-pointer rounded-lg ${
+            className={`absolute right-3 top-3.5 transition-all duration-200 p-1.5 cursor-pointer rounded-xl ${
               showStickerPicker
-                ? "text-sky-500 bg-sky-500/10"
-                : "text-text-muted hover:text-text-title hover:bg-glass-card"
+                ? "text-sky-400 bg-sky-500/20 scale-110"
+                : "text-text-muted hover:text-sky-400 hover:bg-white/5 active:scale-95"
             }`}
             title="Stickers"
           >
-            <Smile size={17} />
+            <Smile size={20} />
           </button>
         </div>
 
-        {/* Send Button */}
         <button
           type="submit"
           disabled={disabled || (!message.trim() && !selectedFile)}
-          className="p-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0 cursor-pointer shadow-sm"
+          className="p-3.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shrink-0 cursor-pointer shadow-md hover:shadow-sky-500/25 active:scale-95 flex items-center justify-center"
           title="Send message"
         >
-          <Send size={16} />
+          <Send size={18} />
         </button>
       </form>
     </div>

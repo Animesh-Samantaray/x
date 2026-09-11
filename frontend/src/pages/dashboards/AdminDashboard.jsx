@@ -14,6 +14,7 @@ import {
 } from "../../services/adminApi";
 import { getAllReportsAdmin } from "../../services/reportApi";
 import { getCategories, createCategory } from "../../services/categoryService";
+import { getAdminPayments } from "../../services/paymentService";
 
 import {
   ShieldAlert,
@@ -27,6 +28,7 @@ import {
   Lock,
   Unlock,
   Activity,
+  DollarSign,
 } from "lucide-react";
 
 import { transformAdminAnalytics } from "../../utils/analyticsTransformer";
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [reports, setReports] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [totalPlatformRevenue, setTotalPlatformRevenue] = useState(0);
 
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -60,10 +63,11 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [usersRes, reportsRes, catRes] = await Promise.allSettled([
+      const [usersRes, reportsRes, categoriesRes, paymentsRes] = await Promise.allSettled([
         getAllUsers(),
         getAllReportsAdmin(),
         getCategories(),
+        getAdminPayments(),
       ]);
 
       if (usersRes.status === "fulfilled" && usersRes.value?.users) {
@@ -72,13 +76,18 @@ const AdminDashboard = () => {
       if (reportsRes.status === "fulfilled" && reportsRes.value?.reports) {
         setReports(reportsRes.value.reports);
       }
-      if (catRes.status === "fulfilled" && catRes.value?.categories) {
-        setCategories(catRes.value.categories);
+      if (categoriesRes.status === "fulfilled" && categoriesRes.value?.categories) {
+        setCategories(categoriesRes.value.categories);
+      }
+      if (paymentsRes.status === "fulfilled" && paymentsRes.value?.data) {
+        const paidPayments = paymentsRes.value.data.filter((p) => p.status === "Paid");
+        const total = paidPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        setTotalPlatformRevenue(total);
       }
     } catch (err) {
-      console.error("Admin operations fetch error:", err);
+      console.error("Admin dashboard fetch error:", err);
       setError(err.message || "Failed to load admin operations data.");
-    } fontFinally: {
+    } finally {
       setLoading(false);
     }
   };
@@ -218,11 +227,13 @@ const AdminDashboard = () => {
 
             <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
               <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
-                <span>PLATFORM STATUS</span>
-                <BookOpen size={14} className="text-emerald-500" />
+                <span>TOTAL PLATFORM REVENUE</span>
+                <DollarSign size={14} className="text-emerald-500" />
               </div>
-              <div className="text-2xl font-black text-emerald-500 font-mono">Operational</div>
-              <p className="text-[10px] text-text-muted">All services online</p>
+              <div className="text-2xl font-black text-emerald-500 font-mono">
+                ₹{totalPlatformRevenue.toLocaleString()}
+              </div>
+              <p className="text-[10px] text-text-muted">Gross Platform Volume</p>
             </div>
 
           </div>

@@ -276,7 +276,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="h-screen w-full flex bg-bg-darker text-text-title overflow-hidden font-sans">
+    <div className="h-[calc(100vh-4rem)] w-full flex bg-bg-darker text-text-title overflow-hidden font-sans">
       {/* Middle Column: Conversation List */}
       <div
         className={`w-full lg:w-80 xl:w-96 border-r border-glass-border flex flex-col shrink-0 h-full bg-glass-card ${
