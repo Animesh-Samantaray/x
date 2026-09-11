@@ -13,6 +13,7 @@ import {
   removeParticipantFromConversation,
 } from "../services/conversation.service.js";
 import { enrollInCourseService } from "../services/course.service.js";
+import { checkAndUnlockAchievements } from "../services/achievement.service.js";
 
  
 export const createCourse = async (req, res) => {
@@ -63,6 +64,11 @@ export const createCourse = async (req, res) => {
     } catch (convErr) {
       console.error("Auto conversation creation error on course create:", convErr);
     }
+
+  
+    checkAndUnlockAchievements(req.user._id).catch((err) =>
+      console.error("Achievement trigger error on createCourse:", err)
+    );
 
     return res.status(201).json({
       success: true,
@@ -356,7 +362,7 @@ export const deleteCourse = async (req, res) => {
 };
 
  
-// GET ENROLLED STUDENTS
+
  
 export const getEnrolledStudents = async (req, res) => {
   try {
@@ -399,7 +405,7 @@ export const getEnrolledStudents = async (req, res) => {
 };
 
  
-// ENROLL IN COURSE
+
  
 export const enrollInCourse = async (req, res) => {
   try {
@@ -459,7 +465,7 @@ export const enrollInCourse = async (req, res) => {
 };
 
  
-// UNENROLL FROM COURSE
+
  
 export const unenrollFromCourse = async (req, res) => {
   try {
@@ -497,7 +503,7 @@ export const unenrollFromCourse = async (req, res) => {
 
     await course.save();
 
-    // Remove learner-specific data
+   
     await Bookmark.deleteMany({
       user: userId,
       course: id,
@@ -508,7 +514,7 @@ export const unenrollFromCourse = async (req, res) => {
       course: id,
     });
 
-    // Remove learner from course conversation
+ 
     try {
       const conv = await Conversation.findOne({ course: id });
       if (conv) {

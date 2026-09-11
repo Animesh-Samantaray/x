@@ -6,6 +6,7 @@ import {
   createSessionConversation as createSessionConvService,
   addParticipantToConversation,
 } from "../services/conversation.service.js";
+import { checkAndUnlockAchievements } from "../services/achievement.service.js";
 import { requestSessionService } from "../services/mentorshipSession.service.js";
 
 export const createSession = async (req, res) => {
@@ -710,6 +711,21 @@ export const completeSession = async (req, res) => {
     session.completedAt = new Date();
 
     await session.save();
+
+    if (expert?.user) {
+      checkAndUnlockAchievements(expert.user).catch((err) =>
+        console.error("Achievement trigger error for expert on completeSession:", err)
+      );
+    }
+
+   
+    for (const learner of session.learners || []) {
+      if (learner.status === "accepted" && learner.user) {
+        checkAndUnlockAchievements(learner.user).catch((err) =>
+          console.error("Achievement trigger error for learner on completeSession:", err)
+        );
+      }
+    }
 
     const updatedSession = await MentorshipSession.findById(id)
       .populate({

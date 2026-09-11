@@ -4,6 +4,7 @@ import cloudinary from "../configs/cloudinary.js";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import axios from "axios";
+import { checkAndUnlockAchievements } from "../services/achievement.service.js";
 
 export const createResource = async (req, res) => {
     try {
@@ -54,6 +55,11 @@ export const createResource = async (req, res) => {
             createdBy: req.user._id,
             status: req.body.status || "draft",
         });
+
+       
+        checkAndUnlockAchievements(req.user._id).catch((err) =>
+            console.error("Achievement trigger error on createResource:", err)
+        );
 
         return res.status(201).json({
             success: true,
@@ -120,7 +126,6 @@ export const updateResource = async (req, res) => {
             });
         }
 
-        // Only owner or admin can update
         if (
             resource.createdBy.toString() !== req.user._id.toString() &&
             req.user.role !== "admin"
@@ -131,7 +136,7 @@ export const updateResource = async (req, res) => {
             });
         }
 
-        // Update basic fields
+
         if (title !== undefined) resource.title = title;
         if (description !== undefined) resource.description = description;
         if (category !== undefined) resource.category = category;
@@ -146,13 +151,12 @@ export const updateResource = async (req, res) => {
             resource.links = JSON.parse(links);
         }
 
-        // Existing documents that are still kept by the user
+
         if (existingDocuments !== undefined) {
             const keptDocuments = JSON.parse(existingDocuments);
 
             const oldDocuments = resource.documents;
 
-            // Delete removed documents from Cloudinary
             for (const oldDocument of oldDocuments) {
                 const stillExists = keptDocuments.some(
                     (document) =>
@@ -180,7 +184,7 @@ export const updateResource = async (req, res) => {
             resource.documents = keptDocuments;
         }
 
-        // Upload newly added documents
+
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 const result = await uploadToCloudinary(
@@ -241,7 +245,7 @@ export const deleteResource = async (req, res) => {
             });
         }
 
-        // Delete all associated documents from Cloudinary first
+        
         if (resource.documents && resource.documents.length > 0) {
             for (const doc of resource.documents) {
                 if (doc.publicId) {
@@ -429,7 +433,7 @@ export const getResourceById = async (req, res) => {
             });
         }
 
-        // If resource is not published, only creator or admin can view it
+      
         if (resource.status !== "published") {
             if (
                 !req.user ||
@@ -490,9 +494,9 @@ export const getDocument = async (req, res) => {
             return res.status(404).json({ success: false, message: "Resource not found" });
         }
 
-        // Access Control for draft/archived resources
+       
         if (resource.status !== "published") {
-            // Check for user token manually
+           
             let user = null;
             let token = req.cookies?.token;
             if (!token && req.headers?.authorization) {
@@ -526,7 +530,7 @@ export const getDocument = async (req, res) => {
             return res.status(404).json({ success: false, message: "Document not found" });
         }
 
-        // Fetch file from Cloudinary and stream it back with custom headers
+       
         const cloudinaryResponse = await axios({
             method: "get",
             url: document.url,
