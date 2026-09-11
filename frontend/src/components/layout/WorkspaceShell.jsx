@@ -866,7 +866,9 @@ const WorkspaceShell = () => {
         }`}
       >
         {location.pathname === "/chat" ? (
-          <Outlet />
+          <div className="h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+            <Outlet />
+          </div>
         ) : (
           <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-1">
             <Outlet />

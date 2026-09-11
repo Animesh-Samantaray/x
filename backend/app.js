@@ -23,6 +23,8 @@ import earningRoutes from "./routes/earnings.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import reportRoutes from "./routes/report.route.js";
 import aiRoutes from "./routes/ai.route.js";
+import achievementRoutes from "./routes/achievement.routes.js";
+
 const app = express();
 app.use(passport.initialize());
 
@@ -69,6 +71,7 @@ app.use("/api/earnings", earningRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/achievements", achievementRoutes);
 
 
 export default app;

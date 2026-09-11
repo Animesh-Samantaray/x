@@ -8,6 +8,7 @@ import Button from "../../components/Button";
 
 import { getMyCourses } from "../../services/courseService";
 import { getMyResources } from "../../services/resourceService";
+import { getMyEarnings } from "../../services/paymentService";
 
 import {
   BookOpen,
@@ -35,6 +36,7 @@ const CreatorDashboard = () => {
 
   const [courses, setCourses] = useState([]);
   const [resources, setResources] = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState(0);
 
   const [activeTab, setActiveTab] = useState("courses");
 
@@ -43,9 +45,10 @@ const CreatorDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [coursesRes, resourcesRes] = await Promise.allSettled([
+      const [coursesRes, resourcesRes, earningsRes] = await Promise.allSettled([
         getMyCourses(),
         getMyResources(),
+        getMyEarnings(),
       ]);
 
       if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
@@ -53,6 +56,9 @@ const CreatorDashboard = () => {
       }
       if (resourcesRes.status === "fulfilled" && resourcesRes.value?.resources) {
         setResources(resourcesRes.value.resources);
+      }
+      if (earningsRes.status === "fulfilled" && earningsRes.value?.earnings !== undefined) {
+        setTotalEarnings(earningsRes.value.earnings);
       }
     } catch (err) {
       console.error("Creator studio fetch error:", err);
@@ -151,13 +157,13 @@ const CreatorDashboard = () => {
 
             <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
               <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
-                <span>AUTHOR STATUS</span>
+                <span>TOTAL EARNINGS</span>
                 <DollarSign size={14} className="text-amber-500" />
               </div>
               <div className="text-2xl font-black text-amber-500 font-mono">
-                Active Creator
+                ₹{totalEarnings.toLocaleString()}
               </div>
-              <p className="text-[10px] text-text-muted">Content Monetization Enabled</p>
+              <p className="text-[10px] text-text-muted">Course Sales Net Income</p>
             </div>
 
           </div>

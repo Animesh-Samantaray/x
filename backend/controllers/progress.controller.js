@@ -1,9 +1,10 @@
 import Progress from "../models/Progress.model.js";
 import Course from "../models/Course.model.js";
 import Unit from "../models/Unit.model.js";
+import { checkAndUnlockAchievements } from "../services/achievement.service.js";
 
 
-// Mark unit as completed
+
 export const completeUnit = async (req, res) => {
   try {
 
@@ -31,7 +32,6 @@ export const completeUnit = async (req, res) => {
       });
     }
 
-    // Check unit
     const unit = await Unit.findOne({
       _id: unitId,
       course: courseId,
@@ -75,7 +75,7 @@ export const completeUnit = async (req, res) => {
       });
     }
 
-    // Total units in course
+
     const totalUnits = await Unit.countDocuments({
       course: courseId,
     });
@@ -95,6 +95,11 @@ export const completeUnit = async (req, res) => {
     }
 
     await progress.save();
+
+ 
+    checkAndUnlockAchievements(req.user._id).catch((err) =>
+      console.error("Achievement trigger error on completeUnit:", err)
+    );
 
     return res.status(200).json({
       success: true,

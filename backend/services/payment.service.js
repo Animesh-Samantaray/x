@@ -11,6 +11,7 @@ import User from "../models/User.model.js";
 import { enrollInCourseService } from "./course.service.js";
 import { requestSessionService } from "./mentorshipSession.service.js";
 import { sendPaymentEmails } from "./email.service.js";
+import { checkAndUnlockAchievements } from "./achievement.service.js";
 
 export const createPaymentOrderService = async ({
   learnerId,
@@ -184,6 +185,11 @@ export const verifyPaymentService = async ({
   } catch (emailErr) {
     console.error("Email notification error post payment verification:", emailErr.message);
   }
+
+
+  checkAndUnlockAchievements(payment.recipient).catch((err) =>
+    console.error("Achievement trigger error on verifyPayment:", err)
+  );
 
   return payment;
 };

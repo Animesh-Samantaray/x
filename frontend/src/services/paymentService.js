@@ -24,7 +24,18 @@ export const getPaymentById = async (paymentId) => {
 
 export const getMyEarnings = async () => {
   const response = await api.get("/earnings/my-earnings");
-  return response.data;
+  // Backend returns { success: true, data: { earnings: N } } or { success: true, earnings: N }
+  const earningsVal =
+    response.data?.data?.earnings !== undefined
+      ? response.data.data.earnings
+      : response.data?.earnings !== undefined
+      ? response.data.earnings
+      : 0;
+
+  return {
+    ...response.data,
+    earnings: earningsVal,
+  };
 };
 
 export const getAdminPayments = async (params = {}) => {

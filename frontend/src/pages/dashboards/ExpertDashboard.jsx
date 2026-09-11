@@ -13,6 +13,7 @@ import {
   acceptLearner,
   rejectLearner,
 } from "../../services/sessionService";
+import { getMyEarnings } from "../../services/paymentService";
 
 import {
   Video,
@@ -32,7 +33,8 @@ import {
 } from "lucide-react";
 
 import { transformExpertAnalytics } from "../../utils/analyticsTransformer";
-import { RealLineChart, RealDoughnutChart } from "../../components/dashboard/RealChart";
+import { RealLineChart, RealDoughnutChart, RealBarChart } from "../../components/dashboard/RealChart";
+import ExpertSessionTimeline from "../../components/dashboard/ExpertSessionTimeline";
 
 const ExpertDashboard = () => {
   const { user } = useAuth();
@@ -42,6 +44,7 @@ const ExpertDashboard = () => {
   const [error, setError] = useState(null);
 
   const [sessions, setSessions] = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const [activeTab, setActiveTab] = useState("my");
 
   const fetchData = async () => {
@@ -49,9 +52,16 @@ const ExpertDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const res = await getMySessions();
-      if (res && res.success) {
-        setSessions(res.sessions || []);
+      const [res, earningsRes] = await Promise.allSettled([
+        getMySessions(),
+        getMyEarnings(),
+      ]);
+
+      if (res.status === "fulfilled" && res.value?.success) {
+        setSessions(res.value.sessions || []);
+      }
+      if (earningsRes.status === "fulfilled" && earningsRes.value?.earnings !== undefined) {
+        setTotalEarnings(earningsRes.value.earnings);
       }
     } catch (err) {
       console.error("Expert hub fetch error:", err);
@@ -176,11 +186,13 @@ const ExpertDashboard = () => {
 
             <div className="p-5 rounded-2xl bg-glass-card border border-glass-border space-y-1 shadow-sm">
               <div className="flex items-center justify-between text-[10px] font-mono font-bold text-text-muted">
-                <span>CONSULTATION STATUS</span>
+                <span>TOTAL EARNINGS</span>
                 <DollarSign size={14} className="text-purple-500" />
               </div>
-              <div className="text-2xl font-black text-purple-500 font-mono">Verified Expert</div>
-              <p className="text-[10px] text-text-muted">Available for booking</p>
+              <div className="text-2xl font-black text-purple-500 font-mono">
+                ₹{totalEarnings.toLocaleString()}
+              </div>
+              <p className="text-[10px] text-text-muted">Mentorship Revenue Generated</p>
             </div>
 
           </div>
@@ -210,26 +222,33 @@ const ExpertDashboard = () => {
             return (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                {/* REAL METRICS ROW 1 */}
+              
                 <div className="lg:col-span-7 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4">
-                  <div className="flex items-center justify-between border-b border-glass-border pb-3">
-                    <div>
-                      <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">SESSION SCHEDULING TRENDS</span>
-                      <h3 className="text-base font-extrabold text-text-title">Monthly Advisory Sessions Scheduled</h3>
-                    </div>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                      Total: {expertData.totalSessions} Sessions
-                    </span>
-                  </div>
-                  <RealLineChart data={expertData.monthlyChartData} height={200} />
+                  <ExpertSessionTimeline sessions={sessions} />
                 </div>
 
                 <div className="lg:col-span-5 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md flex flex-col justify-between space-y-4">
-                  <div className="border-b border-glass-border pb-3 text-left">
-                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">LEARNER REQUEST STATUS</span>
-                    <h3 className="text-sm font-extrabold text-text-title mt-0.5">{expertData.acceptedRequests + expertData.pendingRequests + expertData.rejectedRequests} Booking Requests</h3>
+                  <div className="border-b border-glass-border pb-3 text-left flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block">LEARNER REQUEST STATUS</span>
+                      <h3 className="text-sm font-extrabold text-text-title mt-0.5">{expertData.acceptedRequests + expertData.pendingRequests + expertData.rejectedRequests} Booking Requests</h3>
+                    </div>
+                    <span className="px-2.5 py-1 text-[10px] font-mono font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {expertData.acceptedRequests + expertData.pendingRequests + expertData.rejectedRequests > 0 
+                        ? `${Math.round((expertData.acceptedRequests / (expertData.acceptedRequests + expertData.pendingRequests + expertData.rejectedRequests)) * 100)}% Accepted` 
+                        : "0% Accepted"}
+                    </span>
                   </div>
-                  <RealDoughnutChart data={expertData.requestsChartData} height={180} />
+
+                  <div className="p-3 rounded-2xl bg-bg-dark/40 border border-glass-border space-y-2 text-left">
+                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-wider block">Request Conversion Share</span>
+                    <RealDoughnutChart data={expertData.requestsChartData} height={145} />
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-bg-dark/40 border border-glass-border space-y-2 text-left">
+                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-wider block">Mentorship Session Inventory</span>
+                    <RealBarChart data={expertData.sessionStatusChartData} height={145} />
+                  </div>
                 </div>
 
                 {/* REAL METRICS ROW 2 */}

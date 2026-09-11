@@ -7,6 +7,7 @@ import { getAdminProfile, updateAdminProfile } from "../services/adminApi";
 import { update2FA } from "../services/authService";
 import ReportDialog from "../components/reports/ReportDialog";
 import { PageTransition, StaggerContainer, StaggerItem } from "../components/motion/MotionPrimitives";
+import AchievementsSection from "../components/achievements/AchievementsSection";
 
 import {
   Calendar,
@@ -659,6 +660,9 @@ const Profile = () => {
                 </div>
 
               </div>
+
+              {/* Automatic Achievements / Badges Section */}
+              <AchievementsSection />
 
               {/* Learning Goals / Expertise Areas Card */}
               {role === "learner" && (
