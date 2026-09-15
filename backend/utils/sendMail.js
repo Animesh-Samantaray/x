@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Resend } from "resend";
 
 export const sendMail = async (to, subject, html) => {
@@ -13,7 +14,11 @@ export const sendMail = async (to, subject, html) => {
     throw new Error("RESEND_API_KEY is not configured");
   }
 
-  const emailFrom = process.env.EMAIL_FROM || "onboarding@resend.dev";
+  const emailFrom = process.env.EMAIL_FROM?.trim();
+
+  if (!emailFrom) {
+    throw new Error("EMAIL_FROM is not configured");
+  }
 
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);

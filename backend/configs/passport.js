@@ -53,7 +53,6 @@ if (googleClientID && googleClientSecret) {
         if (user) {
           // Link Google account to existing account
           user.googleId = googleId;
-          user.authProvider = "google";
           user.isVerified = true;
 
           if (avatar && !user.profilePicture) {
