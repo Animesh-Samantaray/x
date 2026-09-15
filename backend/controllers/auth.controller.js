@@ -11,11 +11,14 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: "/",
 };
 
 export const register = async (req, res) => {
