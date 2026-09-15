@@ -343,13 +343,12 @@ const WorkspaceShell = () => {
     <div className="min-h-screen bg-bg-deep text-text-main flex flex-col font-sans relative selection:bg-purple-500/30">
       
       {/* TOP WORKSPACE HEADER BAR */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-bg-panel/90 backdrop-blur-2xl border-b border-glass-border z-40 flex items-center justify-between px-4 sm:px-6 transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-bg-panel/90 backdrop-blur-2xl border-b border-glass-border z-40 flex items-center justify-between px-3 sm:px-6 transition-all duration-300">
         
-        {/* Left Brand Identity & Breadcrumb */}
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-2 sm:gap-3.5">
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="lg:hidden p-2 rounded-xl bg-glass-card border border-glass-border text-text-muted hover:text-text-title transition cursor-pointer"
+            className="lg:hidden p-2 rounded-xl bg-glass-card border border-glass-border text-text-muted hover:text-text-title transition cursor-pointer active:scale-95"
             aria-label="Open navigation drawer"
           >
             <Menu size={18} />
@@ -357,7 +356,7 @@ const WorkspaceShell = () => {
 
           <Link
             to={dashboardPath}
-            className="flex items-center gap-2.5 group/logo select-none shrink-0"
+            className="flex items-center gap-2 sm:gap-2.5 group/logo select-none shrink-0"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 shadow-md group-hover/logo:scale-105 transition duration-300">
               <Share2 size={16} className="text-white" />
@@ -870,7 +869,7 @@ const WorkspaceShell = () => {
             <Outlet />
           </div>
         ) : (
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-1">
+          <div className="p-3 sm:p-6 lg:p-8 2xl:p-10 max-w-[1920px] mx-auto w-full flex-1">
             <Outlet />
           </div>
         )}

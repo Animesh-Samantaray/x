@@ -25,8 +25,6 @@ import {
   Layers,
   Search,
   PlusCircle,
-  Lock,
-  Unlock,
   Activity,
   DollarSign,
 } from "lucide-react";
@@ -108,17 +106,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleToggleBan = async (userId, currentBanned) => {
-    try {
-      const res = await updateUser(userId, { isBanned: !currentBanned });
-      if (res && res.success) {
-        toast.success(`User account status updated.`);
-        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isBanned: !currentBanned } : u)));
-      }
-    } catch (err) {
-      toast.error("Failed to update ban status.");
-    }
-  };
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -290,14 +277,10 @@ const AdminDashboard = () => {
 
                 <div className="lg:col-span-6 p-6 rounded-3xl bg-glass-card border border-glass-border shadow-md space-y-4 text-left">
                   <span className="text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest block border-b border-glass-border pb-3">PLATFORM HEALTH SUMMARY</span>
-                  <div className="grid grid-cols-2 gap-4 pt-1 font-mono text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 font-mono text-xs">
                     <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
                       <span className="text-[10px] text-text-muted uppercase block">Active User Accounts</span>
-                      <span className="text-2xl font-black text-emerald-500 mt-1 block">{adminData.activeUsersCount} / {adminData.totalUsers}</span>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
-                      <span className="text-[10px] text-text-muted uppercase block">Banned Accounts</span>
-                      <span className="text-2xl font-black text-rose-500 mt-1 block">{adminData.bannedCount} Banned</span>
+                      <span className="text-2xl font-black text-emerald-500 mt-1 block">{adminData.totalUsers} Total</span>
                     </div>
                     <div className="p-4 rounded-2xl bg-bg-dark/60 border border-glass-border">
                       <span className="text-[10px] text-text-muted uppercase block">Pending Moderation</span>
@@ -431,8 +414,6 @@ const AdminDashboard = () => {
                         <th className="p-4">Email</th>
                         <th className="p-4">Platform Role</th>
                         <th className="p-4">2FA Status</th>
-                        <th className="p-4">Account State</th>
-                        <th className="p-4 text-right">Moderation Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-glass-border/40 text-xs">
@@ -465,25 +446,6 @@ const AdminDashboard = () => {
                             ) : (
                               <span className="text-text-muted">Off</span>
                             )}
-                          </td>
-                          <td className="p-4">
-                            {u.isBanned ? (
-                              <span className="text-rose-400 font-bold font-mono">Banned</span>
-                            ) : (
-                              <span className="text-emerald-400 font-bold font-mono">Active</span>
-                            )}
-                          </td>
-                          <td className="p-4 text-right">
-                            <Button
-                              onClick={() => handleToggleBan(u._id, u.isBanned)}
-                              variant="secondary"
-                              className={`text-[10px] py-1 px-2.5 border-glass-border ${
-                                u.isBanned ? "text-emerald-400 hover:bg-emerald-500/10" : "text-rose-400 hover:bg-rose-500/10"
-                              }`}
-                            >
-                              {u.isBanned ? <Unlock size={12} /> : <Lock size={12} />}
-                              {u.isBanned ? "Unban User" : "Ban User"}
-                            </Button>
                           </td>
                         </tr>
                       ))}
