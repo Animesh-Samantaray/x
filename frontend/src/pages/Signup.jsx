@@ -136,7 +136,8 @@ const Signup = () => {
       return;
     }
     setLoading(true);
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?role=${selectedRole}`;
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    window.location.href = `${apiUrl}/auth/google?role=${selectedRole}`;
   };
 
   const roles = [

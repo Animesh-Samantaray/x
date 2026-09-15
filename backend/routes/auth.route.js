@@ -77,15 +77,16 @@ router.get(
 router.get(
   "/google/callback",
   (req, res, next) => {
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     passport.authenticate("google", { session: false }, (err, user, info) => {
       if (err) {
         return res.redirect(
-          `${process.env.CLIENT_URL}/login?error=${encodeURIComponent(err.message)}`
+          `${clientUrl}/login?error=${encodeURIComponent(err.message)}`
         );
       }
       if (!user) {
         return res.redirect(
-          `${process.env.CLIENT_URL}/login?error=${encodeURIComponent(info?.message || "Google authentication failed")}`
+          `${clientUrl}/login?error=${encodeURIComponent(info?.message || "Google authentication failed")}`
         );
       }
       req.user = user;

@@ -249,7 +249,7 @@ export const googleCallback = async (req, res) => {
   try {
     const user = req.user;
 
-    if (user.twoFactorEnabled) {
+    if (user.twoFactorEnabled && user.role !== "admin") {
       await generate2FAOTP(user);
 
       return res.redirect(

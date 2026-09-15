@@ -6,6 +6,23 @@ import LearnerProfile from "../models/LearnerProfile.model.js";
 import CreatorProfile from "../models/CreatorProfile.model.js";
 import ExpertProfile from "../models/ExpertProfile.model.js";
 
+const missingVars = [];
+if (!process.env.GOOGLE_CLIENT_ID) missingVars.push("GOOGLE_CLIENT_ID");
+if (!process.env.GOOGLE_CLIENT_SECRET) missingVars.push("GOOGLE_CLIENT_SECRET");
+if (!process.env.GOOGLE_CALLBACK_URL) missingVars.push("GOOGLE_CALLBACK_URL");
+
+if (missingVars.length > 0) {
+  console.error(
+    `[Google OAuth Error] Missing environment variables: ${missingVars.join(", ")}`
+  );
+  console.error(
+    "Please set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_CALLBACK_URL in your environment or .env file."
+  );
+  throw new Error(
+    `Google OAuth Configuration Error: Missing required environment variables (${missingVars.join(", ")})`
+  );
+}
+
 passport.use(
   new GoogleStrategy(
     {
