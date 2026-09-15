@@ -9,6 +9,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const connectSocket = async () => {
+    try {
+      const data = await authService.getSocketToken();
+      if (data.success && data.token) {
+        initSocket(data.token);
+      }
+    } catch {
+      console.error("Socket authentication unavailable");
+    }
+  };
+
   const getCurrentUser = async () => {
     try {
       setLoading(true);
@@ -17,7 +28,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        initSocket();
+        await connectSocket();
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -43,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        initSocket();
+        await connectSocket();
         return { success: true, requires2FA: false };
       }
       return { success: false, message: data.message || "Login failed" };
@@ -59,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        initSocket();
+        await connectSocket();
         return { success: true, user: data.user };
       }
       return { success: false, message: data.message || "2FA verification failed" };

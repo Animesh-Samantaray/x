@@ -25,9 +25,10 @@ export const initSocket = (server) => {
   });
 
   io.use((socket, next) => {
+    const handshakeToken = socket.handshake.auth?.token;
     const cookieHeader = socket.handshake.headers?.cookie;
     const match = cookieHeader?.match(/(?:^|;\s*)token=([^;]*)/);
-    const token = match ? decodeURIComponent(match[1]) : null;
+    const token = handshakeToken || (match ? decodeURIComponent(match[1]) : null);
 
     if (!token) {
       console.warn("[Socket] Authentication failed: No token provided");

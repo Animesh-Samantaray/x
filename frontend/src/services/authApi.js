@@ -19,6 +19,11 @@ export const getMe = async () => {
   return response.data;
 };
 
+export const getSocketToken = async () => {
+  const response = await api.get("/auth/socket-token");
+  return response.data;
+};
+
 export const logout = async () => {
   const response = await api.post("/auth/logout");
   return response.data;

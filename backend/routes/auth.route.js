@@ -5,6 +5,7 @@ import {
   register,
   login,
   getMe,
+  getSocketToken,
   logout,
   googleCallback,
   sendPasswordOTP,
@@ -26,6 +27,8 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 router.get("/me", authMiddleware, getMe);
+
+router.get("/socket-token", authMiddleware, getSocketToken);
 
 router.post(
   "/send-reset-password-otp",
