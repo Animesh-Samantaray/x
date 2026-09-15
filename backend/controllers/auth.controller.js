@@ -11,18 +11,31 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
-const isProduction =
-  process.env.NODE_ENV === "production" ||
-  (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost")) ||
-  (process.env.GOOGLE_CALLBACK_URL && process.env.GOOGLE_CALLBACK_URL.includes("onrender.com"));
+export const getCookieOptions = (req) => {
+  const isRenderOrCrossSite =
+    process.env.NODE_ENV === "production" ||
+    process.env.RENDER === "true" ||
+    Boolean(process.env.RENDER) ||
+    Boolean(process.env.VERCEL) ||
+    (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost")) ||
+    (process.env.GOOGLE_CALLBACK_URL && !process.env.GOOGLE_CALLBACK_URL.includes("localhost")) ||
+    (req && (
+      req.secure ||
+      req.headers?.["x-forwarded-proto"] === "https" ||
+      req.headers?.host?.includes("onrender.com") ||
+      req.headers?.origin?.includes("vercel.app")
+    ));
 
-const cookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: "/",
+  return {
+    httpOnly: true,
+    secure: isRenderOrCrossSite ? true : false,
+    sameSite: isRenderOrCrossSite ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  };
 };
+
+const cookieOptions = getCookieOptions();
 
 export const register = async (req, res) => {
   try {
@@ -252,6 +265,13 @@ export const googleCallback = async (req, res) => {
   try {
     const user = req.user;
 
+    if (!user) {
+      console.error("Google Callback Error: req.user is undefined");
+      return res.redirect(
+        `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=Google%20authentication%20failed`
+      );
+    }
+
     if (user.twoFactorEnabled && user.role !== "admin") {
       await generate2FAOTP(user);
 
@@ -262,17 +282,18 @@ export const googleCallback = async (req, res) => {
 
     const token = await generateToken(user._id);
 
-    res.cookie("token", token, cookieOptions);
+    const options = getCookieOptions(req);
+    res.cookie("token", token, options);
 
     return res.redirect(
-      `${process.env.CLIENT_URL || "http://localhost:5173"}/?token=${token}`
+      process.env.CLIENT_URL || "http://localhost:5173"
     );
 
   } catch (error) {
     console.error("Google Callback Error:", error);
 
     return res.redirect(
-      `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=google_auth_failed`
+      `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=${encodeURIComponent(error.message || "Google authentication failed")}`
     );
   }
 };

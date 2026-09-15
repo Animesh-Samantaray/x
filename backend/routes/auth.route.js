@@ -80,11 +80,13 @@ router.get(
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     passport.authenticate("google", { session: false }, (err, user, info) => {
       if (err) {
+        console.error("Passport Google Strategy Error:", err);
         return res.redirect(
-          `${clientUrl}/login?error=${encodeURIComponent(err.message)}`
+          `${clientUrl}/login?error=${encodeURIComponent(err.message || "Google authentication failed")}`
         );
       }
       if (!user) {
+        console.error("Passport Google Strategy Failed (No user returned):", info);
         return res.redirect(
           `${clientUrl}/login?error=${encodeURIComponent(info?.message || "Google authentication failed")}`
         );
