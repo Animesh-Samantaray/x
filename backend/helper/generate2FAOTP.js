@@ -14,11 +14,15 @@ const generate2FAOTP = async (user) => {
 
   await user.save();
 
-  await sendMail(
-    user.email,
-    "Your Two-Factor Authentication OTP",
-    twoFAOtpTemplate(otp)
-  );
+  try {
+    await sendMail(
+      user.email,
+      "Your Two-Factor Authentication OTP",
+      twoFAOtpTemplate(otp)
+    );
+  } catch (err) {
+    console.error("Failed to send 2FA OTP email:", err.message);
+  }
 };
 
 export default generate2FAOTP;
