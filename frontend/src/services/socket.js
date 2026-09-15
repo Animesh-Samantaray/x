@@ -14,15 +14,9 @@ export const extractId = (val) => {
   return String(val);
 };
 
-export const initSocket = (providedToken) => {
-  const authToken = providedToken || localStorage.getItem("token");
-
+export const initSocket = () => {
   if (socket) {
-    if (authToken && socket.auth?.token !== authToken) {
-      console.log("[Socket] Updating socket auth token and reconnecting");
-      socket.auth = { token: authToken };
-      socket.disconnect().connect();
-    } else if (!socket.connected) {
+    if (!socket.connected) {
       console.log("[Socket] Reconnecting existing socket instance");
       socket.connect();
     }
@@ -30,18 +24,16 @@ export const initSocket = (providedToken) => {
   }
 
   const rawUrl =
-    import.meta.env.VITE_SOCKET_URL ||
     import.meta.env.VITE_API_URL ||
     "http://localhost:5000";
 
   const SOCKET_URL = rawUrl.replace(/\/api\/?$/, "");
 
-  console.log(`[Socket] Initializing singleton Socket.IO connection to: ${SOCKET_URL}`);
+  console.log(
+    `[Socket] Initializing singleton Socket.IO connection to: ${SOCKET_URL}`
+  );
 
   socket = io(SOCKET_URL, {
-    auth: {
-      token: authToken || "",
-    },
     withCredentials: true,
     transports: ["websocket", "polling"],
     reconnection: true,
@@ -52,9 +44,12 @@ export const initSocket = (providedToken) => {
 
   socket.on("connect", () => {
     console.log("[Socket] Socket connected successfully:", socket.id);
+
     if (currentJoinedConversationId) {
       socket.emit("join_conversation", currentJoinedConversationId);
-      console.log(`[Socket] Re-joined conversation room on connect: conversation:${currentJoinedConversationId}`);
+      console.log(
+        `[Socket] Re-joined conversation room on connect: conversation:${currentJoinedConversationId}`
+      );
     }
   });
 
@@ -73,9 +68,11 @@ export const getSocket = () => {
   if (!socket) {
     return initSocket();
   }
+
   if (!socket.connected) {
     socket.connect();
   }
+
   return socket;
 };
 
@@ -103,7 +100,7 @@ export const joinConversation = (conversationId) => {
     console.log(`[Socket] Emitted join_conversation: conversation:${convIdStr}`);
   } else if (s) {
     console.log(`[Socket] Socket connecting... Queued join_conversation for: conversation:${convIdStr}`);
-    // Socket connect event handler in initSocket automatically emits join_conversation for currentJoinedConversationId
+    
   }
 };
 
