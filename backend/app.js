@@ -29,7 +29,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(passport.initialize());
 
-const allowedOrigins = [
+const rawOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173",
   "http://127.0.0.1:5173",
@@ -39,9 +39,21 @@ const allowedOrigins = [
   "https://animesh-ckm.vercel.app",
 ].filter(Boolean);
 
+const allowedOrigins = rawOrigins.map((url) => url.replace(/\/$/, ""));
+
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, "");
+      if (
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );

@@ -3,14 +3,7 @@ import User from "../models/User.model.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
-    let token = req.cookies?.token;
-
-    if (!token && req.headers?.authorization) {
-      const authHeader = req.headers.authorization;
-      if (authHeader.startsWith("Bearer ")) {
-        token = authHeader.split(" ")[1];
-      }
-    }
+    const token = req.cookies?.token;
 
     if (!token) {
       return res.status(401).json({
@@ -50,14 +43,7 @@ const authMiddleware = async (req, res, next) => {
 
 export const optionalAuth = async (req, res, next) => {
   try {
-    let token = req.cookies?.token;
-
-    if (!token && req.headers?.authorization) {
-      const authHeader = req.headers.authorization;
-      if (authHeader.startsWith("Bearer ")) {
-        token = authHeader.split(" ")[1];
-      }
-    }
+    const token = req.cookies?.token;
 
     if (token) {
       const decoded = jwt.verify(

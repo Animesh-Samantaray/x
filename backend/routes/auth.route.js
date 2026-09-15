@@ -66,7 +66,10 @@ router.get(
   "/google",
   (req, res, next) => {
     const role = req.query.role;
-    const state = role ? Buffer.from(JSON.stringify({ role })).toString("base64") : undefined;
+    const allowedRoles = ["learner", "creator", "expert"];
+    const safeRole = allowedRoles.includes(role) ? role : "learner";
+    const state = Buffer.from(JSON.stringify({ role: safeRole })).toString("base64");
+
     passport.authenticate("google", {
       scope: ["profile", "email"],
       state: state,
@@ -77,7 +80,7 @@ router.get(
 router.get(
   "/google/callback",
   (req, res, next) => {
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl = (process.env.CLIENT_URL || "https://animesh-ckm.vercel.app").replace(/\/$/, "");
     passport.authenticate("google", { session: false }, (err, user, info) => {
       if (err) {
         console.error("Passport Google Strategy Error:", err);

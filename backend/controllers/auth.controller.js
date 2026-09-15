@@ -12,10 +12,15 @@ import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
 export const getCookieOptions = (req = null) => {
+  const isProd =
+    process.env.NODE_ENV === "production" ||
+    (req && req.headers && req.headers["x-forwarded-proto"] === "https") ||
+    (process.env.CLIENT_URL && process.env.CLIENT_URL.includes("vercel.app"));
+
   return {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
   };
@@ -88,28 +93,15 @@ export const register = async (req, res) => {
       authProvider: "local",
       isVerified: role === "admin" ? true : false,
     });
+
     if (role === "learner") {
-      await LearnerProfile.create({
-        user: user._id,
-      });
-    }
-
-    if (role === "creator") {
-      await CreatorProfile.create({
-        user: user._id,
-      });
-    }
-
-    if (role === "expert") {
-      await ExpertProfile.create({
-        user: user._id,
-      });
-    }
-
-    if (role === "admin") {
-      await AdminProfile.create({
-        user: user._id,
-      });
+      await LearnerProfile.create({ user: user._id });
+    } else if (role === "creator") {
+      await CreatorProfile.create({ user: user._id });
+    } else if (role === "expert") {
+      await ExpertProfile.create({ user: user._id });
+    } else if (role === "admin") {
+      await AdminProfile.create({ user: user._id });
     }
 
     const token = await generateToken(user._id);
@@ -170,7 +162,7 @@ export const login = async (req, res) => {
       });
     }
     
-    if(user.twoFactorEnabled && user.role!=='admin' ){
+    if (user.twoFactorEnabled && user.role !== "admin") {
       await generate2FAOTP(user);
       return res.status(200).json({
         success: true,
@@ -206,7 +198,6 @@ export const login = async (req, res) => {
   }
 };
 
-
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -226,7 +217,6 @@ export const getMe = async (req, res) => {
   }
 };
 
-
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", getCookieOptions(req));
@@ -244,15 +234,15 @@ export const logout = async (req, res) => {
   }
 };
 
-
 export const googleCallback = async (req, res) => {
   try {
     const user = req.user;
+    const clientUrl = (process.env.CLIENT_URL || "https://animesh-ckm.vercel.app").replace(/\/$/, "");
 
     if (!user) {
       console.error("Google Callback Error: req.user is undefined");
       return res.redirect(
-        `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=Google%20authentication%20failed`
+        `${clientUrl}/login?error=${encodeURIComponent("Google authentication failed")}`
       );
     }
 
@@ -260,7 +250,7 @@ export const googleCallback = async (req, res) => {
       await generate2FAOTP(user);
 
       return res.redirect(
-        `${process.env.CLIENT_URL || "http://localhost:5173"}/verify-2fa?email=${encodeURIComponent(user.email)}`
+        `${clientUrl}/verify-2fa?email=${encodeURIComponent(user.email)}`
       );
     }
 
@@ -269,15 +259,14 @@ export const googleCallback = async (req, res) => {
     const options = getCookieOptions(req);
     res.cookie("token", token, options);
 
-    return res.redirect(
-      process.env.CLIENT_URL || "http://localhost:5173"
-    );
+    return res.redirect(clientUrl);
 
   } catch (error) {
     console.error("Google Callback Error:", error);
+    const clientUrl = (process.env.CLIENT_URL || "https://animesh-ckm.vercel.app").replace(/\/$/, "");
 
     return res.redirect(
-      `${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=${encodeURIComponent(error.message || "Google authentication failed")}`
+      `${clientUrl}/login?error=${encodeURIComponent(error.message || "Google authentication failed")}`
     );
   }
 };

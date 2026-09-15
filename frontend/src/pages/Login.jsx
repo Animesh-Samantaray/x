@@ -108,7 +108,11 @@ const Login = () => {
     try {
       const response = await login(formData.email, formData.password);
       if (response.success) {
-        navigate("/dashboard");
+        if (response.requires2FA) {
+          navigate(`/verify-2fa?email=${encodeURIComponent(formData.email)}`);
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         setError(response.message || "Invalid credentials. Please try again.");
       }
