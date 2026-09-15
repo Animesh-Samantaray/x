@@ -13,14 +13,12 @@ export const sendMail = async (to, subject, html) => {
     throw new Error("RESEND_API_KEY is not configured");
   }
 
-  if (!process.env.EMAIL_FROM) {
-    throw new Error("EMAIL_FROM is not configured");
-  }
+  const emailFrom = process.env.EMAIL_FROM || "onboarding@resend.dev";
 
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+      from: emailFrom,
       to: formattedTo,
       subject,
       html,
