@@ -288,7 +288,6 @@ export const transformAdminAnalytics = (users = [], reports = [], categories = [
   let creatorsCount = 0;
   let expertsCount = 0;
   let adminsCount = 0;
-  let bannedCount = 0;
 
   const monthRegistrationMap = {};
 
@@ -297,8 +296,6 @@ export const transformAdminAnalytics = (users = [], reports = [], categories = [
     else if (u.role === "creator") creatorsCount++;
     else if (u.role === "expert") expertsCount++;
     else if (u.role === "admin") adminsCount++;
-
-    if (u.isBanned) bannedCount++;
 
     const mKey = formatMonthYear(u.createdAt);
     monthRegistrationMap[mKey] = (monthRegistrationMap[mKey] || 0) + 1;
@@ -364,8 +361,7 @@ export const transformAdminAnalytics = (users = [], reports = [], categories = [
     creatorsCount,
     expertsCount,
     adminsCount,
-    bannedCount,
-    activeUsersCount: users.length - bannedCount,
+    activeUsersCount: users.length,
     totalReports: reports.length,
     pendingReports,
     categoriesCount: categories.length,
