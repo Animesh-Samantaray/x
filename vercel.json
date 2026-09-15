@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/auth/google/callback",
+      "destination": "https://x-yokc.onrender.com/api/auth/google/callback"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://x-yokc.onrender.com/api/:path*"
     },
