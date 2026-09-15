@@ -154,10 +154,7 @@ const AppShell = () => {
 
   // Global Socket.IO Notification Listener
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    initSocket(token);
+    initSocket();
     const socket = getSocket();
 
     if (socket) {

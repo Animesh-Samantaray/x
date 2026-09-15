@@ -15,7 +15,7 @@ export const extractId = (val) => {
 };
 
 export const initSocket = (explicitToken) => {
-  const token = explicitToken || localStorage.getItem("token");
+  const token = explicitToken;
 
   if (socket) {
     if (token) {

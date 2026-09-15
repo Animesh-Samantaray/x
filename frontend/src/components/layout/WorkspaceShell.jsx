@@ -169,10 +169,7 @@ const WorkspaceShell = () => {
 
   // Global Socket.IO listener
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    initSocket(token);
+    initSocket();
     const socket = getSocket();
 
     if (socket) {

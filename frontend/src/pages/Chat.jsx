@@ -150,10 +150,7 @@ const Chat = () => {
   }, [selectedConversation]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      initSocket(token);
-    }
+    initSocket();
 
     loadConversations();
 

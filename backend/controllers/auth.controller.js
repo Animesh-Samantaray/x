@@ -35,8 +35,6 @@ export const getCookieOptions = (req) => {
   };
 };
 
-const cookieOptions = getCookieOptions();
-
 export const register = async (req, res) => {
   try {
     const { name, email, password, role, adminAccessToken } = req.body;
@@ -130,7 +128,7 @@ export const register = async (req, res) => {
 
     const token = await generateToken(user._id);
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, getCookieOptions(req));
 
     return res.status(201).json({
       success: true,
@@ -197,7 +195,7 @@ export const login = async (req, res) => {
 
     const token = await generateToken(user._id);
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, getCookieOptions(req));
 
     return res.status(200).json({
       success: true,
@@ -217,7 +215,7 @@ export const login = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Server error during login",
+      message: error.message || "Server error during login",
     });
   }
 };
@@ -245,7 +243,7 @@ export const getMe = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token", cookieOptions);
+    res.clearCookie("token", getCookieOptions(req));
 
     return res.status(200).json({
       success: true,
@@ -651,7 +649,7 @@ export const verify2FA = async (req, res) => {
    
     const token = await generateToken(user._id);
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, getCookieOptions(req));
 
     return res.status(200).json({
       success: true,

@@ -13,25 +13,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const urlToken = searchParams.get("token");
-      if (urlToken) {
-        localStorage.setItem("token", urlToken);
-        searchParams.delete("token");
-        const newSearch = searchParams.toString();
-        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
-        window.history.replaceState({}, document.title, newUrl);
-      }
-
       const data = await authService.getMe();
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        const token = data.token || localStorage.getItem("token");
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
-        initSocket(token);
+        initSocket();
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -57,11 +43,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        const token = data.token || localStorage.getItem("token");
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
-        initSocket(token);
+        initSocket();
         return { success: true, requires2FA: false };
       }
       return { success: false, message: data.message || "Login failed" };
@@ -77,11 +59,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        const token = data.token || localStorage.getItem("token");
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
-        initSocket(token);
+        initSocket();
         return { success: true, user: data.user };
       }
       return { success: false, message: data.message || "2FA verification failed" };
@@ -97,11 +75,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        const token = data.token || localStorage.getItem("token");
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
-        initSocket(token);
+        initSocket();
         return { success: true };
       }
       return { success: false, message: data.message || "Registration failed" };
@@ -118,7 +92,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error", error);
     } finally {
-      localStorage.removeItem("token");
       disconnectSocket();
       setUser(null);
       setIsAuthenticated(false);
