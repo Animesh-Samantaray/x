@@ -217,19 +217,6 @@ export const getMe = async (req, res) => {
   }
 };
 
-export const getSocketToken = (req, res) => {
-  const token = jwt.sign(
-    { id: req.user.id, role: req.user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "60s" }
-  );
-
-  return res.status(200).json({
-    success: true,
-    token,
-  });
-};
-
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", getCookieOptions(req));

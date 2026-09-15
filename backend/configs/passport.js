@@ -8,7 +8,7 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 
 const googleClientID = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-const googleCallbackURL = process.env.GOOGLE_CALLBACK_URL || "https://animesh-ckm.vercel.app/api/auth/google/callback";
+const googleCallbackURL = process.env.GOOGLE_CALLBACK_URL || "https://x-yokc.onrender.com/api/auth/google/callback";
 
 if (!googleClientID || !googleClientSecret) {
   console.warn(
