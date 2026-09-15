@@ -59,7 +59,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", (req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+}, authRoutes);
 
 app.use("/api/learner", learnerRoutes);
 app.use("/api/creator", creatorRoutes);

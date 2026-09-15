@@ -11,7 +11,7 @@ export const sendMail = async (to, subject, html) => {
   }
 
   const smtpUser = process.env.SMTP_USER?.trim();
-  const smtpPass = process.env.SMTP_PASS?.trim();
+  const smtpPass = process.env.SMTP_PASS?.replace(/\s+/g, "");
   const emailFrom = process.env.EMAIL_FROM?.trim();
 
   if (!smtpUser) {

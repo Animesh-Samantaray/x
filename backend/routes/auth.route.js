@@ -90,13 +90,13 @@ router.get(
       if (err) {
         console.error("Passport Google Strategy Error:", err);
         return res.redirect(
-          `${clientUrl}/login?error=${encodeURIComponent(err.message || "Google authentication failed")}`
+          `${clientUrl}/login?error=${encodeURIComponent("Google authentication failed. Please try again.")}`
         );
       }
       if (!user) {
         console.error("Passport Google Strategy Failed (No user returned):", info);
         return res.redirect(
-          `${clientUrl}/login?error=${encodeURIComponent(info?.message || "Google authentication failed")}`
+          `${clientUrl}/login?error=${encodeURIComponent("Google authentication failed. Please try again.")}`
         );
       }
       req.user = user;

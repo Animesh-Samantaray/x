@@ -266,7 +266,7 @@ export const googleCallback = async (req, res) => {
     const clientUrl = (process.env.CLIENT_URL || "https://animesh-ckm.vercel.app").replace(/\/$/, "");
 
     return res.redirect(
-      `${clientUrl}/login?error=${encodeURIComponent(error.message || "Google authentication failed")}`
+      `${clientUrl}/login?error=${encodeURIComponent("Google authentication failed. Please try again.")}`
     );
   }
 };
