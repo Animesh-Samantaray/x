@@ -11,7 +11,10 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost")) ||
+  (process.env.GOOGLE_CALLBACK_URL && process.env.GOOGLE_CALLBACK_URL.includes("onrender.com"));
 
 const cookieOptions = {
   httpOnly: true,

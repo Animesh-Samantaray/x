@@ -26,6 +26,7 @@ import aiRoutes from "./routes/ai.route.js";
 import achievementRoutes from "./routes/achievement.routes.js";
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(passport.initialize());
 
 const allowedOrigins = [
