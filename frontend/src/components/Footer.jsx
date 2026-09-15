@@ -1,79 +1,161 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Share2 } from "lucide-react";
+import {
+  Share2,
+  BookOpen,
+  FolderKanban,
+  UserCheck,
+  LayoutDashboard,
+  MessageSquare,
+  Bookmark,
+  CreditCard,
+  Sparkles,
+  ShieldAlert,
+  User,
+  PlusCircle,
+  Grid
+} from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-purple-950/20 bg-gradient-to-b from-[#211A3A] to-[#0F072D] py-14 relative z-10 text-slate-300">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-10">
-          
-          {/* Logo Column */}
-          <div className="col-span-1 md:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-white select-none">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-accent p-[1px] shadow-[0_0_15px_rgba(124,58,237,0.25)]">
-                <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#211A3A]">
-                  <Share2 size={14} className="text-accent-violet" />
+    <footer className="border-t border-purple-950/30 bg-gradient-to-b from-[#18122B] via-[#0F0A21] to-[#080415] py-14 relative z-10 text-slate-300">
+      {/* Background glow effect */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-purple-600/5 blur-3xl pointer-events-none rounded-full" />
+
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+
+          {/* Logo & Platform Info */}
+          <div className="lg:col-span-2 space-y-4">
+            <Link to="/" className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight text-white select-none group w-fit">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 p-[1px] shadow-[0_0_20px_rgba(124,58,237,0.35)] group-hover:scale-105 transition-transform">
+                <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-[#18122B]">
+                  <Share2 size={16} className="text-purple-400" />
                 </div>
               </div>
-              <span className="font-black tracking-widest text-white text-base">CKM</span>
+              <span className="font-black tracking-widest text-white text-lg bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-purple-300">
+                CKM
+              </span>
             </Link>
-            <p className="text-xs text-purple-200/60 leading-relaxed max-w-xs">
-              A premium, secure marketplace platform for learners, creators, and technical consultants. Package tutorials, book mentorship calls, and share practical knowledge.
+
+            <p className="text-xs text-purple-200/60 leading-relaxed max-w-sm">
+              A collaborative marketplace for learners, content creators, and technical consultants. Discover interactive courses, access premium guides, and book 1-on-1 expert mentorship.
             </p>
+
+            <div className="flex items-center gap-2 pt-1 text-[11px] text-purple-300/80 font-mono">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>CKM Platform • Active & Secure</span>
+            </div>
           </div>
 
-          {/* Links Column 1: Explore */}
+          {/* Column 1: Marketplace */}
           <div>
-            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase">Explore</h4>
-            <ul className="mt-4 space-y-2.5 text-[12px] text-purple-200/60">
-              <li><Link to="/resources" className="hover:text-white transition">Guides & Resources</Link></li>
-              <li><Link to="/courses" className="hover:text-white transition">Premium Courses</Link></li>
-              <li><Link to="/sessions" className="hover:text-white transition">Find Experts</Link></li>
+            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase flex items-center gap-1.5 mb-4">
+              <BookOpen size={13} className="text-purple-400" />
+              Marketplace
+            </h4>
+            <ul className="space-y-2.5 text-[12px] text-purple-200/65">
+              <li>
+                <Link to="/courses" className="hover:text-white transition flex items-center gap-1.5">
+                  <span>Explore Courses</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/resources" className="hover:text-white transition flex items-center gap-1.5">
+                  <span>Guides & Resources</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/sessions" className="hover:text-white transition flex items-center gap-1.5">
+                  <span>Mentorship Sessions</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/categories" className="hover:text-white transition flex items-center gap-1.5">
+                  <span>Browse Categories</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
-
-          {/* Links Column 2: Resources */}
+          {/* Column 2: Workspace & Learning */}
           <div>
-            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase">Resources</h4>
-            <ul className="mt-4 space-y-2.5 text-[12px] text-purple-200/60">
-              <li><span className="hover:text-white cursor-not-allowed transition">Documentation</span></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">Help Center</span></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">API Status</span></li>
+            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase flex items-center gap-1.5 mb-4">
+              <LayoutDashboard size={13} className="text-purple-400" />
+              My Workspace
+            </h4>
+            <ul className="space-y-2.5 text-[12px] text-purple-200/65">
+              <li>
+                <Link to="/dashboard" className="hover:text-white transition">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/my-learning" className="hover:text-white transition">
+                  My Learning
+                </Link>
+              </li>
+              <li>
+                <Link to="/bookmarks" className="hover:text-white transition">
+                  Saved Bookmarks
+                </Link>
+              </li>
+              <li>
+                <Link to="/my-payments" className="hover:text-white transition">
+                  Payment History
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Links Column 3: Community */}
+          {/* Column 3: Community & Creators */}
           <div>
-            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase">Community</h4>
-            <ul className="mt-4 space-y-2.5 text-[12px] text-purple-200/60">
-              <li><a href="/#community" className="hover:text-white transition">Discussions</a></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">Creator Guild</span></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">Discord Server</span></li>
-            </ul>
-          </div>
-
-          {/* Links Column 4: Legal */}
-          <div>
-            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase">Legal</h4>
-            <ul className="mt-4 space-y-2.5 text-[12px] text-purple-200/60">
-              <li><span className="hover:text-white cursor-not-allowed transition">Privacy Policy</span></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">Terms of Service</span></li>
-              <li><span className="hover:text-white cursor-not-allowed transition">Refund Policy</span></li>
+            <h4 className="text-[11px] font-bold tracking-wider text-purple-200 uppercase flex items-center gap-1.5 mb-4">
+              <Sparkles size={13} className="text-purple-400" />
+              Creator & Tools
+            </h4>
+            <ul className="space-y-2.5 text-[12px] text-purple-200/65">
+              <li>
+                <Link to="/courses/new" className="hover:text-white transition">
+                  Create Course
+                </Link>
+              </li>
+              <li>
+                <Link to="/resources/new" className="hover:text-white transition">
+                  Share Resource
+                </Link>
+              </li>
+              <li>
+                <Link to="/chat" className="hover:text-white transition">
+                  Messages & Chat
+                </Link>
+              </li>
+              <li>
+                <Link to="/reports" className="hover:text-white transition">
+                  Support & Reports
+                </Link>
+              </li>
+              <li>
+                <Link to="/profile" className="hover:text-white transition">
+                  Account Settings
+                </Link>
+              </li>
             </ul>
           </div>
 
         </div>
 
-        <div className="mt-12 border-t border-purple-950/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-purple-200/60">
+        {/* Bottom bar */}
+        <div className="mt-12 border-t border-purple-950/30 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-purple-200/60">
           <p>&copy; {new Date().getFullYear()} Collaborative Knowledge Marketplace (CKM). All rights reserved.</p>
-          <div className="flex gap-4">
-            <span className="hover:text-white cursor-pointer">GitHub</span>
-            <span className="text-purple-950/40">/</span>
-            <span className="hover:text-white cursor-pointer">Twitter</span>
-            <span className="text-purple-950/40">/</span>
-            <span className="hover:text-white cursor-pointer">Discord</span>
+          <div className="flex items-center gap-4">
+            <Link to="/courses" className="hover:text-white transition">Courses</Link>
+            <span className="text-purple-900/60">•</span>
+            <Link to="/resources" className="hover:text-white transition">Resources</Link>
+            <span className="text-purple-900/60">•</span>
+            <Link to="/sessions" className="hover:text-white transition">Mentorship</Link>
+            <span className="text-purple-900/60">•</span>
+            <Link to="/dashboard" className="hover:text-white transition">Dashboard</Link>
           </div>
         </div>
       </div>
