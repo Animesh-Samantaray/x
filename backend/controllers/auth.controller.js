@@ -11,25 +11,11 @@ import ExpertProfile from "../models/ExpertProfile.model.js";
 import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
-export const getCookieOptions = (req) => {
-  const isRenderOrCrossSite =
-    process.env.NODE_ENV === "production" ||
-    process.env.RENDER === "true" ||
-    Boolean(process.env.RENDER) ||
-    Boolean(process.env.VERCEL) ||
-    (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost")) ||
-    (process.env.GOOGLE_CALLBACK_URL && !process.env.GOOGLE_CALLBACK_URL.includes("localhost")) ||
-    (req && (
-      req.secure ||
-      req.headers?.["x-forwarded-proto"] === "https" ||
-      req.headers?.host?.includes("onrender.com") ||
-      req.headers?.origin?.includes("vercel.app")
-    ));
-
+export const getCookieOptions = (req = null) => {
   return {
     httpOnly: true,
-    secure: isRenderOrCrossSite ? true : false,
-    sameSite: isRenderOrCrossSite ? "none" : "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
   };
