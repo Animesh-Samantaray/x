@@ -1,40 +1,48 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 export const sendMail = async (to, subject, html) => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("Resend email error: RESEND_API_KEY is not defined in environment variables");
-    throw new Error("Email service is not properly configured (RESEND_API_KEY missing)");
-  }
-
-  const resend = new Resend(apiKey);
+  const host = process.env.SMTP_HOST || "smtp.gmail.com";
+  const port = parseInt(process.env.SMTP_PORT || "587", 10);
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
   const formattedTo = Array.isArray(to)
-    ? to.filter(Boolean)
-    : [to].filter(Boolean);
+    ? to.filter(Boolean).join(", ")
+    : to;
 
-  if (!formattedTo.length) {
+  if (!formattedTo) {
     throw new Error("No recipient email provided");
   }
 
-  const from = process.env.EMAIL_FROM || "Collaborative Knowledge Marketplace <onboarding@resend.dev>";
+  if (!user || !pass) {
+    console.warn("Nodemailer warning: EMAIL_USER / EMAIL_PASS or SMTP credentials not set. Mail logged to console.");
+    console.log(`[Mock Mail Send] To: ${formattedTo} | Subject: ${subject}`);
+    return { messageId: "mock-id-no-credentials" };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user,
+      pass,
+    },
+  });
+
+  const from = process.env.EMAIL_FROM || `"Collaborative Knowledge Marketplace" <${user}>`;
 
   try {
-    const { data, error } = await resend.emails.send({
+
+    const info = await transporter.sendMail({
       from,
       to: formattedTo,
       subject,
       html,
     });
-
-    if (error) {
-      console.error("Resend provider error:", error);
-      throw new Error(error.message || "Failed to send email via Resend");
-    }
-
-    return data;
+    return info;
   } catch (err) {
-    console.error("Resend sendMail error:", err);
-    throw new Error(err.message || "Failed to send email");
+    console.error("Nodemailer sendMail error:", err);
+    throw new Error(err.message || "Failed to send email via Nodemailer");
   }
-};
+};

@@ -65,6 +65,11 @@ router.put(
 router.get(
   "/google",
   (req, res, next) => {
+    const clientUrl = (process.env.CLIENT_URL || "https://animesh-ckm.vercel.app").replace(/\/$/, "");
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      return res.redirect(`${clientUrl}/login?error=${encodeURIComponent("Google OAuth is not configured on the server")}`);
+    }
+
     const role = req.query.role;
     const allowedRoles = ["learner", "creator", "expert"];
     const safeRole = allowedRoles.includes(role) ? role : "learner";
