@@ -12,15 +12,17 @@ import AdminProfile from "../models/AdminProfile.model.js";
 import generate2FAOTP from "../helper/generate2FAOTP.js";
 
 export const getCookieOptions = (req = null) => {
-  const isProd =
-    process.env.NODE_ENV === "production" ||
-    (req && req.headers && req.headers["x-forwarded-proto"] === "https") ||
-    (process.env.CLIENT_URL && process.env.CLIENT_URL.includes("vercel.app"));
+  const isLocalhost =
+    process.env.NODE_ENV === "development" &&
+    req &&
+    req.headers &&
+    req.headers.host &&
+    (req.headers.host.includes("localhost") || req.headers.host.includes("127.0.0.1"));
 
   return {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    secure: !isLocalhost,
+    sameSite: !isLocalhost ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
   };
