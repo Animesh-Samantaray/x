@@ -112,7 +112,6 @@ export const register = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      token,
       message: "Registration successful",
       user: {
         id: user._id,
@@ -179,7 +178,6 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      token,
       message: "Login successful",
       requires2FA: false,
       user: {
@@ -631,7 +629,6 @@ export const verify2FA = async (req, res) => {
     return res.status(200).json({
       success: true,
       requires2FA: false,
-      token,
       message: "Two-factor authentication successful",
       user: {
         id: user._id,

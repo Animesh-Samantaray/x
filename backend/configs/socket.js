@@ -25,19 +25,9 @@ export const initSocket = (server) => {
   });
 
   io.use((socket, next) => {
-    let token = socket.handshake.auth?.token || socket.handshake.headers?.authorization;
-
-    if (token && typeof token === "string" && token.startsWith("Bearer ")) {
-      token = token.slice(7).trim();
-    }
-
-    if (!token && socket.handshake.headers?.cookie) {
-      const cookieHeader = socket.handshake.headers.cookie;
-      const match = cookieHeader.match(/(?:^|;\s*)token=([^;]*)/);
-      if (match) {
-        token = decodeURIComponent(match[1]);
-      }
-    }
+    const cookieHeader = socket.handshake.headers?.cookie;
+    const match = cookieHeader?.match(/(?:^|;\s*)token=([^;]*)/);
+    const token = match ? decodeURIComponent(match[1]) : null;
 
     if (!token) {
       console.warn("[Socket] Authentication failed: No token provided");

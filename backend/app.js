@@ -46,13 +46,10 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       const cleanOrigin = origin.replace(/\/$/, "");
-      if (
-        allowedOrigins.includes(cleanOrigin) ||
-        cleanOrigin.endsWith(".vercel.app")
-      ) {
+      if (allowedOrigins.includes(cleanOrigin)) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
     },
     credentials: true,
   })

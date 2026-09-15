@@ -1,11 +1,6 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export const sendMail = async (to, subject, html) => {
-  const host = process.env.SMTP_HOST || "smtp.gmail.com";
-  const port = parseInt(process.env.SMTP_PORT || "587", 10);
-  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
-
   const formattedTo = Array.isArray(to)
     ? to.filter(Boolean).join(", ")
     : to;
@@ -14,35 +9,31 @@ export const sendMail = async (to, subject, html) => {
     throw new Error("No recipient email provided");
   }
 
-  if (!user || !pass) {
-    console.warn("Nodemailer warning: EMAIL_USER / EMAIL_PASS or SMTP credentials not set. Mail logged to console.");
-    console.log(`[Mock Mail Send] To: ${formattedTo} | Subject: ${subject}`);
-    return { messageId: "mock-id-no-credentials" };
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: {
-      user,
-      pass,
-    },
-  });
-
-  const from = process.env.EMAIL_FROM || `"Collaborative Knowledge Marketplace" <${user}>`;
+  if (!process.env.EMAIL_FROM) {
+    throw new Error("EMAIL_FROM is not configured");
+  }
 
   try {
-
-    const info = await transporter.sendMail({
-      from,
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: formattedTo,
       subject,
       html,
     });
-    return info;
+
+    if (error) {
+      console.error("Resend sendMail error:", error);
+      throw error;
+    }
+
+    return data;
   } catch (err) {
-    console.error("Nodemailer sendMail error:", err);
-    throw new Error(err.message || "Failed to send email via Nodemailer");
+    console.error("Resend sendMail error:", err);
+    throw new Error(err.message || "Failed to send email via Resend");
   }
 };

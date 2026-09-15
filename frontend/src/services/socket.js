@@ -14,13 +14,8 @@ export const extractId = (val) => {
   return String(val);
 };
 
-export const initSocket = (explicitToken) => {
-  const token = explicitToken;
-
+export const initSocket = () => {
   if (socket) {
-    if (token) {
-      socket.auth = { token };
-    }
     if (!socket.connected) {
       console.log("[Socket] Reconnecting existing socket instance");
       socket.connect();
@@ -39,7 +34,6 @@ export const initSocket = (explicitToken) => {
   );
 
   socket = io(SOCKET_URL, {
-    auth: { token },
     withCredentials: true,
     transports: ["websocket", "polling"],
     reconnection: true,
