@@ -265,7 +265,7 @@ export const googleCallback = async (req, res) => {
     res.cookie("token", token, cookieOptions);
 
     return res.redirect(
-      `${process.env.CLIENT_URL || "http://localhost:5173"}/`
+      `${process.env.CLIENT_URL || "http://localhost:5173"}/?token=${token}`
     );
 
   } catch (error) {

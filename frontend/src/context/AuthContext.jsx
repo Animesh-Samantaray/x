@@ -12,6 +12,17 @@ export const AuthProvider = ({ children }) => {
   const getCurrentUser = async () => {
     try {
       setLoading(true);
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlToken = searchParams.get("token");
+      if (urlToken) {
+        localStorage.setItem("token", urlToken);
+        searchParams.delete("token");
+        const newSearch = searchParams.toString();
+        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+
       const data = await authService.getMe();
       if (data.success && data.user) {
         setUser(data.user);
